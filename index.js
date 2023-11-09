@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5000
 
 const app = express()
 // Cross-Origin Resource Sharing
-app.use(cors({origin: [ 'http://localhost:3000'], credentials: true}))
+app.use(cors({origin: [ 'http://localhost:3000', 'https://car-ports-client.vercel.app'], credentials: true}))
 // middleware для работы с json
 app.use(express.json())
 // middleware для статики (img, css)
@@ -34,6 +34,13 @@ app.use(cookieParser(process.env.SECRET_KEY))
 app.use('/api', router)
 // обработка ошибок
 app.use(errorMiddleware)
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin',  'http://localhost:3000', 'https://car-ports-client.vercel.app' );
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+  });
 
 
 
