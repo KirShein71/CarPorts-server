@@ -1,8 +1,10 @@
 import dotenv from 'dotenv/config.js'
+
 import express from 'express'
 import sequelize from './sequelize.js'
 import * as mapping from './models/mapping.js'
 import cors from 'cors'
+import fileUpload from 'express-fileupload'
 import cookieParser from 'cookie-parser'
 import router from './routes/index.js'
 import bodyParser from 'body-parser'
@@ -19,7 +21,8 @@ app.use(cors({origin: [ 'http://localhost:3000'], credentials: true}))
 app.use(express.json())
 // middleware для статики (img, css)
 app.use(express.static('static'))
-
+// middleware для загрузки файлов
+app.use(fileUpload())
 // middleware для работы с cookie
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
