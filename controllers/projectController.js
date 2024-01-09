@@ -11,6 +11,42 @@ class ProjectController {
         }
     }
 
+    async getAllWithNoDetails(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoDetails()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllWithNoMaterials(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoMaterials()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllWithNoDesing(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoDesing()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllWithNoInstallers(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoInstallers()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
