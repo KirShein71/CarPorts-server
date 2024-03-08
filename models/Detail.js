@@ -1,5 +1,5 @@
 import { Detail as DetailMapping } from "./mapping.js";
-import { ProjectDetails as ProjectDetailsMapping } from "./mapping.js";
+
 import AppError from "../errors/AppError.js";
 
 class Detail {
@@ -11,8 +11,39 @@ class Detail {
     async getOne(id) {
         const detail = await DetailMapping.findByPk(id)
         if (!detail) {
-            throw new Error('Категория не найдена в БД')
+            throw new Error('Деталь не найдена в БД')
         }
+        return detail
+    }
+
+    async create(data) {
+        const {name} = data
+        const detail = await DetailMapping.create({name})
+        
+        const created = await DetailMapping.findByPk(detail.id) 
+        return created
+    }
+
+    async update(id, data) {
+        const detail = await DetailMapping.findByPk(id)
+        if (!detail) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+            name = detail.name,
+            
+        } = data
+        await detail.update({name})
+        await detail.reload()
+        return detail
+    }
+
+    async delete(id) {
+        const detail = await DetailMapping.findByPk(id)
+        if (!detail) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        await detail.destroy()
         return detail
     }
 

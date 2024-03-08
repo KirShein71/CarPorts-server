@@ -1,11 +1,10 @@
 import UserModel from '../models/User.js'
 import AppError from "../errors/AppError.js"
-import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-const makeJwt = (id, email, role) => {
+const makeJwt = (id, phone, role) => {
     return jwt.sign(
-        {id, email, role},
+        {id, phone, role},
         process.env.SECRET_KEY,
         {expiresIn: '24h'}
     )
@@ -13,40 +12,49 @@ const makeJwt = (id, email, role) => {
 
 class UserController {
     async signup(req, res, next) {
-        const {email, password, role = 'USER'} = req.body
+        const {phone, role = 'USER'} = req.body
         try {
-            if (!email || !password) {
-                throw new Error('Пустой email или пароль')
+            if (!phone) {
+                throw new Error('Пустой номер телефона')
             }
             if (role !== 'USER') {
                 throw new Error('Возможна только роль USER')
             }
-            const hash = await bcrypt.hash(password, 5)
-            const user = await UserModel.create({email, password: hash, role})
-            const token = makeJwt(user.id, user.email, user.role)
+            const user = await UserModel.create({phone, role})
+            const token = makeJwt(user.id, user.phone, user.role)
             return res.json({token})
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
+
     async login(req, res, next) {
         try {
-            const {email, password} = req.body
-            const user = await UserModel.getByEmail(email)
-            let compare = bcrypt.compareSync(password, user.password)
-            if (!compare) {
-                throw new Error('Указан неверный пароль')
-            }
-            const token = makeJwt(user.id, user.email, user.role)
+            const {phone} = req.body
+            const user = await UserModel.getByPhone(phone)
+            
+            const token = makeJwt(user.id, user.phone, user.role, user.projectId)
             return res.json({token})
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getOneAccount(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id пользователя')
+            }
+            const user = await UserModel.getOneAccount(req.params.id)
+            res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
     async check(req, res, next) {
-        const token = makeJwt(req.auth.id, req.auth.email, req.auth.role)
+        const token = makeJwt(req.auth.id, req.auth.phone, req.auth.role)
         return res.json({token})
     }
 
@@ -72,43 +80,51 @@ class UserController {
     }
 
     async create(req, res, next) {
-        const {email, password, role = 'USER'} = req.body
+        const {phone, projectId, role = 'USER'} = req.body
         try {
-            if (!email || !password) {
-                throw new Error('Пустой email или пароль')
+            if (!phone) {
+                throw new Error('Пустой номер телефона')
             }
-            if ( ! ['USER', 'ADMIN'].includes(role)) {
+            if ( ! ['USER'].includes(role)) {
                 throw new Error('Недопустимое значение роли')
             }
-            const hash = await bcrypt.hash(password, 5)
-            const user = await UserModel.create({email, password: hash, role})
+            const user = await UserModel.create({phone, projectId, role})
             return res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
-    async update(req, res, next) {
+    async createManager(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id пользователя')
+                throw new Error('Не указан id товара')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            let {email, password, role} = req.body
-            if (role && !['USER', 'ADMIN'].includes(role)) {
-                throw new Error('Недопустимое значение роли')
-            }
-            if (password) {
-                password = await bcrypt.hash(password, 5)
-            }
-            const user = await UserModel.update(req.params.id, {email, password, role})
+            const user = await UserModel.createManager(req.params.id, req.body,)
             res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
+
+    async createBrigade(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const user = await UserModel.createBrigade(req.params.id, req.body,)
+            res.json(user)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
     async delete(req, res, next) {
         try {

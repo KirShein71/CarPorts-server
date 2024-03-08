@@ -47,6 +47,24 @@ class ProjectController {
         }
     }
 
+    async getAllWithNoShipment(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoShipment()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllWithNoAccount(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoAccount()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
@@ -70,6 +88,7 @@ class ProjectController {
             next(AppError.badRequest(e.message))
         }
     }
+
 
     async update(req, res, next) {
         try {

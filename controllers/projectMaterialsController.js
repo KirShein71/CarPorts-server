@@ -65,6 +65,79 @@ class ProjectMaterialsController {
         }
     }
 
+    
+    async createReadyDateProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createReadyDateProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createShippingDateProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createShippingDateProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createPaymentDateProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createPaymentDateProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createExpirationMaterialDateProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createExpirationMaterialDateProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async delete(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id пользователя')
+            }
+            const projectmaterials = await ProjectMaterialsModel.delete(req.params.id)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
   
 }
 

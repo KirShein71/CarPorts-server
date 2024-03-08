@@ -1,40 +1,51 @@
-import { ProjectDetails as ProjectDetailsMapping } from './mapping.js'
+import {  ProjectDetails as ProjectDetailsMapping } from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
+import { Antypical as AntypicalMapping } from './mapping.js';
 
-
-import AppError from '../errors/AppError.js'
 
 class ProjectDetails {
     async getAll() {
         const projectsdetails = await ProjectDetailsMapping.findAll({
-          include: [
-            {
-              model: ProjectMapping,
-              attributes: ['name', 'number']
-            },
-          ],
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number'],
+                },
+                {
+                    model: AntypicalMapping, 
+                    attributes: ['image', 'id'],
+                },
+            ],
+            order: [
+                ['projectId', 'ASC'],
+            ],
+
         });
-      
+    
         const formattedData = projectsdetails.reduce((acc, item) => {
-          const { projectId, detailId, quantity, project, id } = item;
-          const existingProject = acc.find((project) => project.projectId === projectId);
-          if (existingProject) {
-            existingProject.props.push({id: id, detailId: detailId, quantity: quantity });
-          } else {
-            acc.push({
-              project: {
-                name: project.name,
-                number: project.number
-              },
-              projectId: projectId,
-              props: [{ id:id, detailId: detailId, quantity: quantity }]
-            });
-          }
-          return acc;
+            const { projectId, project, id, antypical } = item;
+            const existingProject = acc.find((project) => project.projectId === projectId);
+            if (existingProject) {
+                existingProject.props.push({ id: id, detailId: item.detailId, quantity: item.quantity });
+                if (antypical && antypical.image && !existingProject.antypical.some(img => img.image === antypical.image)) {
+                    existingProject.antypical.push({ image: antypical.image, id: antypical.id });
+                }
+            } else {
+                acc.push({
+                    projectId: projectId,
+                    project: {
+                        name: project.name,
+                        number: project.number
+                    },
+                    antypical: antypical && antypical.image ? [{ image: antypical.image, id: antypical.id }] : [],
+                    props: [{ id: id, detailId: item.detailId, quantity: item.quantity }]
+                });
+            }
+            return acc;
         }, []);
-      
+    
         return formattedData;
-      }
+    }
       
       
     async getOne(id) {
@@ -72,6 +83,19 @@ class ProjectDetails {
       
         return projectdetails;
       }
+
+      async update(id, data) {
+        const projectdetails = await ProjectDetailsMapping.findByPk(id)
+        if (!projectdetails) {
+            throw new Error('Товар не найден в БД')
+        }
+        const {
+            quantity = projectdetails.quantity
+        } = data
+        await projectdetails.update({quantity})
+        await projectdetails.reload()
+        return projectdetails
+    }
 
 }
 

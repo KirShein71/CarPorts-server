@@ -1,12 +1,12 @@
-import ProjectInstallersModel from '../models/ProjectInstallers.js'
+import ProjectBrigadesModel from '../models/ProjectBrigades.js'
 import AppError from '../errors/AppError.js'
 
 
-class ProjectInstallersController {
+class ProjectbrigadesController {
     async getAll(req, res, next) {
         try {
-            const projectinstallers = await ProjectInstallersModel.getAll()
-            res.json(projectinstallers)
+            const projectbrigades = await ProjectBrigadesModel.getAll()
+            res.json(projectbrigades)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -17,8 +17,8 @@ class ProjectInstallersController {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
             }
-            const projectinstallers = await ProjectInstallersModel.getOne(req.params.id)
-            res.json(projectinstallers)
+            const projectbrigades = await ProjectBrigadesModel.getOne(req.params.id)
+            res.json(projectbrigades)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -31,8 +31,8 @@ class ProjectInstallersController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для создания')
             }
-            const projectinstallers = await ProjectInstallersModel.create( req.body)
-            res.json(projectinstallers)
+            const projectbrigades = await ProjectBrigadesModel.create( req.body)
+            res.json(projectbrigades)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -41,4 +41,4 @@ class ProjectInstallersController {
   
 }
 
-export default new ProjectInstallersController()
+export default new ProjectbrigadesController()

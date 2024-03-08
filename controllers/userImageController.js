@@ -1,14 +1,22 @@
-import InstallerModel from '../models/Installer.js'
-import  BrigadeModel  from '../models/Installer.js'
+import UserImageModel from '../models/UserImage.js'
 import AppError from '../errors/AppError.js'
 
-class InstallersController {
+class UserImageController {
     async getAll(req, res, next) {
         try {
-            const installers = await InstallerModel.getAll()
-            res.json(installers)
+            const userimages = await UserImageModel.getAll()
+            res.json(userimages)
         } catch(e) {
             next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllByUserId(req, res, next) {
+        try {
+            const userimages = await UserImageModel.getAllByUserId(req.params.id);
+            res.json(userimages);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
         }
     }
 
@@ -17,8 +25,8 @@ class InstallersController {
             if (!req.params.id) {
                 throw new Error('Не указан id материала')
             }
-            const installer = await InstallerModel.getOne(req.params.id)
-            res.json(installer)
+            const userimage = await UserImageModel.getOne(req.params.id)
+            res.json(userimage)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -29,13 +37,12 @@ class InstallersController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const installer = await BrigadeModel.create(req.body)
-            res.json(installer)
+            const userimage = await UserImageModel.create(req.body, req.files?.image)
+            res.json(userimage)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
-
 
     async update(req, res, next) {
         try {
@@ -45,24 +52,25 @@ class InstallersController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const installer = await InstallerModel.update(req.params.id, req.body,)
-            res.json(installer)
+            const image = await UserImageModel.update(req.params.id, req.body, req.files?.image)
+            res.json(image)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
+    
     async delete(req, res, next) {
         try {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
             }
-            const installer = await InstallerModel.delete(req.params.id)
-            res.json(installer)
+            const userimage = await UserImageModel.delete(req.params.id)
+            res.json(userimage)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 }
 
-export default new InstallersController()
+export default new UserImageController()

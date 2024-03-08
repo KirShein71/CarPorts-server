@@ -22,6 +22,45 @@ class DetailsController {
             next(AppError.badRequest(e.message))
         }
     }
+
+    async create(req, res, next) {
+        try {
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для отправки')
+            }
+            const detail = await DetailModel.create(req.body)
+            res.json(detail)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async update(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const detail = await DetailModel.update(req.params.id, req.body,)
+            res.json(detail)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async delete(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            const detail = await DetailModel.delete(req.params.id)
+            res.json(detail)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
 }
 
 export default new DetailsController()

@@ -1,14 +1,22 @@
-import InstallerModel from '../models/Installer.js'
-import  BrigadeModel  from '../models/Installer.js'
+import UserFileModel from '../models/UserFile.js'
 import AppError from '../errors/AppError.js'
 
-class InstallersController {
+class UserFileController {
     async getAll(req, res, next) {
         try {
-            const installers = await InstallerModel.getAll()
-            res.json(installers)
+            const userfiles = await UserFileModel.getAll()
+            res.json(userfiles)
         } catch(e) {
             next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllByUserId(req, res, next) {
+        try {
+            const userfiles = await UserFileModel.getAllByUserId(req.params.id);
+            res.json(userfiles);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
         }
     }
 
@@ -17,8 +25,8 @@ class InstallersController {
             if (!req.params.id) {
                 throw new Error('Не указан id материала')
             }
-            const installer = await InstallerModel.getOne(req.params.id)
-            res.json(installer)
+            const userfile = await UserFileModel.getOne(req.params.id)
+            res.json(userfile)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -29,13 +37,12 @@ class InstallersController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const installer = await BrigadeModel.create(req.body)
-            res.json(installer)
+            const userfile = await UserFileModel.create(req.body, req.files?.file)
+            res.json(userfile)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
-
 
     async update(req, res, next) {
         try {
@@ -45,24 +52,25 @@ class InstallersController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const installer = await InstallerModel.update(req.params.id, req.body,)
-            res.json(installer)
+            const brfile = await UserFileModel.update(req.params.id, req.body, req.files?.file)
+            res.json(brfile)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
+    
     async delete(req, res, next) {
         try {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
             }
-            const installer = await InstallerModel.delete(req.params.id)
-            res.json(installer)
+            const userfile = await UserFileModel.delete(req.params.id)
+            res.json(userfile)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 }
 
-export default new InstallersController()
+export default new UserFileController()
