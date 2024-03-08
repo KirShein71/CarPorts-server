@@ -17,7 +17,7 @@ const auth = (req, res, next) => {
         next()
     }
     try {
-        const token = req.headers.authorization?.split(' ')[1] // Bearer token
+        const token = req.headers.authorization.split(' ')[1] // Bearer token
         if (!token) {
             throw new Error('Требуется авторизация')
         }
