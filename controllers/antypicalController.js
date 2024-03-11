@@ -43,7 +43,7 @@ class AntypicalController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const antypical = await AntypicalModel.update(req.params.id, req.body, req.files?.image)
+            const antypical = await AntypicalModel.update(req.params.id, req.body, req.files.image)
             res.json(antypical)
         } catch(e) {
             next(AppError.badRequest(e.message))
