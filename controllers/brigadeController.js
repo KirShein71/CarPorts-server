@@ -28,7 +28,7 @@ class BrigadeController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const brigade = await BrigadeModel.create(req.body, req.files?.image)
+            const brigade = await BrigadeModel.create(req.body, req.files.image)
             res.json(brigade)
         } catch(e) {
             next(AppError.badRequest(e.message))

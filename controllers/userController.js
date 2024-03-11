@@ -1,6 +1,7 @@
 import UserModel from '../models/User.js'
 import AppError from "../errors/AppError.js"
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 const makeJwt = (id, phone, role) => {
     return jwt.sign(
@@ -12,15 +13,16 @@ const makeJwt = (id, phone, role) => {
 
 class UserController {
     async signup(req, res, next) {
-        const {phone, role = 'USER'} = req.body
+        const {phone, password, role = 'USER'} = req.body
         try {
-            if (!phone) {
-                throw new Error('Пустой номер телефона')
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона или пароль')
             }
             if (role !== 'USER') {
-                throw new Error('Возможна только роль USER')
+                throw new Error('Вход только для клиентов')
             }
-            const user = await UserModel.create({phone, role})
+            const hash = await bcrypt.hash(password, 10)
+            const user = await UserModel.create({phone, password: hash, role})
             const token = makeJwt(user.id, user.phone, user.role)
             return res.json({token})
         } catch(e) {
@@ -31,9 +33,12 @@ class UserController {
 
     async login(req, res, next) {
         try {
-            const {phone} = req.body
+            const {phone, password} = req.body
             const user = await UserModel.getByPhone(phone)
-            
+            let compare = bcrypt.compareSync(password, user.password)
+            if (!compare) {
+                throw new Error('Указан неверный пароль')
+            }
             const token = makeJwt(user.id, user.phone, user.role, user.projectId)
             return res.json({token})
         } catch(e) {
@@ -80,20 +85,22 @@ class UserController {
     }
 
     async create(req, res, next) {
-        const {phone, projectId, role = 'USER'} = req.body
+        const {phone, password, projectId, role = 'USER'} = req.body
         try {
-            if (!phone) {
-                throw new Error('Пустой номер телефона')
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона или пароль')
             }
             if ( ! ['USER'].includes(role)) {
                 throw new Error('Недопустимое значение роли')
             }
-            const user = await UserModel.create({phone, projectId, role})
+            const hash = await bcrypt.hash(password, 10)
+            const user = await UserModel.create({phone, password: hash, projectId, role})
             return res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
+
 
     async createManager(req, res, next) {
         try {

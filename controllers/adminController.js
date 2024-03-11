@@ -1,6 +1,7 @@
 import AdminModel from '../models/Admin.js'
 import AppError from "../errors/AppError.js"
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 const makeJwt = (id, phone, role) => {
     return jwt.sign(
@@ -12,15 +13,16 @@ const makeJwt = (id, phone, role) => {
 
 class AdminController {
     async signup(req, res, next) {
-        const {phone, role = 'ADMIN'} = req.body
+        const {phone, password, role = 'ADMIN'} = req.body
         try {
-            if (!phone) {
-                throw new Error('Пустой номер телефона')
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона или пароль')
             }
             if (role !== 'ADMIN') {
                 throw new Error('Возможна только роль ADMIN')
             }
-            const admin = await AdminModel.create({phone, role})
+            const hash = await bcrypt.hash(password, 10)
+            const admin = await AdminModel.create({phone, password: hash, role})
             const token = makeJwt(admin.id, admin.phone, admin.role)
             return res.json({token})
         } catch(e) {
@@ -30,8 +32,12 @@ class AdminController {
 
     async login(req, res, next) {
         try {
-            const {phone} = req.body
+            const {phone, password} = req.body
             const admin = await AdminModel.getByPhone(phone)
+            let compare = bcrypt.compareSync(password, admin.password)
+            if (!compare) {
+                throw new Error('Указан неверный пароль')
+            }
             const token = makeJwt(admin.id, admin.phone, admin.role)
             return res.json({token})
         } catch(e) {

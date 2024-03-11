@@ -8,6 +8,7 @@ const User = sequelize.define('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     phone: { type: DataTypes.STRING, unique: true },
     role: { type: DataTypes.STRING, defaultValue: "USER" },
+    password: { type: DataTypes.STRING, allowNull: false },
     projectId: {type: DataTypes.INTEGER, allowNull: false},
     manager: {type: DataTypes.STRING, allowNull: true},
     manager_phone: { type: DataTypes.STRING, allowNull: true },
@@ -29,6 +30,7 @@ const Admin = sequelize.define('admin', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     phone: { type: DataTypes.STRING, unique: true },
     role: { type: DataTypes.STRING, defaultValue: "ADMIN" },
+    password: { type: DataTypes.STRING, allowNull: false },
 })
 
 const Employee = sequelize.define('employee', {
@@ -37,6 +39,7 @@ const Employee = sequelize.define('employee', {
     name: { type: DataTypes.STRING, unique: true },
     speciality: { type: DataTypes.STRING, unique: true },
     role: { type: DataTypes.STRING, defaultValue: "EMPLOYEE" },
+    password: { type: DataTypes.STRING, allowNull: false },
 })
 
 

@@ -24,12 +24,12 @@ class Employee {
 
 
     async create(data) {
-        const {phone, role, name, speciality} = data
+        const {phone, password, role, name, speciality} = data
         const check = await EmployeeMapping.findOne({where: {phone}})
         if (check) {
             throw new Error('Пользователь уже существует')
         }
-        const employee = await EmployeeMapping.create({phone, role, name, speciality})
+        const employee = await EmployeeMapping.create({phone, password, role, name, speciality})
         return employee
     }
 

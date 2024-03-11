@@ -1,6 +1,7 @@
 import EmployeeModel from '../models/Employee.js'
 import AppError from "../errors/AppError.js"
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 const makeJwt = (id, phone, role) => {
     return jwt.sign(
@@ -12,15 +13,16 @@ const makeJwt = (id, phone, role) => {
 
 class EmployeeController {
     async signup(req, res, next) {
-        const {phone, role, name, speciality = 'EMPLOYEE'} = req.body
+        const {phone, password, role, name, speciality = 'EMPLOYEE'} = req.body
         try {
-            if (!phone) {
-                throw new Error('Пустой номер телефона')
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона или пароль')
             }
             if (role !== 'EMPLOYEE') {
-                throw new Error('Возможна только роль USER')
+                throw new Error('Вход только для сотрудников')
             }
-            const employee = await EmployeeModel.create({phone, role, name, speciality})
+            const hash = await bcrypt.hash(password, 10)
+            const employee = await EmployeeModel.create({phone, password: hash, role, name, speciality})
             const token = makeJwt(employee.id, employee.phone, employee.role, employee.name, employee.speciality)
             return res.json({token})
         } catch(e) {
@@ -30,8 +32,12 @@ class EmployeeController {
 
     async login(req, res, next) {
         try {
-            const {phone} = req.body
+            const {phone, password} = req.body
             const employee = await EmployeeModel.getByPhone(phone)
+            let compare = bcrypt.compareSync(password, employee.password)
+            if (!compare) {
+                throw new Error('Указан неверный пароль')
+            }
             const token = makeJwt(employee.id, employee.phone, employee.role)
             return res.json({token})
         } catch(e) {
@@ -67,15 +73,16 @@ class EmployeeController {
     }
 
     async create(req, res, next) {
-        const {phone, speciality, name, role = 'EMPLOYEE'} = req.body
+        const {phone, password, speciality, name, role = 'EMPLOYEE'} = req.body
         try {
-            if (!phone) {
+            if (!phone || !password) {
                 throw new Error('Пустой номер телефона')
             }
             if ( ! ['EMPLOYEE'].includes(role)) {
                 throw new Error('Недопустимое значение роли')
             }
-            const employee = await EmployeeModel.create({phone, role, name, speciality})
+            const hash = await bcrypt.hash(password, 10)
+            const employee = await EmployeeModel.create({phone, password: hash, role, name, speciality})
             return res.json(employee)
         } catch(e) {
             next(AppError.badRequest(e.message))

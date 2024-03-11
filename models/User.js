@@ -80,12 +80,12 @@ class User {
       }
 
     async create(data) {
-        const {phone, role, projectId} = data
+        const {phone, role, password, projectId} = data
         const check = await UserMapping.findOne({where: {phone}})
         if (check) {
             throw new Error('Пользователь уже существует')
         }
-        const user = await UserMapping.create({phone, role, projectId})
+        const user = await UserMapping.create({phone, role, projectId, password})
         return user
     }
 
@@ -124,9 +124,10 @@ class User {
         }
         const {
             phone = user.phone,
-            role = user.role
+            role = user.role,
+            password = user.password
         } = data
-        await user.update({phone, role})
+        await user.update({phone, role, password})
         return user
     }
 
