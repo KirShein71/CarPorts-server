@@ -37,7 +37,7 @@ class UserFileController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const userfile = await UserFileModel.create(req.body, req.files?.file)
+            const userfile = await UserFileModel.create(req.body, req.files.file)
             res.json(userfile)
         } catch(e) {
             next(AppError.badRequest(e.message))
@@ -52,7 +52,7 @@ class UserFileController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const brfile = await UserFileModel.update(req.params.id, req.body, req.files?.file)
+            const brfile = await UserFileModel.update(req.params.id, req.body, req.files.file)
             res.json(brfile)
         } catch(e) {
             next(AppError.badRequest(e.message))

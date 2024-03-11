@@ -37,7 +37,7 @@ class UserImageController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const userimage = await UserImageModel.create(req.body, req.files?.image)
+            const userimage = await UserImageModel.create(req.body, req.files.image)
             res.json(userimage)
         } catch(e) {
             next(AppError.badRequest(e.message))
@@ -52,7 +52,7 @@ class UserImageController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const image = await UserImageModel.update(req.params.id, req.body, req.files?.image)
+            const image = await UserImageModel.update(req.params.id, req.body, req.files.image)
             res.json(image)
         } catch(e) {
             next(AppError.badRequest(e.message))

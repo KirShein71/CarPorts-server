@@ -43,7 +43,7 @@ class BrigadeController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const bragade = await BrigadeModel.update(req.params.id, req.body, req.files?.image)
+            const bragade = await BrigadeModel.update(req.params.id, req.body, req.files.image)
             res.json(bragade)
         } catch(e) {
             next(AppError.badRequest(e.message))
