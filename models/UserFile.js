@@ -26,7 +26,7 @@ class UserFile {
 
     async create(data, img) {
         const {userId, name} = data
-        const file = FileService.save(img) ?? ''
+        const file = FileService.save(img) || ''
         const userfile = await UserFileMapping.create({userId, name, file})
         
         const created = await UserFileMapping.findByPk(userfile.id) 

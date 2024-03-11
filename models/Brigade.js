@@ -17,7 +17,7 @@ class Brigade {
 
     async create(data, img) {
         const {name, phone} = data
-        const image = FileService.save(img) ?? ''
+        const image = FileService.save(img) || ''
         const brigade = await BrigadeMapping.create({name, phone, image})
         
         const created = await BrigadeMapping.findByPk(brigade.id) 

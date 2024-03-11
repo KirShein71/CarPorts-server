@@ -25,7 +25,7 @@ class Antypical {
     }
 
     async create(data, img) {
-        const image = FileService.save(img) ?? ''
+        const image = FileService.save(img) || ''
         const {projectId} = data
         const antypical = await AntypicalMapping.create({projectId, image})
         
