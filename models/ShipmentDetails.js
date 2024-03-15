@@ -2,7 +2,6 @@ import { ShipmentDetails as ShipmentDetailsMapping } from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
 
 
-import AppError from '../errors/AppError.js'
 
 class ShipmentDetails {
     async getAll() {
@@ -25,8 +24,9 @@ class ShipmentDetails {
               project: {
                 number: project.number,
                 name: project.name,
-                shipment_date: shipment_date
+                
               },
+              shipment_date: shipment_date,
               projectId: projectId,
               props: [{ id:id, detailId: detailId, shipment_quantity: shipment_quantity }]
             });
