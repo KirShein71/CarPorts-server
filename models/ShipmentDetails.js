@@ -19,7 +19,7 @@ class ShipmentDetails {
           const { projectId, detailId, shipment_quantity, shipment_date, project, id } = item;
           const existingProject = acc.find((project) => project.projectId === projectId);
           if (existingProject) {
-            existingProject.props.push({id: id, detailId: detailId, shipment_quantity: shipment_quantity, shipment_date: shipment_date });
+            existingProject.props.push({id: id, detailId: detailId, shipment_quantity: shipment_quantity });
           } else {
             acc.push({
               project: {
