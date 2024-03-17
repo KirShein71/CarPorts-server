@@ -12,4 +12,5 @@ router.get('/getproject/:projectId([0-9]+)', ShipmentDetailsController.getProjec
 router.get('/getSumOneShipmentDetail', ShipmentDetailsController.getSumOneShipmentDetail)
 router.delete('/delete/:projectId',  ShipmentDetailsController.delete)
 
+
 export default router
