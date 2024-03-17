@@ -24,7 +24,6 @@ class ShipmentDetails {
               project: {
                 number: project.number,
                 name: project.name,
-                
               },
               shipment_date: shipment_date,
               projectId: projectId,
@@ -100,6 +99,18 @@ class ShipmentDetails {
         await shipmentdetails.update({shipment_quantity})
         await shipmentdetails.reload()
         return shipmentdetails
+    }
+
+    async delete(projectId) {
+        const shipmentdetails = await ShipmentDetailsMapping.findAll({ where: { projectId: projectId } });
+        if (!shipmentdetails || shipmentdetails.length === 0) {
+            throw new Error('Проект не найден');
+        }
+        for (const shipmentdetail of shipmentdetails) {
+            await shipmentdetail.destroy();
+        }
+    
+        return shipmentdetails;
     }
 
 }

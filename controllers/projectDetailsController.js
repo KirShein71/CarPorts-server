@@ -65,6 +65,18 @@ class ProjectDetailsController {
         }
     }
 
+    async delete(req, res, next) {
+        try {
+            if (!req.params.projectId) {
+                throw new Error('Не найдена отметка времени')
+            }
+            const projectdetails = await ProjectDetailsModel.delete(req.params.projectId)
+            res.json(projectdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
   
 }
 

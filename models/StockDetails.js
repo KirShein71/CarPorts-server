@@ -74,6 +74,17 @@ class StockDetails {
         return stockdetails
     }
 
+    async delete(stock_date) {
+        const stockdetails = await StockDetailsMapping.findAll({ where: { stock_date: stock_date } })
+        if (!stockdetails || stockdetails.length === 0) {
+            throw new Error('Отметка времени не найдена')
+        }
+        for (const stockdetail of stockdetails) {
+            await stockdetail.destroy()
+        }
+        return stockdetails
+    }
+
   
 
 }

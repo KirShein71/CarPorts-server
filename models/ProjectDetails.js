@@ -97,6 +97,18 @@ class ProjectDetails {
         return projectdetails
     }
 
+    async delete(projectId) {
+        const projectdetails = await ProjectDetailsMapping.findAll({ where: { projectId: projectId } });
+        if (!projectdetails || projectdetails.length === 0) {
+            throw new Error('Проект не найден');
+        }
+        for (const projectdetail of projectdetails) {
+            await projectdetail.destroy();
+        }
+    
+        return projectdetails;
+    }
+
 }
 
 export default new ProjectDetails()

@@ -75,6 +75,19 @@ class ShipmentDetailsController {
         }
     }
 
+    async delete(req, res, next) {
+        try {
+            if (!req.params.projectId) {
+                throw new Error('Не найдена отметка времени')
+            }
+            const shipmentdetails = await ShipmentDetailsModel.delete(req.params.projectId)
+            res.json(shipmentdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+
   
 }
 

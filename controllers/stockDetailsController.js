@@ -64,6 +64,18 @@ class StockDetailsController {
         }
     }
 
+    async delete(req, res, next) {
+        try {
+            if (!req.params.stock_date) {
+                throw new Error('Не найдена отметка времени')
+            }
+            const stockdetails = await StockDetailsModel.delete(req.params.stock_date)
+            res.json(stockdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 }
 
 export default new StockDetailsController()
