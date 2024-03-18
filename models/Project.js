@@ -78,7 +78,7 @@ class Project {
       async getAllWithNoDesing() {
         try {
           const projectsWithoutDesing = await sequelize.query(
-            `SELECT name, number, id
+            `SELECT name, number, id, agreement_date, design_period
              FROM projects
              WHERE designer IS NULL OR designer = ''`,
             { model: ProjectMapping }
@@ -146,6 +146,8 @@ class Project {
         const created = await ProjectMapping.findByPk(project.id) 
         return created
     }
+
+    
 
     async update(id, data) {
         const project = await ProjectMapping.findByPk(id)

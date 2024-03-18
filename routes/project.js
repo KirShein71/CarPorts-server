@@ -15,6 +15,7 @@ router.get('/getAllWithNoShipment', ProjectController.getAllWithNoShipment)
 router.get('/getAllWithNoAccount', ProjectController.getAllWithNoAccount)
 router.get('/getone/:id([0-9]+)', ProjectController.getOne)
 router.post('/create',  ProjectController.create)
+
 router.put('/update/:id([0-9]+)',  ProjectController.update)
 router.delete('/delete/:id([0-9]+)',  ProjectController.delete)
 

@@ -88,6 +88,7 @@ class ProjectController {
             next(AppError.badRequest(e.message))
         }
     }
+   
 
 
     async update(req, res, next) {
