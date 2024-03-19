@@ -1,4 +1,5 @@
 import { StockDetails as StockDetailsMapping } from './mapping.js'
+import { Detail as DetailMapping } from './mapping.js';
 
 
 
@@ -52,6 +53,32 @@ class StockDetails {
         return [{ props: formattedResult }]
     }
   
+    // себестоимость по каждой детали
+    async getCostPriceOneDetail() {
+        const stockdetails = await StockDetailsMapping.findAll();
+        
+        // Получаем цены всех деталей
+        const detailPrices = await DetailMapping.findAll({ attributes: ['id', 'price'] });
+        const detailPricesMap = new Map(detailPrices.map(detail => [detail.id, detail.price]));
+    
+        const result = stockdetails.reduce((acc, item) => {
+            const { detailId, stock_quantity } = item;
+            const totalSum = acc.get(detailId) || 0;
+            acc.set(detailId, totalSum + stock_quantity);
+            return acc;
+        }, new Map());
+    
+        const formattedResult = Array.from(result.entries()).map(([detailId, totalSum]) => ({ detailId, totalSum }));
+    
+        // Умножаем количество деталей на цену каждой детали
+        const constPrice = formattedResult.map(({ detailId, totalSum }) => ({
+            detailId,
+      
+            totalPrice: totalSum * (detailPricesMap.get(detailId) || 0)
+        }));
+    
+        return [{ props: constPrice }];
+    }
 
     async create(data) {
         const { stock_quantity, detailId, stock_date } = data;

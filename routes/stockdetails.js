@@ -9,6 +9,7 @@ router.post('/create',  StockDetailsController.create)
 router.put('/update/:id([0-9]+)', StockDetailsController.update)
 router.get('/getone/:id([0-9]+)', StockDetailsController.getOne)
 router.get('/getSumOneDetail', StockDetailsController.getSumOneDetail)
+router.get('/getCostPriceOneDetail', StockDetailsController.getCostPriceOneDetail)
 router.delete('/delete/:stock_date',  StockDetailsController.delete)
 
 

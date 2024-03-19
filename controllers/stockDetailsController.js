@@ -64,6 +64,15 @@ class StockDetailsController {
         }
     }
 
+    async getCostPriceOneDetail(req, res, next) {
+        try {
+            const stockdetails = await StockDetailsModel.getCostPriceOneDetail()
+            res.json(stockdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async delete(req, res, next) {
         try {
             if (!req.params.stock_date) {

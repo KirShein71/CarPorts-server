@@ -7,6 +7,7 @@ const router = new express.Router()
 router.get('/getall', DetailsController.getAll)
 router.get('/getone/:id([0-9]+)', DetailsController.getOne)
 router.post('/create',  DetailsController.create)
+router.put('/createPrice/:id([0-9]+)', DetailsController.createPrice)
 router.put('/update/:id([0-9]+)',  DetailsController.update)
 router.delete('/delete/:id([0-9]+)',  DetailsController.delete)
 

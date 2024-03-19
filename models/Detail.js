@@ -1,6 +1,6 @@
 import { Detail as DetailMapping } from "./mapping.js";
 
-import AppError from "../errors/AppError.js";
+
 
 class Detail {
     async getAll() {
@@ -17,11 +17,26 @@ class Detail {
     }
 
     async create(data) {
-        const {name} = data
-        const detail = await DetailMapping.create({name})
+        const {name, price} = data
+        const detail = await DetailMapping.create({name, price})
         
         const created = await DetailMapping.findByPk(detail.id) 
         return created
+    }
+
+    async createPrice(id, data) {
+        const detail = await DetailMapping.findByPk(id)
+        if (!detail) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+
+            price = detail.price
+            
+        } = data
+        await detail.update({ price})
+        await detail.reload()
+        return detail
     }
 
     async update(id, data) {
@@ -31,9 +46,11 @@ class Detail {
         }
         const {
             name = detail.name,
+            price = detail.price
+        
             
         } = data
-        await detail.update({name})
+        await detail.update({name, price})
         await detail.reload()
         return detail
     }
