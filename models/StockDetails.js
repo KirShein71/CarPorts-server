@@ -1,4 +1,5 @@
 import { StockDetails as StockDetailsMapping } from './mapping.js'
+import { StockAntypical as StockAntypicalMapping } from './mapping.js';
 import { Detail as DetailMapping } from './mapping.js';
 
 
@@ -8,27 +9,37 @@ class StockDetails {
 
     async getAll() {
         const stockdetails = await StockDetailsMapping.findAll({
+            include: [
+                {
+                    model: StockAntypicalMapping,
+                    attributes: ['antypical_quantity', 'id'],
+                },
+            ],
             order: [
                 ['stock_date', 'ASC'],
             ],
-        })
+        });
+    
         const formattedData = stockdetails.reduce((acc, item) => {
-            const { stock_date, detailId, stock_quantity, id } = item;
-            const existingProject = acc.find((el) => el.stock_date ===stock_date);
+            const { stock_date, detailId, stock_quantity, id, StockAntypicalMapping } = item;
+            const existingProject = acc.find((el) => el.stock_date === stock_date);
             if (existingProject) {
-              existingProject.props.push({id: id, detailId: detailId, stock_quantity: stock_quantity });
+                existingProject.props.push({ id: id, detailId: detailId, stock_quantity });
+                if (StockAntypicalMapping) {
+                    existingProject.antypical.push({ antypical_quantity: StockAntypicalMapping.antypical_quantity, id: StockAntypicalMapping.id });
+                }
             } else {
-              acc.push({
-                stock_date: stock_date,
-                props: [{ id:id, detailId: detailId, stock_quantity: stock_quantity }]
-              });
+                acc.push({
+                    stock_date,
+                    props: [{ id, detailId, stock_quantity }],
+                    antypical: StockAntypicalMapping ? [{ antypical_quantity: StockAntypicalMapping.antypical_quantity, id: StockAntypicalMapping.id }] : [],
+                });
             }
             return acc;
-          }, []);
-        
-          return formattedData;
+        }, []);
+    
+        return formattedData;
     }
-
     async getOne(id) {
         const stockdetails = await StockDetailsMapping.findByPk(id)
         if (!stockdetails) { 

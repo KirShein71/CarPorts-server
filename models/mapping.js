@@ -94,7 +94,7 @@ const Antypical = sequelize.define('antypical', {
 
 const StockAntypical = sequelize.define('stock_antypical', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    stock_quantity: {type: DataTypes.INTEGER, allowNull: false},
+    antypical_quantity: {type: DataTypes.INTEGER, allowNull: false},
     stock_date: {type: DataTypes.DATE, allowNull: false} 
 })
 
@@ -103,6 +103,7 @@ const StockDetails = sequelize.define('stock_details', {
     stock_quantity: {type: DataTypes.INTEGER, allowNull: false},
     stock_date: {type: DataTypes.DATE, allowNull: false} 
 })
+
 
 const ShipmentDetails = sequelize.define('shipment_details', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -153,6 +154,9 @@ Antypical.belongsTo(Project)
 
 Antypical.hasMany(ProjectDetails, {foreignKey: 'projectId', targetKey: 'projectId'})
 ProjectDetails.belongsTo(Antypical, {foreignKey: 'projectId', targetKey: 'projectId'})
+
+StockAntypical.hasMany(StockDetails, {foreignKey: 'stock_date', targetKey: 'stock_date'})
+StockDetails.belongsTo(StockAntypical, {foreignKey: 'stock_date', targetKey: 'stock_date'})
 
 Brigade.hasMany(User);
 User.belongsTo(Brigade)

@@ -9,6 +9,7 @@ import materials from './materials.js'
 import details from './details.js'
 import projectdetails from './projectdetails.js'
 import stockdetails from './stockdetails.js'
+import stockantypical from './stockantypical.js'
 import shipmentdetails from './shipmentdetails.js'
 import remainderdetails from './remainderdetails.js'
 import brigade from './brigade.js'
@@ -31,6 +32,7 @@ router.use('/materials', materials)
 router.use('/details', details)
 router.use('/projectdetails', projectdetails)
 router.use('/stockdetails', stockdetails)
+router.use('/stockantypical', stockantypical)
 router.use('/shipmentdetails', shipmentdetails)
 router.use('/remainderdetails', remainderdetails)
 router.use('/brigade', brigade)

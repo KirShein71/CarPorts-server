@@ -65,6 +65,17 @@ class ProjectMaterialsController {
         }
     }
 
+    async deleteCheckProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.check;
+            
+            const projectmaterials = await ProjectMaterialsModel.deleteCheckProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     
     async createReadyDateProjectMaterials(req, res, next) {
         try {

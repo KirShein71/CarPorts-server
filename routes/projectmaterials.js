@@ -6,6 +6,7 @@ const router = new express.Router()
 
 router.post('/create',  ProjectMaterialsController.create)
 router.put('/createCheckProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createCheckProjectMaterials)
+router.delete('/deleteCheckProjectMaterials/:check', ProjectMaterialsController.deleteCheckProjectMaterials)
 router.put('/createReadyDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createReadyDateProjectMaterials)
 router.put('/createShippingDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createShippingDateProjectMaterials)
 router.put('/createPaymentDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createPaymentDateProjectMaterials)
