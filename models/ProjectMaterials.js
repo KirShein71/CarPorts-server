@@ -146,6 +146,16 @@ class ProjectMaterials {
         return projectmaterials
     }
 
+    async deletePaymentDateProjectMaterials(id) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
+        
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД');
+        }
+        await projectmaterials.update({ date_payment: null });
+        return projectmaterials;
+    }
+
     async createExpirationMaterialDateProjectMaterials(id, data) {
         const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
         if (!projectmaterials) {

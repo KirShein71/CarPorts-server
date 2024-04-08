@@ -10,6 +10,7 @@ router.delete('/deleteCheckProjectMaterials/:check', ProjectMaterialsController.
 router.put('/createReadyDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createReadyDateProjectMaterials)
 router.put('/createShippingDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createShippingDateProjectMaterials)
 router.put('/createPaymentDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createPaymentDateProjectMaterials)
+router.delete('/deletePaymentDateProjectMaterials/:date_payment', ProjectMaterialsController.deletePaymentDateProjectMaterials)
 router.put('/createExpirationMaterialDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createExpirationMaterialDateProjectMaterials)
 router.get('/getall', ProjectMaterialsController.getAll)
 router.get('/getone/:id([0-9]+)', ProjectMaterialsController.getOne)

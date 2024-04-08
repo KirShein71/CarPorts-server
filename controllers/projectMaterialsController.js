@@ -122,6 +122,17 @@ class ProjectMaterialsController {
         }
     }
 
+    async deletePaymentDateProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.date_payment;
+            
+            const projectmaterials = await ProjectMaterialsModel.deletePaymentDateProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async createExpirationMaterialDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
