@@ -11,6 +11,7 @@ router.get('/check', authMiddleware, EmployeeController.check)
 
 router.get('/getall', EmployeeController.getAll)
 router.get('/getOne/:id([0-9]+)', EmployeeController.getOne)
+router.get('/getManager', EmployeeController.getManager)
 router.post('/create', EmployeeController.create)
 router.delete('/delete/:id([0-9]+)', EmployeeController.delete)
 

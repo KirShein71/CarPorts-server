@@ -38,6 +38,36 @@ class ProjectbrigadesController {
         }
     }
 
+    async createPlanStart(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectbrigades = await ProjectBrigadesModel.createPlanStart(req.params.id, req.body,)
+            res.json(projectbrigades)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createPlanFinish(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectbrigades = await ProjectBrigadesModel.createPlanFinish(req.params.id, req.body,)
+            res.json(projectbrigades)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
   
 }
 

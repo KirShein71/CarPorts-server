@@ -29,7 +29,11 @@ class User {
                 {
                     
                     model: BrigadeMapping, attributes: ['name', 'phone', 'image']
-                }
+                },
+                {
+                    
+                    model: EmployeeMapping, attributes: ['name', 'phone']
+                },
               ],
             });
             if (!user) {
@@ -70,7 +74,11 @@ class User {
             {
                 model: UserImageMapping,
                 attributes: ['image', 'date']
-            }
+            },
+            {
+                    
+                model: EmployeeMapping, attributes: ['name', 'phone']
+            },
           ],
         });
         if (!user) {
@@ -95,10 +103,9 @@ class User {
             throw new Error('Пользователь не найден в БД')
         }
         const {
-            manager = user.manager,
-            manager_phone: user_manager_phone,
+            employeeId = user.employeeId,
         } = data
-        await user.update({manager, manager_phone: user_manager_phone})
+        await user.update({employeeId})
         await user.reload()
         return user
     }

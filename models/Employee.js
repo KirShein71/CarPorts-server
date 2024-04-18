@@ -6,6 +6,19 @@ class Employee {
         return employees
     }
 
+    async getManager() {
+        const employee = await EmployeeMapping.findAll({
+            where: {
+                id: 4
+            }, 
+            
+        })
+        return employee.map(employee => ({
+            id: employee.id,
+            name: employee.name
+        }));
+    }
+
     async getOne(id) {
             const employee = await EmployeeMapping.findByPk(id);
             if (!employee) {

@@ -72,6 +72,15 @@ class EmployeeController {
         }
     }
 
+    async getManager(req, res, next) {
+        try {
+            const employee = await EmployeeModel.getManager(req.params.id);
+            res.json(employee);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async create(req, res, next) {
         const {phone, password, speciality, name, role = 'EMPLOYEE'} = req.body
         try {

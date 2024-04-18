@@ -54,6 +54,32 @@ class ProjectBrigades {
         return created;
     }
 
+    async createPlanStart(id, data) {
+        const projectbrigades = await ProjectBrigadesMapping.findByPk(id)
+        if (!projectbrigades) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            plan_start = projectbrigades.plan_start
+        } = data
+        await projectbrigades.update({plan_start})
+        await projectbrigades.reload()
+        return projectbrigades
+    }
+
+    async createPlanFinish(id, data) {
+        const projectbrigades = await ProjectBrigadesMapping.findByPk(id)
+        if (!projectbrigades) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            plan_finish = projectbrigades.plan_finish
+        } = data
+        await projectbrigades.update({plan_finish})
+        await projectbrigades.reload()
+        return projectbrigades
+    }
+
 }
 
 export default new ProjectBrigades()

@@ -10,9 +10,6 @@ import FileService from '../services/File.js'
 class Project {
     async getAll() {
         const projects = await ProjectMapping.findAll({
-            // order: [
-            //     ['agreement_date', 'DESC'],
-            // ],
         })
         return projects
     }

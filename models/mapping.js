@@ -176,6 +176,9 @@ UserImage.belongsTo(User)
 User.hasMany(UserFile, { onDelete: 'CASCADE', hooks: true })
 UserFile.belongsTo(User)
 
+Employee.hasMany(User)
+User.belongsTo(Employee)
+
 
 
 

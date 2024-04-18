@@ -85,7 +85,7 @@ class ProjectMaterials {
       async createCheckProjectMaterials(id, data) {
         const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
         if (!projectmaterials) {
-            throw new Error('Товар не найден в БД')
+            throw new Error('Строка не найдена в БД')
         }
         const {
             check = projectmaterials.check
