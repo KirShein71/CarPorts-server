@@ -48,6 +48,7 @@ class StockDetails {
         return stockdetails
     } 
 
+   
 
     
     // получние суммы количества отдельной детали
