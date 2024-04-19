@@ -1,6 +1,7 @@
 import { Project as ProjectMapping } from "./mapping.js";
 import { Antypical as AntypicalMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
+import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
 
 
@@ -10,6 +11,20 @@ import FileService from '../services/File.js'
 class Project {
     async getAll() {
         const projects = await ProjectMapping.findAll({
+            where: {
+                date_finish: null
+            }
+        })
+        return projects
+    }
+
+    async getFinishProject() {
+        const projects = await ProjectMapping.findAll({
+            where: {
+                date_finish: {
+                    [Op.not]: null
+                }
+                }
         })
         return projects
     }
@@ -144,12 +159,23 @@ class Project {
         return created
     }
 
-    
+    async createDateFinish(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            date_finish = project.date_finish,
+        } = data
+        await project.update({date_finish})
+        await project.reload()
+        return project
+    }
 
     async update(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
-            throw new Error('Товар не найден в БД')
+            throw new Error('Проект не найден в БД')
         }
         const {
             name = project.name,

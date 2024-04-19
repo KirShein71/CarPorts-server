@@ -11,6 +11,16 @@ class ProjectController {
         }
     }
 
+    async getFinishProject(req, res, next) {
+        try {
+            const project = await ProjectModel.getFinishProject()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+
     async getAllWithNoDetails(req, res, next) {
         try {
             const project = await ProjectModel.getAllWithNoDetails()
@@ -88,7 +98,23 @@ class ProjectController {
             next(AppError.badRequest(e.message))
         }
     }
+
+    async createDateFinish(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.createDateFinish(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
    
+    
 
 
     async update(req, res, next) {

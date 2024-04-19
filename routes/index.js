@@ -17,6 +17,7 @@ import projectbrigades from './projectbrigades.js'
 import antypical from './antypical.js'
 import userimage from './userimage.js'
 import userfile from './userfile.js'
+import counter from './counter.js'
 
 
 
@@ -40,6 +41,7 @@ router.use('/projectbrigades', projectbrigades)
 router.use('/antypical', antypical)
 router.use('/userimage', userimage)
 router.use('/userfile', userfile)
+router.use('/counter', counter)
 
 
 

@@ -9,7 +9,10 @@ class ShipmentDetails {
           include: [
             {
               model: ProjectMapping,
-              attributes: ['number', 'name']
+              attributes: ['number', 'name'],
+              where: {
+                date_finish: null
+            }
             },
           ],
         });

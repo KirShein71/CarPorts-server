@@ -10,7 +10,12 @@ class ProjectMaterials {
             include: [
                 {
                   model: ProjectMapping,
-                  attributes: ['name', 'number', 'expiration_date', 'agreement_date', 'design_period', 'id']},
+                  attributes: ['name', 'number', 'expiration_date', 'agreement_date', 'design_period', 'id'],
+                  where: {
+                    date_finish: null
+                }
+                },
+                 
                 {
                   model: MaterialMapping,
                         attributes: ['name']}

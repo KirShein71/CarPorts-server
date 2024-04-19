@@ -10,6 +10,9 @@ class ProjectDetails {
                 {
                     model: ProjectMapping,
                     attributes: ['name', 'number'],
+                    where: {
+                        date_finish: null
+                    }
                 },
                 {
                     model: AntypicalMapping, 
