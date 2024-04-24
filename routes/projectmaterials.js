@@ -15,6 +15,6 @@ router.put('/createExpirationMaterialDateProjectMaterials/:id([0-9]+)',  Project
 router.get('/getall', ProjectMaterialsController.getAll)
 router.get('/getone/:id([0-9]+)', ProjectMaterialsController.getOne)
 router.delete('/delete/:id([0-9]+)', ProjectMaterialsController.delete)
-router.get('/getproject/:projectId([0-9]+)', ProjectMaterialsController.getProject)
+
 
 export default router

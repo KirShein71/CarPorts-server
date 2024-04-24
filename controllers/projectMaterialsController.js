@@ -23,18 +23,6 @@ class ProjectMaterialsController {
             next(AppError.badRequest(e.message))
         }
     }
-
-    async getProject(req, res, next) {
-        try {
-            if (!req.params.projectId) {
-                throw new Error('Не указан id товара')
-            }
-            const projectmaterials = await ProjectMaterialsModel.getProject(req.params.projectId)
-            res.json(projectmaterials)
-        } catch(e) {
-            next(AppError.badRequest(e.message))
-        }
-    }
    
 
     async create(req, res, next) {

@@ -87,6 +87,21 @@ class ProjectController {
         }
     }
 
+    async getProjectInfo(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            const project = await ProjectModel.getProjectInfo(req.params.id)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    
+    
+
     async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {

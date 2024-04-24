@@ -15,6 +15,7 @@ router.get('/getAllWithNoInstallers', ProjectController.getAllWithNoInstallers)
 router.get('/getAllWithNoShipment', ProjectController.getAllWithNoShipment)
 router.get('/getAllWithNoAccount', ProjectController.getAllWithNoAccount)
 router.get('/getone/:id([0-9]+)', ProjectController.getOne)
+router.get('/getProjectInfo/:id([0-9]+)', ProjectController.getProjectInfo)
 router.post('/create',  ProjectController.create)
 router.put('/createDateFinish/:id([0-9]+)', ProjectController.createDateFinish)
 

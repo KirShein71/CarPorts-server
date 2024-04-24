@@ -67,25 +67,7 @@ class ProjectMaterials {
         return created;
     }
 
-    async getProject(projectId) {
-        const project = await ProjectMapping.findByPk(projectId);
-        if (!project) {
-          throw new Error('Проект не найден в БД');
-        }
-      
-        const projectmaterials = await ProjectMaterialsMapping.findAll({
-          where: {
-            project_id: projectId
-          }
-        });
-      
-        if (!projectmaterials) {
-          throw new Error('Данные проекта не найдены в БД');
-        }
-      
-        return projectmaterials;
-      }
-
+   
 
       async createCheckProjectMaterials(id, data) {
         const projectmaterials = await ProjectMaterialsMapping.findByPk(id)

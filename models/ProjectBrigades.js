@@ -50,6 +50,7 @@ class ProjectBrigades {
         return projectbrigades
     } 
 
+
     async create(data) {
         const {  projectId, brigadeId, plan_start, plan_finish } = data;
         const projectbrigades = await ProjectBrigadesMapping.create({projectId, brigadeId, plan_start, plan_finish  });

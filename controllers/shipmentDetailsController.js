@@ -24,18 +24,7 @@ class ShipmentDetailsController {
         }
     }
 
-    async getProject(req, res, next) {
-        try {
-            if (!req.params.projectId) {
-                throw new Error('Не указан id товара')
-            }
-            const shipmentdetails = await ShipmentDetailsModel.getProject(req.params.projectId)
-            res.json(shipmentdetails)
-        } catch(e) {
-            next(AppError.badRequest(e.message))
-        }
-    }
-   
+
 
     async create(req, res, next) {
         try {

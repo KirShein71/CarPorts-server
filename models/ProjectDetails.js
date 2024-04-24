@@ -54,10 +54,12 @@ class ProjectDetails {
     async getOne(id) {
         const projectdetails = await ProjectDetailsMapping.findByPk(id)
         if (!projectdetails) { 
-            throw new Error('Товар не найден в БД')
+            throw new Error('Строка не найдена в БД')
         }
         return projectdetails
     } 
+
+
 
     async create(data) {
         const { quantity, projectId, detailId } = data;
@@ -67,25 +69,6 @@ class ProjectDetails {
     }
 
 
-
-    async getProject(projectId) {
-        const project = await ProjectMapping.findByPk(projectId);
-        if (!project) {
-          throw new Error('Проект не найден в БД');
-        }
-      
-        const projectdetails = await ProjectDetailsMapping.findAll({
-          where: {
-            project_id: projectId
-          }
-        });
-      
-        if (!projectdetails) {
-          throw new Error('Данные проекта не найдены в БД');
-        }
-      
-        return projectdetails;
-      }
 
       async update(id, data) {
         const projectdetails = await ProjectDetailsMapping.findByPk(id)

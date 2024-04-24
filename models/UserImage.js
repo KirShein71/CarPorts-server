@@ -36,7 +36,7 @@ class UserImage {
     async update(id, data, img) {
         const userimage = await UserImageMapping.findByPk(id)
         if (!userimage) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Строка не найдена в БД')
         }
         const file = FileService.save(img)
         if (file && userimage.image) {

@@ -71,26 +71,6 @@ class ShipmentDetails {
     }
 
 
-
-    async getProject(projectId) {
-        const project = await ProjectMapping.findByPk(projectId);
-        if (!project) {
-          throw new Error('Проект не найден в БД');
-        }
-      
-        const shipmentdetails = await ShipmentDetailsMapping.findAll({
-          where: {
-            project_id: projectId
-          }
-        });
-      
-        if (!shipmentdetails) {
-          throw new Error('Данные проекта не найдены в БД');
-        }
-      
-        return shipmentdetails;
-      }
-
       async update(id, data) {
         const shipmentdetails = await ShipmentDetailsMapping.findByPk(id)
         if (!shipmentdetails) {

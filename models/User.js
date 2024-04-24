@@ -12,13 +12,16 @@ class User {
         const users = await UserMapping.findAll({
             include: [
                 {model: ProjectMapping,
-                attributes: ['number', 'name']}
+                attributes: ['number', 'name'],
+            where: {
+                date_finish: null
+            }
+        },
             ]
         })
         return users
     }
-
-
+    
     async getOne(id) {
             const user = await UserMapping.findByPk(id, {
               include: [
@@ -122,7 +125,6 @@ class User {
         await user.reload()
         return user
     }
-
 
     async update(id, data) {
         const user = await UserMapping.findByPk(id)

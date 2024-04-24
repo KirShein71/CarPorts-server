@@ -1,5 +1,11 @@
 import { Project as ProjectMapping } from "./mapping.js";
 import { Antypical as AntypicalMapping } from "./mapping.js";
+import { ProjectMaterials as ProjectMaterialsMapping } from "./mapping.js";
+import { ProjectDetails as ProjectDetailsMapping } from "./mapping.js";
+import { ShipmentDetails as ShipmentDetailsMapping } from "./mapping.js";
+import { ProjectBrigades as ProjectBrigadesMapping } from "./mapping.js";
+import { Brigade as BrigadeMapping } from "./mapping.js";
+import { User as UserMapping} from './mapping.js'
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -150,6 +156,70 @@ class Project {
         }
         return project
     }
+
+    async getProjectInfo(id) {
+        const project = await ProjectMapping.findByPk(id)
+        const projectmaterials = await ProjectMaterialsMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+          const projectdetails = await ProjectDetailsMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+          const extractedDetails = projectdetails.map(detail => {
+            return {
+                quantity: detail.quantity,
+                detailId: detail.detailId
+            };
+        });
+        const shipmentdetails = await ShipmentDetailsMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+          const shipmentDetails = shipmentdetails.map(detail => {
+            return {
+                quantity: detail.shipment_quantity,
+                detailId: detail.detailId
+            };
+        });
+        const projectbrigades = await ProjectBrigadesMapping.findAll({
+            where: {
+              project_id: id
+            }, 
+            include: [
+              {
+                  model: BrigadeMapping,
+                  attributes: ['name']
+              }
+            ]
+          });
+          const user = await UserMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+          const userProject = user.map(user => {
+            return {
+                image: user.image,
+                userId: user.id
+            }
+          }) 
+ 
+
+          if (!project && !projectmaterials) { 
+            throw new Error('Товар не найден в БД')
+        }
+
+        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject }
+    }
+
+   
+    
+    
 
     async create(data) {
         const {name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer} = data

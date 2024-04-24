@@ -16,6 +16,7 @@ router.get('/getOne/:id([0-9]+)', UserController.getOne)
 router.post('/create', UserController.create)
 router.put('/createManager/:id([0-9]+)',  UserController.createManager)
 router.put('/createBrigade/:id([0-9]+)',  UserController.createBrigade)
+router.put('/createMainImage/:id([0-9]+)',  UserController.createMainImage)
 router.delete('/delete/:id([0-9]+)',  UserController.delete)
 
 export default router
