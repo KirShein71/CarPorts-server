@@ -242,6 +242,19 @@ class Project {
         return project
     }
 
+    async updateNote(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            note = project.note,
+        } = data
+        await project.update({note})
+        await project.reload()
+        return project
+    }
+
     async update(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
