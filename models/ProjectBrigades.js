@@ -84,6 +84,29 @@ class ProjectBrigades {
         return projectbrigades
     }
 
+    async updateBrigade(id, data) {
+        const projectbrigades = await ProjectBrigadesMapping.findByPk(id)
+        if (!projectbrigades) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            brigadeId = projectbrigades.brigadeId
+        } = data
+        await projectbrigades.update({brigadeId})
+        await projectbrigades.reload()
+        return projectbrigades
+    }
+
+    async delete(id) {
+        const projectbrigades = await ProjectBrigadesMapping.findByPk(id);
+        if (!projectbrigades) {
+            throw new Error('Строка не найдена в БД');
+        }
+    
+        await projectbrigades.destroy();
+        return projectbrigades;
+    }
+    
 }
 
 export default new ProjectBrigades()
