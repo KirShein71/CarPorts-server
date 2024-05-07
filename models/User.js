@@ -126,6 +126,26 @@ class User {
         return user
     }
 
+    async createMainImage(id, data, img) {
+        const user = await UserMapping.findByPk(id)
+        if (!user) {
+            throw new Error('Кабинет не найден в БД')
+        }
+        const file = FileService.save(img)
+        if (file && user.image) {
+            FileService.delete(user.image)
+        }
+        const {
+            image = file ? file : user.image
+        } = data
+        await user.update({image})
+        await user.reload()
+        return user
+    }
+
+    
+
+
     async update(id, data) {
         const user = await UserMapping.findByPk(id)
         if (!user) {
