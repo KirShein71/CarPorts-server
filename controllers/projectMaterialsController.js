@@ -12,6 +12,16 @@ class ProjectMaterialsController {
         }
     }
 
+    async getAllMaterialProject(req, res, next) {
+        try {
+            const projectmaterials = await ProjectMaterialsModel.getAllMaterialProject()
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
@@ -120,6 +130,23 @@ class ProjectMaterialsController {
             next(AppError.badRequest(e.message));
         }
     }
+
+    async createColorProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createColorProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    
 
     async createExpirationMaterialDateProjectMaterials(req, res, next) {
         try {

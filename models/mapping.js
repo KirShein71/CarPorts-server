@@ -73,7 +73,8 @@ const ProjectMaterials = sequelize.define('project_materials', {
     ready_date: { type: DataTypes.DATE, allowNull: true },
     shipping_date: { type: DataTypes.DATE, allowNull: true },
     check: { type: DataTypes.STRING, allowNull: true},
-    materialName: {type: DataTypes.STRING, allowNull: false}
+    materialName: {type: DataTypes.STRING, allowNull: false},
+    color: { type: DataTypes.STRING, allowNull: true},
 })
 
 const Detail = sequelize.define('detail', {
