@@ -33,10 +33,10 @@ class StockDetailsController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для создания')
             }
-            const stockdetails = await StockDetailsModel.create( req.body)
-            res.json(stockdetails)
-        } catch(e) {
-            next(AppError.badRequest(e.message))
+            const stockdetails = await StockDetailsModel.create(req.body);
+            res.json(stockdetails);
+        } catch (e) {
+            next(AppError.badRequest(e.message));
         }
     }
 

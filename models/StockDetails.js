@@ -94,11 +94,23 @@ class StockDetails {
 
     async create(data) {
         const { stock_quantity, detailId, stock_date } = data;
-        const stockdetails = await StockDetailsMapping.create({ stock_quantity, detailId, stock_date });
-        const created = await StockDetailsMapping.findByPk(stockdetails.id);
-        return created;
-    }
-
+      
+        let existingRecord = await StockDetailsMapping.findOne({
+          where: { detailId, stock_date }
+        });
+      
+        if (existingRecord) {
+            existingRecord.stock_quantity = parseInt(existingRecord.stock_quantity, 10) + parseInt(stock_quantity, 10);  // Увеличиваем количество
+            await existingRecord.save();
+            return existingRecord;
+          
+        } else {
+          // Создаем новую запись только если существующей не найдено
+          const stockdetails = await StockDetailsMapping.create({ stock_quantity, detailId, stock_date });
+          return stockdetails;
+        }
+      }
+    
 
     async update(id, data) {
         const stockdetails = await StockDetailsMapping.findByPk(id)
