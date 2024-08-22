@@ -68,7 +68,7 @@ class ProjectMaterials {
               ],
 
               order: [
-                ['projectId', 'DESC']
+                ['materialId', 'DESC']
               ]
         })
 
