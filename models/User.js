@@ -1,10 +1,11 @@
-import { User as UserMapping } from "./mapping.js";
+import {  User as UserMapping } from "./mapping.js";
 import { Project as ProjectMapping } from "./mapping.js";
 import { Employee as EmployeeMapping } from "./mapping.js";
 import { Admin as AdminMapping } from "./mapping.js";
 import { UserFile as UserFileMapping } from "./mapping.js";
 import { UserImage as UserImageMapping } from "./mapping.js";
 import { Brigade as BrigadeMapping } from "./mapping.js";
+import {ProjectMaterials as ProjectMaterialsMappping} from './mapping.js'
 import FileService from '../services/File.js'
 
 class User {
@@ -64,7 +65,13 @@ class User {
           include: [
             {
               model: ProjectMapping,
-              attributes: ['number', 'name', 'agreement_date', 'design_period', 'expiration_date', 'installation_period']
+              attributes: ['number', 'name', 'agreement_date', 'design_period', 'expiration_date', 'installation_period', 'design_start', 'project_delivery' , 'date_inspection'],
+              include: [
+                { 
+                    model: ProjectMaterialsMappping, 
+                    attributes: ['materialId', 'material_name', 'date_payment', 'shipping_date']
+                }
+              ]
             },
             {
                 model: BrigadeMapping,

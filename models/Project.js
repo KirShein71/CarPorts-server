@@ -131,7 +131,7 @@ class Project {
     async getAllWithNoAccount() {
         try {
             const projectWithNoAccount = await sequelize.query(
-                `SELECT name, number, id 
+                `SELECT name, number, id, date_finish 
                 FROM projects
                 WHERE id NOT IN (
                     SELECT project_id

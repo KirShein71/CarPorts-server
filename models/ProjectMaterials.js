@@ -145,6 +145,16 @@ class ProjectMaterials {
         return projectmaterials
     }
 
+    async deleteReadyDateProjectMaterials(id) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
+        
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД');
+        }
+        await projectmaterials.update({ ready_date: null });
+        return projectmaterials;
+    }
+
     async createShippingDateProjectMaterials(id, data) {
         const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
         if (!projectmaterials) {
@@ -156,6 +166,16 @@ class ProjectMaterials {
         await projectmaterials.update({shipping_date})
         await projectmaterials.reload()
         return projectmaterials
+    }
+
+    async deleteShippingDateProjectMaterials(id) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
+        
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД');
+        }
+        await projectmaterials.update({ shipping_date: null });
+        return projectmaterials;
     }
 
     async createPaymentDateProjectMaterials(id, data) {

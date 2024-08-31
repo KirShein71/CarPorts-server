@@ -90,6 +90,17 @@ class ProjectMaterialsController {
         }
     }
 
+    async deleteReadyDateProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.ready_date;
+            
+            const projectmaterials = await ProjectMaterialsModel.deleteReadyDateProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async createShippingDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
@@ -102,6 +113,17 @@ class ProjectMaterialsController {
             res.json(projectmaterials)
         } catch(e) {
             next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deleteShippingDateProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.shipping_date;
+            
+            const projectmaterials = await ProjectMaterialsModel.deleteShippingDateProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
         }
     }
 
