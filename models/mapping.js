@@ -130,6 +130,22 @@ const ProjectBrigades = sequelize.define('project_brigades', {
 
 })
 
+const BrigadesDate = sequelize.define('brigades_date', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    weekend: {type: DataTypes.STRING, allowNull: true},
+    warranty: {type: DataTypes.STRING, allowNull: true}
+})
+
+
+const Date = sequelize.define('date', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    date: {type: DataTypes.DATE, allowNull: false},
+})
+
+const Region = sequelize.define('region', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    region: {type: DataTypes.STRING, allowNull: false},
+})
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
@@ -170,6 +186,24 @@ ProjectBrigades.belongsTo(Brigade)
 Project.hasMany(ProjectBrigades, { onDelete: 'CASCADE', hooks: true })
 ProjectBrigades.belongsTo(Project)
 
+Project.hasMany(BrigadesDate, {onDelete: 'CASCADE', hooks: true})
+BrigadesDate.belongsTo(Project)
+
+Brigade.hasMany(BrigadesDate)
+BrigadesDate.belongsTo(Brigade)
+
+Date.hasMany(BrigadesDate)
+BrigadesDate.belongsTo(Date)
+
+Region.hasMany(Brigade)
+Brigade.belongsTo(Region)
+
+Region.hasMany(Project)
+Project.belongsTo(Region)
+
+Region.hasMany(BrigadesDate)
+BrigadesDate.belongsTo(Region)
+
 Project.hasMany(User, {onDelete: 'CASCADE', hooks: true})
 User.belongsTo(Project)
 
@@ -204,5 +238,8 @@ export {
     Brigade,
     ProjectBrigades,
     Antypical,
-    StockAntypical
+    StockAntypical,
+    BrigadesDate,
+    Date,
+    Region
 }

@@ -18,6 +18,8 @@ import antypical from './antypical.js'
 import userimage from './userimage.js'
 import userfile from './userfile.js'
 import counter from './counter.js'
+import brigadesdate from './brigadesdate.js'
+import region from './region.js'
 
 
 
@@ -42,6 +44,8 @@ router.use('/antypical', antypical)
 router.use('/userimage', userimage)
 router.use('/userfile', userfile)
 router.use('/counter', counter)
+router.use('/brigadesdate', brigadesdate)
+router.use('/region', region)
 
 
 

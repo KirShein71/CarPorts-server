@@ -6,6 +6,7 @@ import { ShipmentDetails as ShipmentDetailsMapping } from "./mapping.js";
 import { ProjectBrigades as ProjectBrigadesMapping } from "./mapping.js";
 import { Brigade as BrigadeMapping } from "./mapping.js";
 import { User as UserMapping} from './mapping.js'
+import { Region as RegionMapping} from './mapping.js'
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -17,6 +18,9 @@ import FileService from '../services/File.js'
 class Project {
     async getAll() {
         const projects = await ProjectMapping.findAll({
+            include: [
+                {model: RegionMapping, attributes: ['region']}
+            ],
             where: {
                 date_finish: null
             }
@@ -38,7 +42,7 @@ class Project {
     async getAllWithNoInstallers() {
         try {
             const projectsWithoutInstallers = await sequelize.query(
-              `SELECT *
+              `SELECT name, id, date_finish, region_id
                FROM projects
                WHERE id NOT IN (
                  SELECT project_id
@@ -222,8 +226,8 @@ class Project {
     
 
     async create(data) {
-        const {name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer} = data
-        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer})
+        const {name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId} = data
+        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId})
         
         const created = await ProjectMapping.findByPk(project.id) 
         return created
@@ -241,6 +245,21 @@ class Project {
         await project.reload()
         return project
     }
+
+    async createRegion(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            regionId = project.regionId,
+        } = data
+        await project.update({regionId})
+        await project.reload()
+        return project
+    }
+
+    
 
     async updateNote(id, data) {
         const project = await ProjectMapping.findByPk(id)
@@ -272,7 +291,8 @@ class Project {
             note = project.note,
             designer = project.designer,
             inspection_designer = project.inspection_designer,
-            date_inspection = project.date_inspection
+            date_inspection = project.date_inspection,
+            
             
         } = data
         await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, note, designer, design_start, project_delivery, inspection_designer, date_inspection})

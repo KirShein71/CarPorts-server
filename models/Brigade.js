@@ -1,9 +1,12 @@
 import { Brigade as BrigadeMapping } from "./mapping.js";
+import { Region as RegionMapping} from './mapping.js'
 import FileService from '../services/File.js'
 
 class Brigade {
     async getAll() {
-        const brigades = await BrigadeMapping.findAll()
+        const brigades = await BrigadeMapping.findAll({
+            include: [{model: RegionMapping, attributes: ['region']}]
+        })
         return brigades
     }
 
@@ -16,9 +19,9 @@ class Brigade {
     }
 
     async create(data, img) {
-        const {name, phone} = data
+        const {name, phone, regionId} = data
         const image = FileService.save(img) || ''
-        const brigade = await BrigadeMapping.create({name, phone, image})
+        const brigade = await BrigadeMapping.create({name, phone, image, regionId})
         
         const created = await BrigadeMapping.findByPk(brigade.id) 
         return created
@@ -40,6 +43,20 @@ class Brigade {
             
         } = data
         await brigade.update({name, phone, image})
+        await brigade.reload()
+        return brigade
+    }
+
+
+    async createRegion(id, data) {
+        const brigade = await BrigadeMapping.findByPk(id)
+        if (!brigade) {
+            throw new Error('Бригада не найдена в БД')
+        }
+        const {
+            regionId = brigade.regionId,
+        } = data
+        await brigade.update({regionId})
         await brigade.reload()
         return brigade
     }
