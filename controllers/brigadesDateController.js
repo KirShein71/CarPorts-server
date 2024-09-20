@@ -32,6 +32,8 @@ class BrigadesDateController {
             next(AppError.badRequest(e.message))
         }
     }
+
+ 
    
 
     async create(req, res, next) {

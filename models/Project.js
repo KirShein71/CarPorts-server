@@ -7,6 +7,8 @@ import { ProjectBrigades as ProjectBrigadesMapping } from "./mapping.js";
 import { Brigade as BrigadeMapping } from "./mapping.js";
 import { User as UserMapping} from './mapping.js'
 import { Region as RegionMapping} from './mapping.js'
+import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
+import { Date as DateMapping} from './mapping.js'
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -212,13 +214,35 @@ class Project {
                 userId: user.id
             }
           }) 
+
+          const brigadesdate = await BrigadesDateMapping.findAll({
+            where: {
+                project_id: id
+            },
+            include: [
+                {
+                    model: BrigadeMapping,
+                    attributes: ['name']
+                },
+                {
+                    model: DateMapping,
+                    attributes: ['date']
+                }
+            ]
+        });
+    
+        // Преобразование массива brigadesdate
+        const formattedBrigadesDate = brigadesdate.map(item => ({
+            name: item.brigade.name, // Доступ к атрибуту name модели BrigadeMapping
+            date: item.date.date // Доступ к атрибуту date модели DateMapping
+        }));
  
 
           if (!project && !projectmaterials) { 
             throw new Error('Товар не найден в БД')
         }
 
-        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject }
+        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate }
     }
 
    

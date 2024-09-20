@@ -69,6 +69,7 @@ class BrigadesDate {
     } 
 
 
+
     async create(data) {
         const {  projectId, brigadeId, dateId, regionId, weekend, warranty } = data;
         const brigadesdate = await BrigadesDateMapping.create({projectId, brigadeId, dateId, regionId, weekend, warranty  });
