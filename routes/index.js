@@ -20,6 +20,7 @@ import userfile from './userfile.js'
 import counter from './counter.js'
 import brigadesdate from './brigadesdate.js'
 import region from './region.js'
+import service from './service.js'
 
 
 
@@ -46,6 +47,7 @@ router.use('/userfile', userfile)
 router.use('/counter', counter)
 router.use('/brigadesdate', brigadesdate)
 router.use('/region', region)
+router.use('/service', service)
 
 
 

@@ -1,5 +1,5 @@
 import { Material as MaterialMapping } from "./mapping.js";
-import AppError from "../errors/AppError.js";
+
 
 class Material {
     async getAll() {
