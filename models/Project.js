@@ -270,6 +270,16 @@ class Project {
         return project
     }
 
+    async deleteDateFinish(id) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        await project.update({date_finish: null})
+        await project.reload()
+        return project
+    }
+
     async createRegion(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {

@@ -129,6 +129,17 @@ class ProjectController {
         }
     }
 
+    async deleteDateFinish(req, res, next) {
+        try {
+            const id = req.params.date_finish;
+            
+            const project = await ProjectModel.deleteDateFinish(id);
+            res.json(project);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async createRegion(req, res, next) {
         try {
             if (!req.params.id) {

@@ -18,6 +18,7 @@ router.get('/getone/:id([0-9]+)', ProjectController.getOne)
 router.get('/getProjectInfo/:id([0-9]+)', ProjectController.getProjectInfo)
 router.post('/create',  ProjectController.create)
 router.put('/createDateFinish/:id([0-9]+)', ProjectController.createDateFinish)
+router.delete('/deleteDateFinish/:date_finish', ProjectController.deleteDateFinish)
 router.put('/createRegion/:id([0-9]+)', ProjectController.createRegion)
 router.put('/updateNote/:id([0-9]+)', ProjectController.updateNote)
 
