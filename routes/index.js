@@ -21,6 +21,7 @@ import counter from './counter.js'
 import brigadesdate from './brigadesdate.js'
 import region from './region.js'
 import service from './service.js'
+import estimate from './estimate.js'
 
 
 
@@ -48,6 +49,7 @@ router.use('/counter', counter)
 router.use('/brigadesdate', brigadesdate)
 router.use('/region', region)
 router.use('/service', service)
+router.use('/estimate', estimate)
 
 
 

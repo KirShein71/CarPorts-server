@@ -133,7 +133,8 @@ const ProjectBrigades = sequelize.define('project_brigades', {
 const BrigadesDate = sequelize.define('brigades_date', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     weekend: {type: DataTypes.STRING, allowNull: true},
-    warranty: {type: DataTypes.STRING, allowNull: true}
+    warranty: {type: DataTypes.STRING, allowNull: true},
+    downtime: {type: DataTypes.STRING, allowNull: true}
 })
 
 
@@ -150,6 +151,11 @@ const Region = sequelize.define('region', {
 const Service = sequelize.define('service', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     name: {type: DataTypes.STRING, allowNull: false},
+})
+
+const Estimate = sequelize.define('estimate', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    price: {type: DataTypes.INTEGER, allowNull: false},
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
@@ -221,8 +227,11 @@ UserFile.belongsTo(User)
 Employee.hasMany(User)
 User.belongsTo(Employee)
 
+Project.hasMany(Estimate)
+Estimate.belongsTo(Project)
 
-
+Service.hasMany(Estimate)
+Estimate.belongsTo(Service)
 
 
 
@@ -247,5 +256,6 @@ export {
     BrigadesDate,
     Date,
     Region, 
-    Service
+    Service,
+    Estimate
 }

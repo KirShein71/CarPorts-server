@@ -31,7 +31,7 @@ class BrigadesDate {
     async getAllCertainDays() {
         const today = new Date();
         const threeDaysAgo = new Date(today);
-        threeDaysAgo.setDate(today.getDate() - 3);
+        threeDaysAgo.setDate(today.getDate() - 1);
         const threeDaysLater = new Date(today);
         threeDaysLater.setDate(today.getDate() + 3);
     
@@ -71,8 +71,8 @@ class BrigadesDate {
 
 
     async create(data) {
-        const {  projectId, brigadeId, dateId, regionId, weekend, warranty } = data;
-        const brigadesdate = await BrigadesDateMapping.create({projectId, brigadeId, dateId, regionId, weekend, warranty  });
+        const {  projectId, brigadeId, dateId, regionId, weekend, warranty, downtime } = data;
+        const brigadesdate = await BrigadesDateMapping.create({projectId, brigadeId, dateId, regionId, weekend, warranty, downtime  });
         const created = await BrigadesDateMapping.findByPk(brigadesdate.id);
         return created;
     }
@@ -87,9 +87,10 @@ class BrigadesDate {
         const {
             projectId = brigadesdate.projectId,
             weekend = brigadesdate.weekend,
-            warranty = brigadesdate.warranty
+            warranty = brigadesdate.warranty,
+            downtime = brigadesdate.downtime
         } = data
-        await brigadesdate.update({projectId, weekend, warranty})
+        await brigadesdate.update({projectId, weekend, warranty, downtime})
         await brigadesdate.reload()
         return brigadesdate
     }
