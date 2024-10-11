@@ -76,7 +76,7 @@ class BrigadesDateController {
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
-    }
+    } 
 
     async getAllDate(req, res, next) {
         try {
@@ -87,7 +87,21 @@ class BrigadesDateController {
         }
     }
 
+
+    async getAllNumberOfDaysBrigade(req, res, next) {
+        try {
+            
+            const brigadeId = req.params.brigadeId
+            const projectId = req.params.projectId
+
+            const brigadesdate = await BrigadesDateModel.getAllNumberOfDaysBrigade(brigadeId, projectId)
+            res.json(brigadesdate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
   
+    
 }
 
 export default new BrigadesDateController()

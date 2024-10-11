@@ -55,6 +55,9 @@ class User {
                 user = await AdminMapping.findOne({ where: { phone } });
             }
             if (!user) {
+                user = await BrigadeMapping.findOne({ where: { phone } });
+            }
+            if (!user) {
                 throw new Error('Личный кабинет еще не создан');
         }
             return user;

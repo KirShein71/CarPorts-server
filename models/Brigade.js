@@ -18,10 +18,22 @@ class Brigade {
         return brigade
     }
 
+    async getByPhone(phone) {
+        const brigade = await BrigadeMapping.findOne({where: {phone}})
+        if (!brigade) {
+            throw new Error('Пользователь не найден в БД')
+        }
+        return brigade
+    }
+
     async create(data, img) {
-        const {name, phone, regionId} = data
+        const {name, phone, regionId, role, password} = data
         const image = FileService.save(img) || ''
-        const brigade = await BrigadeMapping.create({name, phone, image, regionId})
+        const check = await BrigadeMapping.findOne({where: {phone}})
+        if (check) {
+            throw new Error('Пользователь уже существует')
+        }
+        const brigade = await BrigadeMapping.create({name, phone, image, regionId, role, password})
         
         const created = await BrigadeMapping.findByPk(brigade.id) 
         return created
@@ -43,6 +55,21 @@ class Brigade {
             
         } = data
         await brigade.update({name, phone, image})
+        await brigade.reload()
+        return brigade
+    }
+
+    async createPassword(id, data) {
+        const brigade = await BrigadeMapping.findByPk(id)
+        if (!brigade) {
+            throw new Error('Деталь не найдена в БД')
+        }
+    
+        const {
+            password = brigade.password
+            
+        } = data
+        await brigade.update({password})
         await brigade.reload()
         return brigade
     }

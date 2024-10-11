@@ -111,6 +111,23 @@ class BrigadesDate {
         })
           return date;
     }
+
+    async getAllNumberOfDaysBrigade(brigadeId, projectId) {
+        const brigadesdate = await BrigadesDateMapping.findAll({
+            where: {
+                brigade_id: brigadeId,
+                project_id: projectId
+            }
+        })
+
+        if(!brigadesdate) {
+            throw new Error('Не проставлены дни в календарь')
+        }
+
+        const days = brigadesdate.length
+
+        return days
+    }
     
 }
 

@@ -14,7 +14,25 @@ class estimateController {
 
     async getAllEstimateForBrigade(req, res, next) {
         try {
-            const estimate = await EstimateModel.getAllEstimateForBrigade()
+            const estimate = await EstimateModel.getAllEstimateForBrigade(req.params.id)
+            res.json(estimate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllEstimateForBrigadeProject(req, res, next) {
+        try {
+            const estimate = await EstimateModel.getAllEstimateForBrigadeProject(req.params.id, req.params.project)
+            res.json(estimate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllEstimateForProject(req, res, next) {
+        try {
+            const estimate = await EstimateModel.getAllEstimateForProject(req.params.id)
             res.json(estimate)
         } catch(e) {
             next(AppError.badRequest(e.message))
@@ -49,7 +67,29 @@ class estimateController {
         }
     }
 
+    async createEstimateBrigade(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара');
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления');
+            }
     
+            // Извлекаем данные из req.body
+            const doneValues = Object.keys(req.body).map(key => key === 'true');
+    
+   
+            const done = doneValues.includes(true) ? 'true' : 'false';
+    
+    
+            const estimate = await EstimateModel.createEstimateBrigade(req.params.id, { done });
+            res.json(estimate);
+    
+        } catch (e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
 
     async updateEstimatePrice(req, res, next) {
         try {
@@ -59,10 +99,34 @@ class estimateController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const estimate = await BrigadesDateModel.updateestimatePrice(req.params.id, req.body,)
+            const estimate = await EstimateModel.updateEstimatePrice(req.params.id, req.body,)
             res.json(estimate)
         } catch(e) {
             next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateBrigadeForProject(req, res, next) {
+        try {
+            const id = req.params.id;
+            const project = req.params.project
+            const estimate = await EstimateModel.updateBrigadeForProject(id, project, req.body);
+            res.json(estimate);
+          
+        } catch (e) {
+          next(AppError.badRequest(e.message));
+        }
+      }
+
+    async deleteEstimateBrigadeForProject(req, res, next) {
+        try {
+            const id = req.params.id;
+            const project = req.params.project
+            const estimate = await EstimateModel.deleteEstimateBrigadeForProject(id, project);
+            res.json(estimate);
+          
+        } catch (e) {
+          next(AppError.badRequest(e.message));
         }
     }
 

@@ -119,7 +119,9 @@ const Brigade= sequelize.define('brigade', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true },
     phone: { type: DataTypes.STRING, unique: true },
-    image: {type: DataTypes.STRING, allowNull: false }
+    image: {type: DataTypes.STRING, allowNull: false },
+    role: { type: DataTypes.STRING, defaultValue: "INSTALLER" },
+    password: { type: DataTypes.STRING, allowNull: false },
 })
 
 
@@ -156,6 +158,7 @@ const Service = sequelize.define('service', {
 const Estimate = sequelize.define('estimate', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     price: {type: DataTypes.INTEGER, allowNull: false},
+    done: {type: DataTypes.STRING, allowNull: true},
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
@@ -227,11 +230,14 @@ UserFile.belongsTo(User)
 Employee.hasMany(User)
 User.belongsTo(Employee)
 
-Project.hasMany(Estimate)
+Project.hasMany(Estimate, { onDelete: 'CASCADE', hooks: true })
 Estimate.belongsTo(Project)
 
-Service.hasMany(Estimate)
+Service.hasMany(Estimate, { onDelete: 'CASCADE', hooks: true })
 Estimate.belongsTo(Service)
+
+Brigade.hasHooks(Estimate, { onDelete: 'CASCADE', hooks: true })
+Estimate.belongsTo(Brigade)
 
 
 

@@ -1,7 +1,56 @@
 import BrigadeModel from '../models/Brigade.js'
 import AppError from '../errors/AppError.js'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+
+const makeJwt = (id, phone, role) => {
+    return jwt.sign(
+        {id, phone, role},
+        process.env.SECRET_KEY,
+        {expiresIn: '24h'}
+    )
+}
 
 class BrigadeController {
+    async signup(req, res, next) {
+        const {name, phone, regionId, role  = 'INSTALLER', password} = req.body
+        try {
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона или пароль')
+            }
+            if (role !== 'INSTALLER') {
+                throw new Error('Вход только для сотрудников')
+            }
+            const hash = await bcrypt.hash(password, 10)
+            const brigade = await BrigadeModel.create({name, phone, regionId, role, password: hash })
+            const token = makeJwt(brigade.id, brigade.name, brigade.phone, brigade.regionId, brigade.role)
+            return res.json({token})
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async login(req, res, next) {
+        try {
+            const {phone, password} = req.body
+            const brigade = await BrigadeModel.getByPhone(phone)
+            let compare = bcrypt.compareSync(password, brigade.password)
+            if (!compare) {
+                throw new Error('Указан неверный пароль')
+            }
+            const token = makeJwt(brigade.id, brigade.phone, brigade.role)
+            return res.json({token})
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+
+    async check(req, res, next) {
+        const token = makeJwt(req.auth.id, req.auth.phone, req.auth.role)
+        return res.json({token})
+    }
+
     async getAll(req, res, next) {
         try {
             const brigades = await BrigadeModel.getAll()
@@ -24,16 +73,23 @@ class BrigadeController {
     }
 
     async create(req, res, next) {
+        const {name, phone, regionId, role  = 'INSTALLER', password} = req.body
         try {
-            if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для отправки')
+            if (!phone || !password) {
+                throw new Error('Пустой номер телефона')
             }
-            const brigade = await BrigadeModel.create(req.body, req.files.image)
-            res.json(brigade)
+            if ( ! ['INSTALLER'].includes(role)) {
+                throw new Error('Недопустимое значение роли')
+            }
+            const hash = await bcrypt.hash(password, 10)
+            const brigade = await BrigadeModel.create({phone, password: hash, role, name, regionId})
+            return res.json(brigade)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
+
+    
 
     async createRegion(req, res, next) {
         try {
@@ -44,6 +100,21 @@ class BrigadeController {
                 throw new Error('Нет данных для обновления')
             }
             const brigade = await BrigadeModel.createRegion(req.params.id, req.body,)
+            res.json(brigade)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createPassword(req, res, next) {
+        const {password} = req.body
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+           
+            const hash = await bcrypt.hash(password, 10)
+            const brigade = await BrigadeModel.createPassword(req.params.id, { password: hash})
             res.json(brigade)
         } catch(e) {
             next(AppError.badRequest(e.message))
