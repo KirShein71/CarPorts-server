@@ -90,7 +90,7 @@ class ProjectController {
     async getProjectInfo(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id проекта')
             }
             const project = await ProjectModel.getProjectInfo(req.params.id)
             res.json(project)
@@ -99,6 +99,17 @@ class ProjectController {
         }
     }
 
+    async getProjectInfoInstallation(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            const project = await ProjectModel.getProjectInfoInstallation(req.params.id)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
     
     
 

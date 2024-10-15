@@ -245,6 +245,40 @@ class Project {
         return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate }
     }
 
+    async getProjectInfoInstallation(id) {
+        const project = await ProjectMapping.findByPk(id);
+        const brigadesdate = await BrigadesDateMapping.findAll({
+            where: {
+                project_id: id
+            },
+            include: [
+                {
+                    model: BrigadeMapping,
+                    attributes: ['name']
+                },
+                {
+                    model: DateMapping,
+                    attributes: ['date']
+                }
+            ]
+        });
+    
+        // Преобразование массива brigadesdate
+        const formattedBrigadesDate = brigadesdate.map(item => ({
+            name: item.brigade.name, // Доступ к атрибуту name модели BrigadeMapping
+            date: item.date.date // Доступ к атрибуту date модели DateMapping
+        }));
+    
+        if (!project) { 
+            throw new Error('Проект не найден в БД');
+        }
+    
+      
+        return [{project, brigadesdate: formattedBrigadesDate} ];
+
+    }
+
+
    
     
     
