@@ -2,6 +2,7 @@ import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
 import { Brigade as BrigadeMapping } from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
+import { Estimate as EstimateMapping } from './mapping.js'
 
 import { Op} from 'sequelize'
 
@@ -17,6 +18,29 @@ class BrigadesDate {
                 {
                     model: BrigadeMapping,
                     attributes: ['name', 'regionId']
+                },
+                {
+                    model: DateMapping,
+                    attributes: ['date']
+                }
+              ],
+        })
+        
+          return brigadesdate;
+    }
+
+    async getAllForOneBrigade(brigadeId) {
+        const brigadesdate = await BrigadesDateMapping.findAll({
+            where: {
+                brigade_id: brigadeId
+            },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name'], 
+                    include: {
+                        model: EstimateMapping, attributes: ['price', 'done']
+                    }
                 },
                 {
                     model: DateMapping,
@@ -127,6 +151,39 @@ class BrigadesDate {
         const days = brigadesdate.length
 
         return days
+    }
+
+    async getAllNumberOfDaysBrigadeForProject(brigadeId) {
+        const brigadesdate = await BrigadesDateMapping.findAll({
+            where: {
+                brigade_id: brigadeId,
+            }
+        });
+    
+        if (!brigadesdate || brigadesdate.length === 0) {
+            throw new Error('Не проставлены дни в календарь');
+        }
+    
+        // Создаем объект для хранения количества дней по каждому projectId
+        const projectDaysCount = {};
+    
+        // Подсчитываем количество строк для каждого projectId
+        brigadesdate.forEach((brigdate) => {
+            if (brigdate.projectId !== 0) {
+                if (!projectDaysCount[brigdate.projectId]) {
+                    projectDaysCount[brigdate.projectId] = 0;
+                }
+                projectDaysCount[brigdate.projectId]++;
+            }
+        });
+    
+        // Преобразуем объект в массив
+        const result = Object.entries(projectDaysCount).map(([projectId, days]) => ({
+            projectId: Number(projectId), 
+            days,
+        }));
+    
+        return result;
     }
     
 }

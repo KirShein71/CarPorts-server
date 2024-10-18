@@ -12,6 +12,15 @@ class BrigadesDateController {
         }
     }
 
+    async getAllForOneBrigade(req, res, next) {
+        try {
+            const brigadesdate = await BrigadesDateModel.getAllForOneBrigade(req.params.brigadeId)
+            res.json(brigadesdate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllCertainDays(req, res, next) {
         try {
             const brigadesdate = await BrigadesDateModel.getAllCertainDays()
@@ -95,6 +104,19 @@ class BrigadesDateController {
             const projectId = req.params.projectId
 
             const brigadesdate = await BrigadesDateModel.getAllNumberOfDaysBrigade(brigadeId, projectId)
+            res.json(brigadesdate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllNumberOfDaysBrigadeForProject(req, res, next) {
+        try {
+            
+            const brigadeId = req.params.brigadeId
+         
+
+            const brigadesdate = await BrigadesDateModel.getAllNumberOfDaysBrigadeForProject(brigadeId)
             res.json(brigadesdate)
         } catch(e) {
             next(AppError.badRequest(e.message))
