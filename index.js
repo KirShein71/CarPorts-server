@@ -16,7 +16,19 @@ const PORT = process.env.PORT || 5000
 
 const app = express()
 // Cross-Origin Resource Sharing
-app.use(cors({origin: [ 'http://localhost:3000', 'https://carports-lk.pro'], credentials: true}))
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, origin);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true,
+}));
+
+app.options('*', cors())
 // middleware для работы с json
 app.use(express.json())
 // middleware для статики (img, css)
