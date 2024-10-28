@@ -1,5 +1,5 @@
 import express from 'express'
-import ManagerProductionController from '../controllers/ManagerProductionController.js'
+import ManagerProductionController from '../controllers/managerProductionController.js'
 import authMiddleware from '../middleware/authMiddleware.js'
 
 
