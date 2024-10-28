@@ -14,20 +14,6 @@ import errorMiddleware from './middleware/ErrorHandler.js'
 
 const PORT = process.env.PORT || 5000
 
-
-const allowedOrigins = ['http://localhost:3000', 'https://carports-lk.pro'];
-
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, origin);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-}));
-
 const app = express()
 // Cross-Origin Resource Sharing
 app.use(cors({origin: [ 'http://localhost:3000', 'https://carports-lk.pro'], credentials: true}))
@@ -49,7 +35,13 @@ app.use('/api', router)
 // обработка ошибок
 app.use(errorMiddleware)
 
-app.options('*', cors());
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin',  'http://localhost:3000',  'https://carports-lk.pro' );
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+  });
+
 
 
 
