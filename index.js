@@ -34,6 +34,7 @@ app.use(cookieParser(process.env.SECRET_KEY))
 app.use('/api', router)
 // обработка ошибок
 app.use(errorMiddleware)
+app.options('*', cors());
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin',  'http://localhost:3000',  'https://carports-lk.pro' );
