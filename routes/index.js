@@ -22,6 +22,10 @@ import brigadesdate from './brigadesdate.js'
 import region from './region.js'
 import service from './service.js'
 import estimate from './estimate.js'
+import managersale from './managersale.js'
+import managerproject from './managerproject.js'
+import managerproduction from './managerproduction.js'
+import constructor from './constructor.js'
 
 
 
@@ -50,6 +54,10 @@ router.use('/brigadesdate', brigadesdate)
 router.use('/region', region)
 router.use('/service', service)
 router.use('/estimate', estimate)
+router.use('/managersale', managersale)
+router.use('/managerproject', managerproject)
+router.use('/managerproduction', managerproduction)
+router.use('/constructor', constructor)
 
 
 

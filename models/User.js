@@ -5,7 +5,11 @@ import { Admin as AdminMapping } from "./mapping.js";
 import { UserFile as UserFileMapping } from "./mapping.js";
 import { UserImage as UserImageMapping } from "./mapping.js";
 import { Brigade as BrigadeMapping } from "./mapping.js";
+import { ManagerSale as ManagerSaleMapping } from "./mapping.js";
+import { ManagerProject as ManagerProjectMapping } from "./mapping.js";
+import { ManagerProduction as ManagerProductionMapping } from "./mapping.js";
 import {ProjectMaterials as ProjectMaterialsMappping} from './mapping.js'
+import {Constructor as ConstructorMapping} from './mapping.js'
 import FileService from '../services/File.js'
 
 class User {
@@ -56,6 +60,18 @@ class User {
             }
             if (!user) {
                 user = await BrigadeMapping.findOne({ where: { phone } });
+            }
+            if (!user) {
+                user = await ManagerSaleMapping.findOne({ where: { phone } });
+            }
+            if (!user) {
+                user = await ManagerProjectMapping.findOne({ where: { phone } });
+            }
+            if (!user) {
+                user = await ConstructorMapping.findOne({ where: { phone } });
+            }
+            if (!user) {
+                user = await ManagerProductionMapping.findOne({ where: { phone } });
             }
             if (!user) {
                 throw new Error('Личный кабинет еще не создан');

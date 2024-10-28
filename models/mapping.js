@@ -34,6 +34,38 @@ const Admin = sequelize.define('admin', {
     password: { type: DataTypes.STRING, allowNull: false },
 })
 
+const ManagerSale = sequelize.define('manager_sale', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    phone: { type: DataTypes.STRING, unique: true },
+    name: { type: DataTypes.STRING, unique: true },
+    role: { type: DataTypes.STRING, defaultValue: "ManagerSale" },
+    password: { type: DataTypes.STRING, allowNull: false },
+})
+
+const ManagerProject = sequelize.define('manager_project', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    phone: { type: DataTypes.STRING, unique: true },
+    name: { type: DataTypes.STRING, unique: true },
+    role: { type: DataTypes.STRING, defaultValue: "ManagerProject" },
+    password: { type: DataTypes.STRING, allowNull: false },
+})
+
+const ManagerProduction = sequelize.define('manager_production', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    phone: { type: DataTypes.STRING, unique: true },
+    name: { type: DataTypes.STRING, unique: true },
+    role: { type: DataTypes.STRING, defaultValue: "ManagerProduction" },
+    password: { type: DataTypes.STRING, allowNull: false },
+})
+
+const Constructor = sequelize.define('constructor', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    phone: { type: DataTypes.STRING, unique: true },
+    name: { type: DataTypes.STRING, unique: true },
+    role: { type: DataTypes.STRING, defaultValue: " Constructor" },
+    password: { type: DataTypes.STRING, allowNull: false },
+})
+
 const Employee = sequelize.define('employee', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     phone: { type: DataTypes.STRING, unique: true },
@@ -263,5 +295,9 @@ export {
     Date,
     Region, 
     Service,
-    Estimate
+    Estimate,
+    ManagerSale,
+    ManagerProject,
+    Constructor, 
+    ManagerProduction
 }
