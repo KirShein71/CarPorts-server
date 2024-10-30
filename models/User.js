@@ -116,6 +116,15 @@ class User {
         return user;
       }
 
+      async getUserForBrigade(projectId) {
+        const user = await UserMapping.findOne({
+            where: {
+                projectId: projectId
+            }
+        })
+        return user ? user.id : null;
+    }
+
     async create(data) {
         const {phone, role, password, projectId} = data
         const check = await UserMapping.findOne({where: {phone}})

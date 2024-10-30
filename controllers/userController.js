@@ -84,6 +84,19 @@ class UserController {
         }
     }
 
+    async getUserForBrigade(req, res, next) {
+        try {
+            if (!req.params.projectId) {
+                throw new Error('Не указан id пользователя')
+            }
+            
+            const user = await UserModel.getUserForBrigade(req.params.projectId)
+            res.json(user)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async create(req, res, next) {
         const {phone, password, projectId, role = 'USER'} = req.body
         try {
