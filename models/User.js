@@ -42,6 +42,10 @@ class User {
                     
                     model: EmployeeMapping, attributes: ['name', 'phone']
                 },
+                {
+                    
+                    model: ManagerProjectMapping, attributes: ['name', 'phone']
+                },
               ],
             });
             if (!user) {
@@ -108,6 +112,10 @@ class User {
                     
                 model: EmployeeMapping, attributes: ['name', 'phone']
             },
+            {
+                    
+                model: ManagerProjectMapping, attributes: ['name', 'phone']
+            },
           ],
         });
         if (!user) {
@@ -141,9 +149,10 @@ class User {
             throw new Error('Пользователь не найден в БД')
         }
         const {
-            employeeId = user.employeeId,
+            managerProjectId = user.managerProjectId,
         } = data
-        await user.update({employeeId})
+     
+        await user.update({managerProjectId})
         await user.reload()
         return user
     }

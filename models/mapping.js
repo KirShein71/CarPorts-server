@@ -259,6 +259,9 @@ UserImage.belongsTo(User)
 User.hasMany(UserFile, { onDelete: 'CASCADE', hooks: true })
 UserFile.belongsTo(User)
 
+ManagerProject.hasMany(User)
+User.belongsTo(ManagerProject)
+
 Employee.hasMany(User)
 User.belongsTo(Employee)
 
