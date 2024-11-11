@@ -122,7 +122,18 @@ class BrigadesDateController {
             next(AppError.badRequest(e.message))
         }
     }
+
+    async getAllNumberOfDaysBrigadeForRegion(req, res, next) {
+        try {
+            const brigadesdate = await BrigadesDateModel.getAllNumberOfDaysBrigadeForRegion()
+            res.json(brigadesdate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
   
+
+    
     
 }
 

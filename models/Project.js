@@ -279,13 +279,9 @@ class Project {
     }
 
 
-   
-    
-    
-
     async create(data) {
-        const {name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId} = data
-        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId})
+        const {name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId} = data
+        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId})
         
         const created = await ProjectMapping.findByPk(project.id) 
         return created
@@ -327,6 +323,19 @@ class Project {
         return project
     }
 
+    async createInstallationBilling(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            installation_billing = project.installation_billing,
+        } = data
+        await project.update({installation_billing})
+        await project.reload()
+        return project
+    }
+
     
 
     async updateNote(id, data) {
@@ -356,6 +365,7 @@ class Project {
             project_delivery = project.project_delivery,
             expiration_date = project.expiration_date,
             installation_period = project.installation_period,
+            installation_billing = project.installation_billing,
             note = project.note,
             designer = project.designer,
             inspection_designer = project.inspection_designer,
@@ -363,7 +373,7 @@ class Project {
             
             
         } = data
-        await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, note, designer, design_start, project_delivery, inspection_designer, date_inspection})
+        await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, installation_billing , note, designer, design_start, project_delivery, inspection_designer, date_inspection})
         await project.reload()
         return project
     }

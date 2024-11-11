@@ -111,8 +111,6 @@ class ProjectController {
         }
     }
     
-    
-
     async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {
@@ -160,6 +158,21 @@ class ProjectController {
                 throw new Error('Нет данных для обновления')
             }
             const project = await ProjectModel.createRegion(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createInstallationBilling(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.createInstallationBilling(req.params.id, req.body,)
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))

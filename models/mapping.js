@@ -84,6 +84,7 @@ const Project = sequelize.define('project', {
     design_period: {type: DataTypes.INTEGER, allowNull: false},
     expiration_date: {type: DataTypes.INTEGER, allowNull: false},
     installation_period: {type: DataTypes.INTEGER, allowNull: false},
+    installation_billing: {type: DataTypes.INTEGER, allowNull: true},
     note: {type: DataTypes.STRING, allowNull: false},
     designer: {type: DataTypes.STRING, allowNull: true}, 
     design_start: {type: DataTypes.DATE, allowNull: true},

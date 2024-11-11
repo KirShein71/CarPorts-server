@@ -153,6 +153,156 @@ class BrigadesDate {
         return days
     }
 
+    async getAllNumberOfDaysBrigadeForRegion() {
+        const brigadesdate = await BrigadesDateMapping.findAll()
+
+        if(!brigadesdate) {
+            throw new Error('Не проставлены дни в календарь')
+        }
+
+        const spbRegion = brigadesdate.filter((spbNum) => spbNum.regionId === 1 && spbNum.projectId !== null)
+        const mskRegion = brigadesdate.filter((mskNum) => mskNum.regionId === 2 && mskNum.projectId !== null)
+
+        const project = await ProjectMapping.findAll();
+   
+        const spbProjects = project.filter(region => region.regionId === 1 && region.date_finish === null);
+        const mskProjects = project.filter(region => region.regionId === 2 && region.date_finish === null);
+       
+        const sumSpb = spbProjects.reduce((total, spbNum) => {
+            return total + (spbNum.installation_billing || 0); 
+        }, 0);
+    
+
+        const sumMsk = mskProjects.reduce((total, mskNum) => {
+            return total + (mskNum.installation_billing || 0); 
+        }, 0);
+
+        // Рассчет последнего дедлайна по каждому региону
+        const holidays = [
+            '2024-01-01',
+            '2024-01-02',
+            '2024-01-03',
+            '2024-01-04',
+            '2024-01-05',
+            '2024-01-08',
+            '2024-02-23',
+            '2024-03-08',
+            '2024-04-29',
+            '2024-04-30',
+            '2024-05-01',
+            '2024-05-09',
+            '2024-05-10',
+            '2024-06-12',
+            '2024-11-04',
+        ].map((date) => new Date(date));
+    
+        // Функция для проверки, является ли дата выходным или праздничным днем
+        function isWorkingDay(date) {
+            const dayOfWeek = date.getDay(); // 0 - воскресенье, 1 - понедельник, ..., 6 - суббота
+            const isHoliday = holidays.some((holiday) => {
+                const holidayString = holiday.toDateString();
+                const dateString = date.toDateString();
+                return holidayString === dateString;
+            });
+    
+            return dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday; // Не выходной и не праздник
+        }
+    
+        // Функция для добавления рабочих дней к дате
+        function addWorkingDays(startDate, daysToAdd) {
+            let currentDate = new Date(startDate);
+            let addedDays = 0;
+    
+            while (addedDays < daysToAdd) {
+                currentDate.setDate(currentDate.getDate() + 1); // Переходим на следующий день
+                if (isWorkingDay(currentDate)) {
+                    addedDays++;
+                }
+            }
+    
+            return currentDate;
+        }
+    
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+            const year = date.getFullYear();
+    
+            return `${day}.${month}.${year}`; 
+        }
+    
+        const spbDeadlines = [];
+        const mskDeadlines = []
+        // Проектирование
+        // Обработка проектов для СПБ
+        spbProjects.forEach((spbProject) => {
+            const endDate = addWorkingDays(spbProject.agreement_date, spbProject.design_period);
+            const formattedEndDate = formatDate(endDate);
+            spbDeadlines.push(formattedEndDate);
+        });
+    
+        // Обработка проектов для Москвы
+        mskProjects.forEach((mskProject) => {
+            const endDate = addWorkingDays(mskProject.agreement_date, mskProject.design_period);
+            const formattedEndDate = formatDate(endDate);
+            mskDeadlines.push(formattedEndDate);
+        });
+
+        // Производство
+        // Обработка проектов для СПБ
+        spbProjects.forEach((spbProject) => {
+            const sumDays = spbProject.design_period + spbProject.expiration_date;
+            const endDate = addWorkingDays(spbProject.agreement_date, sumDays);
+            const formattedEndDate = formatDate(endDate);
+            spbDeadlines.push(formattedEndDate);
+        });
+    
+        // Обработка проектов для Москвы
+        spbProjects.forEach((mskProject) => {
+            const sumDays = mskProject.design_period + mskProject.expiration_date;
+            const endDate = addWorkingDays(mskProject.agreement_date, sumDays);
+            const formattedEndDate = formatDate(endDate);
+            mskDeadlines.push(formattedEndDate);
+        });
+
+         // Монтаж
+        // Обработка проектов для СПБ
+        spbProjects.forEach((spbProject) => {
+            const sumDays = spbProject.design_period + spbProject.expiration_date + spbProject.installation_period;
+            const endDate = addWorkingDays(spbProject.agreement_date, sumDays);
+            const formattedEndDate = formatDate(endDate);
+            spbDeadlines.push(formattedEndDate);
+        });
+    
+        // Обработка проектов для Москвы
+        mskProjects.forEach((mskProject) => {
+            const sumDays = mskProject.design_period + mskProject.expiration_date + mskProject.installation_period;
+            const endDate = addWorkingDays(mskProject.agreement_date, sumDays);
+            const formattedEndDate = formatDate(endDate);
+            mskDeadlines.push(formattedEndDate);
+        });
+
+        const sortedDeadlinesSpb = spbDeadlines.sort((a, b) => {
+            const dateA = new Date(a.split('.').reverse().join('-')); 
+            const dateB = new Date(b.split('.').reverse().join('-'));
+            return dateB - dateA; // Сравнение дат
+          });
+          
+          // Получение самой ранней даты
+        const deadlineDateSpb = sortedDeadlinesSpb[0];
+
+        const sortedDeadlinesMsk = mskDeadlines.sort((a, b) => {
+            const dateA = new Date(a.split('.').reverse().join('-')); 
+            const dateB = new Date(b.split('.').reverse().join('-'));
+            return dateB - dateA; // Сравнение дат
+          });
+          
+          // Получение самой ранней даты
+        const deadlineDateMsk = sortedDeadlinesMsk[0];
+
+        return [{regionId: 1, workingDay: spbRegion.length, billingDay: sumSpb, deadline: deadlineDateSpb }, {regionId: 2, workingDay: mskRegion.length, billingDay: sumMsk, deadline: deadlineDateMsk}]
+    }
+
     async getAllNumberOfDaysBrigadeForProject(brigadeId) {
         const brigadesdate = await BrigadesDateMapping.findAll({
             where: {

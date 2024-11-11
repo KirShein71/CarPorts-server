@@ -21,6 +21,7 @@ router.post('/create',  ProjectController.create)
 router.put('/createDateFinish/:id([0-9]+)', ProjectController.createDateFinish)
 router.delete('/deleteDateFinish/:date_finish', ProjectController.deleteDateFinish)
 router.put('/createRegion/:id([0-9]+)', ProjectController.createRegion)
+router.put('/createInstallationBilling/:id([0-9]+)', ProjectController.createInstallationBilling)
 router.put('/updateNote/:id([0-9]+)', ProjectController.updateNote)
 
 router.put('/update/:id([0-9]+)',  ProjectController.update)
