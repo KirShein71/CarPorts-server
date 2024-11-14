@@ -22,7 +22,7 @@ class Counter {
                 WHERE id NOT IN (
                     SELECT project_id
                     FROM project_materials
-                )`,
+                ) AND date_finish IS NULL`,
                 { plain: true }
             );
             const countNoMaterials = Object.values(countNoMaterialsResult)[0];
