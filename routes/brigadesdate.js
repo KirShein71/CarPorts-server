@@ -8,7 +8,7 @@ router.post('/create',  BrigadesDateController.create)
 router.get('/getall', BrigadesDateController.getAll)
 router.get('/getAllForOneBrigade/:brigadeId([0-9]+)', BrigadesDateController.getAllForOneBrigade)
 router.get('/getone/:id([0-9]+)', BrigadesDateController.getOne)
-
+router.get('/getAllNumberOfDaysBrigadeForProject/:brigadeId([0-9]+)', BrigadesDateController.getAllNumberOfDaysBrigadeForProject)
 router.get('/getAllNumberOfDaysBrigadeForRegion', BrigadesDateController.getAllNumberOfDaysBrigadeForRegion)
 router.get('/getAllNumberOfDaysBrigade/:brigadeId([0-9]+)/:projectId([0-9]+)', BrigadesDateController.getAllNumberOfDaysBrigade)
 router.put('/updateBrigadesDate/:id([0-9]+)', BrigadesDateController.updateBrigadesDate)
