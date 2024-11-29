@@ -19,7 +19,7 @@ class Estimate {
             },
             include: [
                 { model: ServiceMapping, attributes: ['name'] },
-                { model: ProjectMapping, attributes: ['name', 'date_finish'] } // Добавляем id и name проекта
+                { model: ProjectMapping, attributes: ['name', 'date_finish'] } 
             ]
         });
     

@@ -12,6 +12,15 @@ class BrigadesDateController {
         }
     }
 
+    async getDaysInstallerForProjects(req, res, next) {
+        try {
+            const brigadesdate = await BrigadesDateModel.getDaysInstallerForProjects()
+            res.json(brigadesdate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllForOneBrigade(req, res, next) {
         try {
             const brigadesdate = await BrigadesDateModel.getAllForOneBrigade(req.params.brigadeId)

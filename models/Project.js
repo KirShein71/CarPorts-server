@@ -21,13 +21,27 @@ class Project {
     async getAll() {
         const projects = await ProjectMapping.findAll({
             include: [
-                {model: RegionMapping, attributes: ['region']}
+                {
+                    model: RegionMapping,
+                    attributes: ['region']
+                },
+                {
+                    model: BrigadesDateMapping,
+                    attributes: ['date_id'], // Здесь можно оставить пустым, если не нужны другие поля
+                    include: [
+                        {
+                            model: DateMapping,
+                            attributes: ['date'], // Здесь указываем, что хотим получить поле date
+                            required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
+                        }
+                    ]
+                }
             ],
             where: {
                 date_finish: null
             }
-        })
-        return projects
+        });
+        return projects;
     }
 
     async getFinishProject() {

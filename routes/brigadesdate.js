@@ -6,6 +6,7 @@ const router = new express.Router()
 
 router.post('/create',  BrigadesDateController.create)
 router.get('/getall', BrigadesDateController.getAll)
+router.get('/getDaysInstallerForProjects', BrigadesDateController.getDaysInstallerForProjects)
 router.get('/getAllForOneBrigade/:brigadeId([0-9]+)', BrigadesDateController.getAllForOneBrigade)
 router.get('/getone/:id([0-9]+)', BrigadesDateController.getOne)
 router.get('/getAllNumberOfDaysBrigadeForProject/:brigadeId([0-9]+)', BrigadesDateController.getAllNumberOfDaysBrigadeForProject)

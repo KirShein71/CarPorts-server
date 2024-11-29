@@ -29,6 +29,63 @@ class BrigadesDate {
           return brigadesdate;
     }
 
+
+    async getDaysInstallerForProjects() {
+        const brigadesdate = await BrigadesDateMapping.findAll();
+        const daysMapping = await DateMapping.findAll(); // Получаем все даты из DaysMapping
+    
+        // Создаем объект для хранения дат по их идентификаторам
+        const dateMap = {};
+        daysMapping.forEach(dateRecord => {
+            const { id, date } = dateRecord; // Предполагаем, что у вас есть поля id и date
+            dateMap[id] = new Date(date); // Преобразуем дату в объект Date для удобства
+        });
+    
+        // Создаем объект для хранения результатов
+        const result = {};
+    
+        // Получаем текущую дату и завтрашнюю дату
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Убираем время, чтобы сравнивать только даты
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1); // Завтрашняя дата
+    
+        // Проходим по всем записям
+        brigadesdate.forEach(record => {
+            const { projectId, dateId } = record;
+    
+            // Если проект уже есть в результате, добавляем date_id
+            if (!result[projectId]) {
+                result[projectId] = {
+                    projectId: Number(projectId),
+                    factDays: new Set(), // Используем Set для уникальных фактических дней
+                    planDays: new Set(), // Используем Set для уникальных планируемых дней
+                };
+            }
+    
+            const date = dateMap[dateId];
+    
+            // Проверяем, сколько уникальных дней до сегодняшнего дня (factDay)
+            if (date < today) {
+                result[projectId].factDays.add(date.toISOString().split('T')[0]); // Добавляем только уникальные даты
+            }
+    
+            // Проверяем, сколько уникальных дней с завтрашнего дня (planDay)
+            if (date >= tomorrow) {
+                result[projectId].planDays.add(date.toISOString().split('T')[0]); // Добавляем только уникальные даты
+            }
+        });
+    
+        // Преобразуем результат в массив с подсчетом уникальных дней
+        const formattedResult = Object.values(result).map(({ projectId, factDays, planDays }) => ({
+            projectId,
+            factDay: factDays.size, // Количество уникальных фактических дней
+            planDay: planDays.size, // Количество уникальных планируемых дней
+        }));
+    
+        return formattedResult;
+    }
+
     async getAllForOneBrigade(brigadeId) {
         const brigadesdate = await BrigadesDateMapping.findAll({
             where: {
