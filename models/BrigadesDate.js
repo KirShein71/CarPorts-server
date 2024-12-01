@@ -360,6 +360,80 @@ class BrigadesDate {
         return [{regionId: 1, workingDay: spbRegion.length, billingDay: sumSpb, deadline: deadlineDateSpb }, {regionId: 2, workingDay: mskRegion.length, billingDay: sumMsk, deadline: deadlineDateMsk}]
     }
 
+    async getDataInstallerWorksForRegion() {
+        const brigadesdate = await BrigadesDateMapping.findAll()
+
+        const spbWorks = brigadesdate.filter(region => region.regionId === 1)
+        const mskWorks = brigadesdate.filter(region => region.regionId === 2)
+
+        // Функция для удаления повторяющихся projectId
+        const removeDuplicateProjects = (works) => {
+            const seen = new Set();
+            return works.filter(work => {
+                if (seen.has(work.projectId)) {
+                    return false; // Пропустить, если projectId уже был добавлен
+                }
+                seen.add(work.projectId);
+                return true; // Добавить, если projectId новый
+            });
+        };
+
+        const uniqueSpbWorks = removeDuplicateProjects(spbWorks);
+        const uniqueMskWorks = removeDuplicateProjects(mskWorks);
+
+        const dates = await DateMapping.findAll()
+
+        const dateMap = new Map(dates.map(mapping => [mapping.id, mapping.date]));
+
+        // Функция для замены dateId на date
+        const replaceDateIdsWithDates = (works) => {
+            return works.map(work => {
+                return {
+                    ...work,
+                    date: dateMap.get(work.dateId) || work.dateId // Если dateId не найден, оставляем его как есть
+                };
+            });
+        };
+
+        const updatedUniqueSpbWorks = replaceDateIdsWithDates(uniqueSpbWorks);
+        const updatedUniqueMskWorks = replaceDateIdsWithDates(uniqueMskWorks);
+
+        // Получаем сегодняшнюю дату
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Устанавливаем время на начало дня для корректного сравнения
+
+        // Функция для подсчета объектов с датой до сегодня включительно
+        const countWorksUpToToday = (works) => {
+            return works.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate <= today; // Сравниваем даты
+            }).length;
+        };
+
+        // Подсчитываем количество работ для каждого массива
+        const countSpbWorksUpToToday = countWorksUpToToday(updatedUniqueSpbWorks);
+        const countMskWorksUpToToday = countWorksUpToToday(updatedUniqueMskWorks);
+
+        const project = await ProjectMapping.findAll();
+   
+        const spbProjects = project.filter(region => region.regionId === 1 && region.date_finish === null);
+        const mskProjects = project.filter(region => region.regionId === 2 && region.date_finish === null);
+       
+        const sumSpb = spbProjects.reduce((total, spbNum) => {
+            return total + (spbNum.installation_billing || 0); 
+        }, 0);
+    
+
+        const sumMsk = mskProjects.reduce((total, mskNum) => {
+            return total + (mskNum.installation_billing || 0); 
+        }, 0);
+
+        const remainderSpb = sumSpb - countSpbWorksUpToToday
+        const remainderMsk = sumMsk - countMskWorksUpToToday
+
+        return [{regionId: 1, workingDay: countSpbWorksUpToToday, billingDay: sumSpb, remainder: remainderSpb}, {regionId: 2, workingDay: countMskWorksUpToToday, billingDay: sumMsk, remainder: remainderMsk}]
+    }
+
     async getAllNumberOfDaysBrigadeForProject(brigadeId) {
         const brigadesdate = await BrigadesDateMapping.findAll({
             where: {

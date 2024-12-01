@@ -134,7 +134,7 @@ class BrigadesDateController {
 
     async getAllNumberOfDaysBrigadeForRegion(req, res, next) {
         try {
-            const brigadesdate = await BrigadesDateModel.getAllNumberOfDaysBrigadeForRegion()
+            const brigadesdate = await BrigadesDateModel.getDataInstallerWorksForRegion()
             res.json(brigadesdate)
         } catch(e) {
             next(AppError.badRequest(e.message))

@@ -157,6 +157,10 @@ const Brigade= sequelize.define('brigade', {
     password: { type: DataTypes.STRING, allowNull: false },
 })
 
+const BrigadeWork= sequelize.define('brigade_work', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    count: {type: DataTypes.INTEGER, allowNull: false}
+})
 
 const ProjectBrigades = sequelize.define('project_brigades', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
@@ -251,6 +255,9 @@ Project.belongsTo(Region)
 Region.hasMany(BrigadesDate)
 BrigadesDate.belongsTo(Region)
 
+Region.hasMany(BrigadeWork)
+BrigadeWork.belongsTo(Region)
+
 Project.hasMany(User, {onDelete: 'CASCADE', hooks: true})
 User.belongsTo(Project)
 
@@ -303,5 +310,6 @@ export {
     ManagerSale,
     ManagerProject,
     Constructor, 
-    ManagerProduction
+    ManagerProduction,
+    BrigadeWork
 }
