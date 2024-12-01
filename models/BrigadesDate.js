@@ -366,20 +366,20 @@ class BrigadesDate {
         const spbWorks = brigadesdate.filter(region => region.regionId === 1)
         const mskWorks = brigadesdate.filter(region => region.regionId === 2)
 
-        // Функция для удаления повторяющихся projectId
-        const removeDuplicateProjects = (works) => {
-            const seen = new Set();
-            return works.filter(work => {
-                if (seen.has(work.projectId)) {
-                    return false; // Пропустить, если projectId уже был добавлен
-                }
-                seen.add(work.projectId);
-                return true; // Добавить, если projectId новый
-            });
-        };
+        // // Функция для удаления повторяющихся projectId
+        // const removeDuplicateProjects = (works) => {
+        //     const seen = new Set();
+        //     return works.filter(work => {
+        //         if (seen.has(work.projectId)) {
+        //             return false; // Пропустить, если projectId уже был добавлен
+        //         }
+        //         seen.add(work.projectId);
+        //         return true; // Добавить, если projectId новый
+        //     });
+        // };
 
-        const uniqueSpbWorks = removeDuplicateProjects(spbWorks);
-        const uniqueMskWorks = removeDuplicateProjects(mskWorks);
+        // const uniqueSpbWorks = removeDuplicateProjects(spbWorks);
+        // const uniqueMskWorks = removeDuplicateProjects(mskWorks);
 
         const dates = await DateMapping.findAll()
 
@@ -395,8 +395,8 @@ class BrigadesDate {
             });
         };
 
-        const updatedUniqueSpbWorks = replaceDateIdsWithDates(uniqueSpbWorks);
-        const updatedUniqueMskWorks = replaceDateIdsWithDates(uniqueMskWorks);
+        const updatedUniqueSpbWorks = replaceDateIdsWithDates(spbWorks);
+        const updatedUniqueMskWorks = replaceDateIdsWithDates(mskWorks);
 
         // Получаем сегодняшнюю дату
         const today = new Date();
