@@ -363,8 +363,22 @@ class BrigadesDate {
     async getDataInstallerWorksForRegion() {
         const brigadesdate = await BrigadesDateMapping.findAll()
 
-        const spbWorks = brigadesdate.filter(region => region.regionId === 1)
-        const mskWorks = brigadesdate.filter(region => region.regionId === 2)
+        const spbWorks = brigadesdate.filter(region => region.regionId === 1 && region.projectId !== null)
+        const mskWorks = brigadesdate.filter(region => region.regionId === 2 && region.projectId !== null)
+
+        const projects = await ProjectMapping.findAll();s
+   
+        const spbProject = projects.filter(region => region.regionId === 1 && region.date_finish === null);
+        const mskProject = projects.filter(region => region.regionId === 2 && region.date_finish === null);
+
+        const filteredSpbWorks = spbWorks.filter(work => 
+            spbProject.some(project => project.id === work.projectId)
+        );
+        
+        // Удаляем из mskWorks элементы, у которых projectId нет в mskProject
+        const filteredMskWorks = mskWorks.filter(work => 
+            mskProject.some(project => project.id === work.projectId)
+        );
 
         // // Функция для удаления повторяющихся projectId
         // const removeDuplicateProjects = (works) => {
@@ -395,8 +409,8 @@ class BrigadesDate {
             });
         };
 
-        const updatedUniqueSpbWorks = replaceDateIdsWithDates(spbWorks);
-        const updatedUniqueMskWorks = replaceDateIdsWithDates(mskWorks);
+        const updatedUniqueSpbWorks = replaceDateIdsWithDates(filteredSpbWorks);
+        const updatedUniqueMskWorks = replaceDateIdsWithDates(filteredMskWorks);
 
         // Получаем сегодняшнюю дату
         const today = new Date();
