@@ -375,25 +375,33 @@ class BrigadesDate {
             spbProject.some(project => project.id === work.projectId)
         );
         
-        // Удаляем из mskWorks элементы, у которых projectId нет в mskProject
+      
         const filteredMskWorks = mskWorks.filter(work => 
             mskProject.some(project => project.id === work.projectId)
         );
 
-        // // Функция для удаления повторяющихся projectId
-        // const removeDuplicateProjects = (works) => {
-        //     const seen = new Set();
-        //     return works.filter(work => {
-        //         if (seen.has(work.projectId)) {
-        //             return false; // Пропустить, если projectId уже был добавлен
-        //         }
-        //         seen.add(work.projectId);
-        //         return true; // Добавить, если projectId новый
-        //     });
-        // };
-
-        // const uniqueSpbWorks = removeDuplicateProjects(spbWorks);
-        // const uniqueMskWorks = removeDuplicateProjects(mskWorks);
+        const uniqueSpbKeys = new Set();
+        const uniqueMskKeys = new Set();
+        
+        // Фильтруем filteredSpbWorks, удаляя дубликаты
+        const uniqueFilteredSpbWorks = filteredSpbWorks.filter(work => {
+            const key = `${work.projectId}-${work.dateId}`; // Создаем уникальный ключ
+            if (uniqueSpbKeys.has(key)) {
+                return false; // Если ключ уже существует, пропускаем элемент
+            }
+            uniqueSpbKeys.add(key); // Добавляем ключ в множество
+            return true; // В противном случае включаем элемент
+        });
+        
+        // Фильтруем filteredMskWorks, удаляя дубликаты
+        const uniqueFilteredMskWorks = filteredMskWorks.filter(work => {
+            const key = `${work.projectId}-${work.dateId}`; // Создаем уникальный ключ
+            if (uniqueMskKeys.has(key)) {
+                return false; // Если ключ уже существует, пропускаем элемент
+            }
+            uniqueMskKeys.add(key); // Добавляем ключ в множество
+            return true; // В противном случае включаем элемент
+        });
 
         const dates = await DateMapping.findAll()
 
@@ -409,8 +417,8 @@ class BrigadesDate {
             });
         };
 
-        const updatedUniqueSpbWorks = replaceDateIdsWithDates(filteredSpbWorks);
-        const updatedUniqueMskWorks = replaceDateIdsWithDates(filteredMskWorks);
+        const updatedUniqueSpbWorks = replaceDateIdsWithDates(uniqueFilteredSpbWorks);
+        const updatedUniqueMskWorks = replaceDateIdsWithDates(uniqueFilteredMskWorks);
 
         // Получаем сегодняшнюю дату
         const today = new Date();
