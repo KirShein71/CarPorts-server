@@ -366,7 +366,7 @@ class BrigadesDate {
         const spbWorks = brigadesdate.filter(region => region.regionId === 1 && region.projectId !== null)
         const mskWorks = brigadesdate.filter(region => region.regionId === 2 && region.projectId !== null)
 
-        const projects = await ProjectMapping.findAll();s
+        const projects = await ProjectMapping.findAll();
    
         const spbProject = projects.filter(region => region.regionId === 1 && region.date_finish === null);
         const mskProject = projects.filter(region => region.regionId === 2 && region.date_finish === null);
