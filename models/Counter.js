@@ -51,7 +51,7 @@ class Counter {
                 ))
             );
 
-            const countInstaller = activeProject.filter(active => 
+            const countInstallers = activeProject.filter(active => 
                 uniqueProjects.some(unique => unique.projectId === active.projectId)
             ).length;
               
