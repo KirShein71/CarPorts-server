@@ -84,7 +84,7 @@ class Counter {
                 }
             });
             
-            return [{ countProject: countProject.count, countNoDesigner: countNoDesigner.count, countNoMaterials: countNoMaterials, countNoInstallers: countNoInstallers, countInstallers: countInstallers.count, countFinish: countFinish.count, countFinishThisYear: countFinishThisYear.count }];
+            return [{ countProject: countProject.count, countNoDesigner: countNoDesigner.count, countNoMaterials: countNoMaterials, countNoInstallers: countNoInstallers, countInstallers: countInstallers, countFinish: countFinish.count, countFinishThisYear: countFinishThisYear.count }];
         } catch (error) {
             console.error('Error getting project statistics:', error);
             throw error;
