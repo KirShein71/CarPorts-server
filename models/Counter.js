@@ -52,9 +52,8 @@ class Counter {
             );
 
             const countInstallers = activeProject.filter(active => 
-                uniqueProjects.some(unique => unique.projectId === active.projectId)
+                uniqueProjects.some(unique => unique.projectId === active.id)
             ).length;
-              
 
             // const countInstallers = await ProjectBrigadeMapping.findAndCountAll({
             //     where: {
