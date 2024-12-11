@@ -1,5 +1,6 @@
 import { Project as ProjectMapping } from "./mapping.js";
 import { ProjectBrigades as ProjectBrigadeMapping } from "./mapping.js";
+import { BrigadesDate as BrigadesDateMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 
@@ -32,19 +33,36 @@ class Counter {
                 FROM projects
                 WHERE id NOT IN (
                     SELECT project_id
-                    FROM project_brigades
-                )`,
+                    FROM brigades_dates
+                ) AND date_finish IS NULL`,
                 { plain: true }
             );
             const countNoInstallers = Object.values(countNoInstallersResult)[0];
+            // Проекты на монтаже
+            const projects = await ProjectMapping.findAll()
 
-            const countInstallers = await ProjectBrigadeMapping.findAndCountAll({
-                where: {
-                    project_id: {
-                        [Op.not]: null
-                    }
-                    }
-            });
+            const activeProject = projects.filter(project => project.date_finish === null)
+
+            const brigadeProject = await BrigadesDateMapping.findAll()
+
+            const uniqueProjects = brigadeProject.filter((value, index, self) =>
+                index === self.findIndex((t) => (
+                    t.projectId === value.projectId
+                ))
+            );
+
+            const countInstaller = activeProject.filter(active => 
+                uniqueProjects.some(unique => unique.projectId === active.projectId)
+            ).length;
+              
+
+            // const countInstallers = await ProjectBrigadeMapping.findAndCountAll({
+            //     where: {
+            //         project_id: {
+            //             [Op.not]: null
+            //         }
+            //         }
+            // });
 
             const countFinish = await ProjectMapping.findAndCountAll({
                 where: {
