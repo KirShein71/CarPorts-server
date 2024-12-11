@@ -63,13 +63,9 @@ class Counter {
             //         }
             // });
 
-            const countFinish = await ProjectMapping.findAndCountAll({
-                where: {
-                    date_finish: {
-                        [Op.not]: null
-                    }
-                }
-            });
+            const finishProject = projects.filter(project => project.date_finish !== null)
+
+            const countFinish = finishProject.length
 
             
             const currentYear = new Date().getFullYear();
@@ -83,7 +79,7 @@ class Counter {
                 }
             });
             
-            return [{ countProject: countProject.count, countNoDesigner: countNoDesigner.count, countNoMaterials: countNoMaterials, countNoInstallers: countNoInstallers, countInstallers: countInstallers, countFinish: countFinish.count, countFinishThisYear: countFinishThisYear.count }];
+            return [{ countProject: countProject.count, countNoDesigner: countNoDesigner.count, countNoMaterials: countNoMaterials, countNoInstallers: countNoInstallers, countInstallers: countInstallers, countFinish: countFinish, countFinishThisYear: countFinishThisYear.count }];
         } catch (error) {
             console.error('Error getting project statistics:', error);
             throw error;
