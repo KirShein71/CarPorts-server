@@ -198,6 +198,12 @@ const Estimate = sequelize.define('estimate', {
     done: {type: DataTypes.STRING, allowNull: true},
 })
 
+const Payment = sequelize.define('payment', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    date: {type: DataTypes.DATE, allowNull: false},
+    sum: {type: DataTypes.INTEGER, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -282,6 +288,12 @@ Estimate.belongsTo(Service)
 Brigade.hasHooks(Estimate, { onDelete: 'CASCADE', hooks: true })
 Estimate.belongsTo(Brigade)
 
+Brigade.hasHooks(Payment, { onDelete: 'CASCADE', hooks: true })
+Payment.belongsTo(Brigade)
+
+Project.hasMany(Payment, { onDelete: 'CASCADE', hooks: true })
+Payment.belongsTo(Project)
+
 
 
 
@@ -311,5 +323,6 @@ export {
     ManagerProject,
     Constructor, 
     ManagerProduction,
-    BrigadeWork
+    BrigadeWork,
+    Payment
 }

@@ -1,6 +1,7 @@
 import {Estimate as EstimateMapping} from './mapping.js'
 import { Service as ServiceMapping } from './mapping.js';
 import { Project as ProjectMapping } from './mapping.js';
+import { Payment as PaymentMapping} from './mapping.js'
 
 
 
@@ -19,7 +20,7 @@ class Estimate {
             },
             include: [
                 { model: ServiceMapping, attributes: ['name'] },
-                { model: ProjectMapping, attributes: ['name', 'date_finish'] } 
+                { model: ProjectMapping, attributes: ['name', 'date_finish', 'installation_billing'] } 
             ]
         });
     
@@ -27,6 +28,7 @@ class Estimate {
             const projectId = estimate.projectId; // Получаем id проекта
             const projectName = estimate.project.name; // Получаем название проекта
             const projectFinish = estimate.project.date_finish;
+            const installationBilling = estimate.project.installation_billing
     
             // Проверяем, если projectFinish равен null
             if (projectFinish === null) {
@@ -34,6 +36,7 @@ class Estimate {
                     acc[projectId] = {
                         projectId: projectId,
                         projectName: projectName, // Добавляем название проекта
+                        installationBilling: installationBilling,
                         estimates: []
                     };
                 }
@@ -93,9 +96,54 @@ class Estimate {
     
         // Преобразуем объект в массив для удобства
         const result = Object.values(groupedEstimates);
+
+        const payments = await PaymentMapping.findAll({
+            where: {
+                project_id: id
+            },
+        });
     
-        return result;
+        // Группируем данные по brigadeId
+        const groupedPayments = payments.reduce((acc, payment) => {
+            const brigadeId = payment.brigadeId;
+    
+            if (!acc[brigadeId]) {
+                acc[brigadeId] = {
+                    brigadeId: brigadeId,
+                    payments: []
+                };
+            }
+    
+            // Преобразуем payment в нужный формат
+            acc[brigadeId].payments.push({
+                id: payment.id,
+                date: payment.date,
+                sum: payment.sum,
+                createdAt: payment.createdAt,
+                // Добавьте другие необходимые поля здесь
+            });
+            return acc;
+        }, {});
+    
+        // Преобразуем объект в массив для удобства
+        const resultPayment = Object.values(groupedPayments);
+    
+        // Объединяем результаты estimates и payments по brigadeId
+        const finalResult = result.map(estimateGroup => {
+            const paymentGroup = resultPayment.find(paymentGroup => paymentGroup.brigadeId === estimateGroup.brigadeId);
+            
+            return {
+                brigadeId: estimateGroup.brigadeId,
+                estimates: estimateGroup.estimates,
+                payments: paymentGroup ? paymentGroup.payments : [], // Если нет платежей, возвращаем пустой массив
+            };
+        });
+    
+        return finalResult;
     }
+
+
+   
 
     async getOne(id) {
         const estimate = await EstimateMapping.findByPk(id)

@@ -27,6 +27,7 @@ import managerproject from './managerproject.js'
 import managerproduction from './managerproduction.js'
 import constructor from './constructor.js'
 import brigadework from './brigadework.js'
+import payment from './payment.js'
 
 
 
@@ -60,6 +61,7 @@ router.use('/managerproject', managerproject)
 router.use('/managerproduction', managerproduction)
 router.use('/constructor', constructor)
 router.use('/brigadework', brigadework)
+router.use('/payment', payment)
 
 
 
