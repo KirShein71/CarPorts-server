@@ -2,6 +2,7 @@ import {Estimate as EstimateMapping} from './mapping.js'
 import { Service as ServiceMapping } from './mapping.js';
 import { Project as ProjectMapping } from './mapping.js';
 import { Payment as PaymentMapping} from './mapping.js'
+import { Brigade as BrigadeMapping } from './mapping.js';
 
 
 
@@ -32,6 +33,46 @@ class Estimate {
     
             // Проверяем, если projectFinish равен null
             if (projectFinish === null) {
+                if (!acc[projectId]) {
+                    acc[projectId] = {
+                        projectId: projectId,
+                        projectName: projectName, // Добавляем название проекта
+                        installationBilling: installationBilling,
+                        estimates: []
+                    };
+                }
+    
+                acc[projectId].estimates.push(estimate);
+            }
+    
+            return acc;
+        }, {});
+    
+        // Преобразуем объект в массив для удобства
+        const result = Object.values(groupedEstimates);
+    
+        return result;
+    }
+
+    async getAllEstimateForBrigadeFinishProject(id) {
+        const estimates = await EstimateMapping.findAll({
+            where: {
+                brigade_id: id
+            },
+            include: [
+                { model: ServiceMapping, attributes: ['name'] },
+                { model: ProjectMapping, attributes: ['name', 'date_finish', 'installation_billing'] } 
+            ]
+        });
+    
+        const groupedEstimates = estimates.reduce((acc, estimate) => {
+            const projectId = estimate.projectId; // Получаем id проекта
+            const projectName = estimate.project.name; // Получаем название проекта
+            const projectFinish = estimate.project.date_finish;
+            const installationBilling = estimate.project.installation_billing
+    
+            // Проверяем, если projectFinish равен null
+            if (projectFinish !== null) {
                 if (!acc[projectId]) {
                     acc[projectId] = {
                         projectId: projectId,
