@@ -14,6 +14,117 @@ class Estimate {
           return estimate;
     }
 
+    async getAllEstimatesForAllProjects() {
+        const projects = await ProjectMapping.findAll();
+        const activeProjectIds = projects
+            .filter((project) => project.date_finish === null)
+            .map((project) => project.id); // Получаем массив ID активных проектов
+    
+        const [estimates, payments] = await Promise.all([
+            EstimateMapping.findAll({
+                include: [
+                    { model: ProjectMapping, attributes: ['name'] },
+                    { model: BrigadeMapping, attributes: ['name'] },
+                ]
+            }),
+            PaymentMapping.findAll({
+                include: [
+                    { model: ProjectMapping, attributes: ['name'] },
+                    { model: BrigadeMapping, attributes: ['name'] },
+                ]
+            })
+        ]);
+        
+        // Группируем данные по projectId для оценок
+        const groupedEstimates = estimates.reduce((acc, estimate) => {
+            const projectId = estimate.projectId; 
+            const projectName = estimate.project.name; 
+            const brigadeId = estimate.brigadeId; 
+            const brigadeName = estimate.brigade.name; 
+    
+            if (!acc[projectId]) {
+                acc[projectId] = {
+                    projectId: projectId,
+                    projectName: projectName,
+                    brigades: {},
+                    totalPriceDone: 0 // Сумма price для done == true
+                };
+            }
+    
+            if (estimate.done) {
+                acc[projectId].totalPriceDone += estimate.price; // Суммируем price
+            }
+    
+            if (!acc[projectId].brigades[brigadeId]) {
+                acc[projectId].brigades[brigadeId] = {
+                    brigadeId: brigadeId,
+                    brigadeName: brigadeName,
+                    estimates: []
+                };
+            }
+    
+            acc[projectId].brigades[brigadeId].estimates.push(estimate);
+            
+            return acc;
+        }, {});
+        
+        // Группируем данные по projectId для платежей
+        const groupedPayments = payments.reduce((acc, payment) => {
+            const projectId = payment.projectId; 
+            const projectName = payment.project.name; 
+            const brigadeId = payment.brigadeId; 
+            const brigadeName = payment.brigade.name; 
+    
+            if (!acc[projectId]) {
+                acc[projectId] = {
+                    projectId: projectId,
+                    projectName: projectName,
+                    brigades: {},
+                    totalPaymentSum: 0 // Сумма sum для платежей
+                };
+            }
+    
+            acc[projectId].totalPaymentSum += payment.sum; // Суммируем sum
+    
+            if (!acc[projectId].brigades[brigadeId]) {
+                acc[projectId].brigades[brigadeId] = {
+                    brigadeId: brigadeId,
+                    brigadeName: brigadeName,
+                    payments: []
+                };
+            }
+    
+            acc[projectId].brigades[brigadeId].payments.push(payment);
+            
+            return acc;
+        }, {});
+        
+        // Объединяем результаты и фильтруем по активным проектам
+        const combinedResult = Object.values(groupedEstimates)
+            .filter(project => activeProjectIds.includes(project.projectId)) // Фильтруем только активные проекты
+            .map(project => {
+                const paymentsForProject = groupedPayments[project.projectId]?.brigades || {};
+            
+                // Объединяем оценки и платежи по бригадам
+                const brigadesWithPayments = Object.values(project.brigades).map(brigade => {
+                    return {
+                        ...brigade,
+                        payments: paymentsForProject[brigade.brigadeId]?.payments || []
+                    };
+                });
+            
+                return {
+                    projectId: project.projectId,
+                    projectName: project.projectName,
+                    totalPriceDone: project.totalPriceDone, // Добавляем сумму price для done == true
+                    totalPaymentSum: groupedPayments[project.projectId]?.totalPaymentSum || 0, // Добавляем сумму всех платежей
+                    brigades: brigadesWithPayments
+                };
+            });
+        
+        return combinedResult;
+    }
+
     async getAllEstimateForBrigade(id) {
         const estimates = await EstimateMapping.findAll({
             where: {
