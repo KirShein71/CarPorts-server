@@ -30,6 +30,15 @@ class estimateController {
         }
     }
 
+    async getAllEstimateForBrigadeAllProject(req, res, next) {
+        try {
+            const estimate = await EstimateModel.getAllEstimateForBrigadeAllProject(req.params.id)
+            res.json(estimate)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllEstimateForBrigadeFinishProject(req, res, next) {
         try {
             const estimate = await EstimateModel.getAllEstimateForBrigadeFinishProject(req.params.id)

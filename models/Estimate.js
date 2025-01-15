@@ -165,6 +165,44 @@ class Estimate {
         return result;
     }
 
+    async getAllEstimateForBrigadeAllProject(id) {
+        const estimates = await EstimateMapping.findAll({
+            where: {
+                brigade_id: id
+            },
+            include: [
+                { model: ServiceMapping, attributes: ['name'] },
+                { model: ProjectMapping, attributes: ['name', 'installation_billing'] } 
+            ]
+        });
+    
+        const groupedEstimates = estimates.reduce((acc, estimate) => {
+            const projectId = estimate.projectId; // Получаем id проекта
+            const projectName = estimate.project.name; // Получаем название проекта
+            const installationBilling = estimate.project.installation_billing
+    
+            // Проверяем, если projectFinish равен null
+                if (!acc[projectId]) {
+                    acc[projectId] = {
+                        projectId: projectId,
+                        projectName: projectName, // Добавляем название проекта
+                        installationBilling: installationBilling,
+                        estimates: []
+                    };
+                }
+    
+                acc[projectId].estimates.push(estimate);
+            
+    
+            return acc;
+        }, {});
+    
+        // Преобразуем объект в массив для удобства
+        const result = Object.values(groupedEstimates);
+    
+        return result;
+    }
+
     async getAllEstimateForBrigadeFinishProject(id) {
         const estimates = await EstimateMapping.findAll({
             where: {
