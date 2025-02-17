@@ -37,9 +37,6 @@ class Project {
                     ]
                 }
             ],
-            where: {
-                date_finish: null
-            }
         });
         return projects;
     }
@@ -296,7 +293,11 @@ class Project {
 
     async create(data) {
         const {name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId} = data
-        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId})
+
+        const installationBillingValue = installation_billing ? parseInt(installation_billing) : null;
+        const regionIdValue = regionId ? parseInt(regionId) : null;
+
+        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing: installationBillingValue, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId: regionIdValue})
         
         const created = await ProjectMapping.findByPk(project.id) 
         return created
@@ -389,6 +390,21 @@ class Project {
             
         } = data
         await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, installation_billing , note, designer, design_start, project_delivery, inspection_designer, date_inspection})
+        await project.reload()
+        return project
+    }
+
+    async reviseProjectNameAndNumberAndInstallationBilling(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            name = project.name,
+            number = project.number,
+            installation_billing = project.installation_billing,  
+        } = data
+        await project.update({name, number, installation_billing})
         await project.reload()
         return project
     }

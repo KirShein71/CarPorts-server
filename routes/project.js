@@ -23,7 +23,7 @@ router.delete('/deleteDateFinish/:date_finish', ProjectController.deleteDateFini
 router.put('/createRegion/:id([0-9]+)', ProjectController.createRegion)
 router.put('/createInstallationBilling/:id([0-9]+)', ProjectController.createInstallationBilling)
 router.put('/updateNote/:id([0-9]+)', ProjectController.updateNote)
-
+router.put('/reviseProjectNameAndNumberAndInstallationBilling/:id([0-9]+)',  ProjectController.reviseProjectNameAndNumberAndInstallationBilling)
 router.put('/update/:id([0-9]+)',  ProjectController.update)
 router.delete('/delete/:id([0-9]+)',  ProjectController.delete)
 
