@@ -9,10 +9,7 @@ class ProjectDetails {
             include: [
                 {
                     model: ProjectMapping,
-                    attributes: ['name', 'number'],
-                    where: {
-                        date_finish: null
-                    }
+                    attributes: ['name', 'number', 'date_finish'],
                 },
                 {
                     model: AntypicalMapping, 
@@ -38,7 +35,8 @@ class ProjectDetails {
                     projectId: projectId,
                     project: {
                         name: project.name,
-                        number: project.number
+                        number: project.number,
+                        date_finish: project.date_finish
                     },
                     antypical: antypical && antypical.image ? [{ image: antypical.image, id: antypical.id }] : [],
                     props: [{ id: id, detailId: item.detailId, quantity: item.quantity }]
