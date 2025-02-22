@@ -79,7 +79,7 @@ class Project {
              WHERE id NOT IN (
                SELECT project_id
                FROM project_details
-             )`,
+             ) AND date_finish IS NULL`,
             { model: ProjectMapping }
           );
       
