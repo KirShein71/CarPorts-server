@@ -47,12 +47,17 @@ class Estimate {
                     projectId: projectId,
                     projectName: projectName,
                     brigades: {},
-                    totalPriceDone: 0 // Сумма price для done == true
+                    totalPrice: 0, // Общая сумма всех оценок
+                    totalSumDone: 0 // Сумма только тех оценок, где done === true
                 };
             }
     
-            if (estimate.done) {
-                acc[projectId].totalPriceDone += estimate.price; // Суммируем price
+            // Суммируем все оценки
+            acc[projectId].totalPrice += estimate.price;
+    
+            // Суммируем только оценки, где done === true
+            if (estimate.done === 'true') {
+                acc[projectId].totalSumDone += estimate.price;
             }
     
             if (!acc[projectId].brigades[brigadeId]) {
@@ -116,14 +121,15 @@ class Estimate {
                 return {
                     projectId: project.projectId,
                     projectName: project.projectName,
-                    totalPriceDone: project.totalPriceDone, // Добавляем сумму price для done == true
-                    totalPaymentSum: groupedPayments[project.projectId]?.totalPaymentSum || 0, // Добавляем сумму всех платежей
+                    totalPrice: project.totalPrice, // Общая сумма всех оценок
+                    totalSumDone: project.totalSumDone, // Сумма оценок, где done === true
+                    totalPaymentSum: groupedPayments[project.projectId]?.totalPaymentSum || 0, // Сумма всех платежей
                     brigades: brigadesWithPayments
-                };
-            });
-        
-        return combinedResult;
-    }
+            };
+        });
+    
+    return combinedResult;
+}
 
     async getAllEstimateForBrigade(id) {
         const estimates = await EstimateMapping.findAll({
