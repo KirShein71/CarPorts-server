@@ -204,6 +204,34 @@ const Payment = sequelize.define('payment', {
     sum: {type: DataTypes.INTEGER, allowNull: true},
 })
 
+
+const Complaint = sequelize.define('complaint', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    date: {type: DataTypes.DATE, allowNull: false},
+    note: {type: DataTypes.STRING, allowNull: true},
+    date_finish: {type: DataTypes.DATE, allowNull: true}
+    
+})
+
+
+const ComplaintImage = sequelize.define('complaint_image', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    image: {type: DataTypes.STRING, allowNull: false }
+})
+
+const ComplaintEstimate = sequelize.define('complaint_estimate', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    price: {type: DataTypes.INTEGER, allowNull: false},
+    done: {type: DataTypes.STRING, allowNull: true},
+    
+})
+
+const ComplaintPayment = sequelize.define('complaint_payment', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    date: {type: DataTypes.DATE, allowNull: false},
+    sum: {type: DataTypes.INTEGER, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -294,6 +322,28 @@ Payment.belongsTo(Brigade)
 Project.hasMany(Payment, { onDelete: 'CASCADE', hooks: true })
 Payment.belongsTo(Project)
 
+Project.hasMany(Complaint, {onDelete: 'CASCADE', hooks: true})
+Complaint.belongsTo(Project)
+
+Complaint.hasMany(ComplaintImage, { onDelete: 'CASCADE', hooks: true })
+ComplaintImage.belongsTo(Complaint)
+
+Complaint.hasMany(ComplaintEstimate, { onDelete: 'CASCADE', hooks: true })
+ComplaintEstimate.belongsTo(Complaint)
+
+Service.hasMany(ComplaintEstimate, { onDelete: 'CASCADE', hooks: true })
+ComplaintEstimate.belongsTo(Service)
+
+Brigade.hasHooks(ComplaintEstimate, { onDelete: 'CASCADE', hooks: true })
+ComplaintEstimate.belongsTo(Brigade)
+
+Brigade.hasHooks(ComplaintPayment, { onDelete: 'CASCADE', hooks: true })
+ComplaintPayment.belongsTo(Brigade)
+
+Complaint.hasMany(ComplaintPayment, { onDelete: 'CASCADE', hooks: true })
+ComplaintPayment.belongsTo(Complaint)
+
+
 
 
 
@@ -324,5 +374,9 @@ export {
     Constructor, 
     ManagerProduction,
     BrigadeWork,
-    Payment
+    Payment, 
+    Complaint,
+    ComplaintImage,
+    ComplaintEstimate,
+    ComplaintPayment
 }

@@ -28,6 +28,10 @@ import managerproduction from './managerproduction.js'
 import constructor from './constructor.js'
 import brigadework from './brigadework.js'
 import payment from './payment.js'
+import complaint from './complaint.js'
+import complaintimage from './complaintimage.js'
+import complaintestimate from './complaintestimate.js'
+import complaintpayment from './complaintpayment.js'
 
 
 
@@ -62,6 +66,10 @@ router.use('/managerproduction', managerproduction)
 router.use('/constructor', constructor)
 router.use('/brigadework', brigadework)
 router.use('/payment', payment)
+router.use('/complaint', complaint)
+router.use('/complaintimage', complaintimage)
+router.use('/complaintestimate', complaintestimate)
+router.use('/complaintpayment', complaintpayment)
 
 
 
