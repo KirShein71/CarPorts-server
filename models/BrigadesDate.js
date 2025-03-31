@@ -3,6 +3,7 @@ import { Project as ProjectMapping } from './mapping.js'
 import { Brigade as BrigadeMapping } from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
 import { Estimate as EstimateMapping } from './mapping.js'
+import { BrigadeWork as BrigadeWorkMapping} from './mapping.js'
 
 import { Op} from 'sequelize'
 
@@ -467,7 +468,23 @@ class BrigadesDate {
         const remainderSpb = sumSpb - countSpbWorksUpToToday
         const remainderMsk = sumMsk - countMskWorksUpToToday
 
-        return [{regionId: 1, workingDay: countSpbWorksUpToToday, billingDay: sumSpb, remainder: remainderSpb}, {regionId: 2, workingDay: countMskWorksUpToToday, billingDay: sumMsk, remainder: remainderMsk}]
+        const brigedeWorks = await BrigadeWorkMapping.findAll()
+
+        const brigadeWorksSpb = brigedeWorks.filter(regionWork => regionWork.regionId === 1 )
+        const brigadeWorksMsk = brigedeWorks.filter(regionWork => regionWork.regionId === 2 )
+
+       // количество бригад
+        const countWorkSpb = brigadeWorksSpb.length > 0 ? brigadeWorksSpb[0].count : '';
+        const countWorkMsk = brigadeWorksMsk.length > 0 ? brigadeWorksMsk[0].count : '';
+        //остаток/количество бригад
+        const workPerBrigadeSpb = Math.round(remainderSpb/countWorkSpb)
+        const workPerBrigadeMsk = Math.round(remainderMsk/countWorkMsk)
+
+        //загрузка в процентах
+        const LoadProcentSpb = Math.round(workPerBrigadeSpb/(workPerBrigadeSpb + workPerBrigadeMsk) * 100);
+        const LoadProcentMsk = Math.round(workPerBrigadeMsk/(workPerBrigadeSpb + workPerBrigadeMsk) * 100);
+
+        return [{regionSpb: 1, regionMsk: 2, workingSpbDay: countSpbWorksUpToToday, billingSpbDay: sumSpb, remainderSpb: remainderSpb, workingMskDay: countMskWorksUpToToday, billingMskDay: sumMsk, remainderMsk: remainderMsk, workPerBrigadeSpb: workPerBrigadeSpb, workPerBrigadeMsk: workPerBrigadeMsk, LoadProcentSpb: LoadProcentSpb, LoadProcentMsk: LoadProcentMsk, countWorkSpb: countWorkSpb, countWorkMsk : countWorkMsk }]
     }
 
     async getAllNumberOfDaysBrigadeForProject(brigadeId) {

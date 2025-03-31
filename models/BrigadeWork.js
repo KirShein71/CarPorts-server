@@ -16,6 +16,19 @@ class BrigadeWork {
         return brigadework
     } 
 
+    async getOneBrigadeWorkRegionId(id) {
+        const brigadework = await BrigadeWorkMapping.findAll({
+            where: {
+                region_id: id
+            }
+        }
+        )
+        if (!brigadework) { 
+            throw new Error('Товар не найден в БД')
+        }
+        return brigadework
+    } 
+
     async create(data) {
         const { regionId, count } = data;
         const brigadework = await BrigadeWorkMapping.create({regionId, count  });
@@ -24,18 +37,30 @@ class BrigadeWork {
     }
 
     async updateCount(id, data) {
-        const brigadework = await BrigadeWorkMapping.findByPk(id)
-        if (!brigadework) {
-            throw new Error('Строка не найдена в БД')
+        // Находим ВСЕ записи с указанным region_id (возвращается массив)
+        const brigadeWorks = await BrigadeWorkMapping.findAll({
+          where: {
+            region_id: id
+          }
+        });
+      
+        // Если массив пустой - ошибка
+        if (!brigadeWorks || brigadeWorks.length === 0) {
+          throw new Error('Строки не найдены в БД');
         }
-        const {
-            count = brigadework.count,
-           
-        } = data
-        await brigadework.update({count})
-        await brigadework.reload()
-        return brigadework
-    }
+      
+        // Берём ПЕРВУЮ запись (если нужно обновить все - см. вариант ниже)
+        const brigadework = brigadeWorks[0];
+        
+        // Обновляем count (используем значение из data или текущее)
+        const { count = brigadework.count } = data;
+        
+        // Обновляем конкретную запись
+        await brigadework.update({ count });
+        await brigadework.reload();
+        
+        return brigadework;
+      }
 
 }
 

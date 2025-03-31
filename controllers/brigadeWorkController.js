@@ -24,6 +24,18 @@ class BrigadeWorkController {
         }
     }
 
+    async getOneBrigadeWorkRegionId(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            const brigadework = await BrigadeWorkModel.getOneBrigadeWorkRegionId(req.params.id)
+            res.json(brigadework)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async create(req, res, next) {
         try {
           
