@@ -9,6 +9,7 @@ import { User as UserMapping} from './mapping.js'
 import { Region as RegionMapping} from './mapping.js'
 import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
+import { Complaint as ComplaintMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -190,7 +191,8 @@ class Project {
           const extractedDetails = projectdetails.map(detail => {
             return {
                 quantity: detail.quantity,
-                detailId: detail.detailId
+                detailId: detail.detailId,
+                id: detail.id
             };
         });
         const shipmentdetails = await ShipmentDetailsMapping.findAll({
@@ -254,7 +256,15 @@ class Project {
             throw new Error('Товар не найден в БД')
         }
 
-        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate }
+        const complaints = await ComplaintMapping.findAll({
+            where: {
+                project_id: id,
+                date_finish: null
+            },
+            attributes: ['id', 'note', 'date']
+        })
+
+        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
     }
 
     async getProjectInfoInstallation(id) {

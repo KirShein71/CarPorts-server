@@ -13,7 +13,8 @@ class Counter {
             
             const countNoDesigner = await ProjectMapping.findAndCountAll({
                 where: {
-                    designer: null
+                    designer: null,
+                    date_finish: null
                 }
             });
     
