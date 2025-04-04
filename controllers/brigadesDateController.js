@@ -84,6 +84,21 @@ class BrigadesDateController {
         }
     }
 
+    async refreshDataBrigadesDate(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const brigadesdate  = await BrigadesDateModel.refreshDataBrigadesDate(req.params.id, req.body,)
+            res.json(brigadesdate )
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async delete(req, res, next) {
         try {
             if (!req.params.id) {

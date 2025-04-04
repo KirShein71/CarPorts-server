@@ -274,6 +274,9 @@ ProjectBrigades.belongsTo(Project)
 Project.hasMany(BrigadesDate, {onDelete: 'CASCADE', hooks: true})
 BrigadesDate.belongsTo(Project)
 
+Complaint.hasMany(BrigadesDate, {onDelete: 'CASCADE', hooks: true})
+BrigadesDate.belongsTo(Complaint)
+
 Brigade.hasMany(BrigadesDate)
 BrigadesDate.belongsTo(Brigade)
 

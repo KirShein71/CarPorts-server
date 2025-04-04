@@ -4,7 +4,7 @@ import { Brigade as BrigadeMapping } from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
 import { Estimate as EstimateMapping } from './mapping.js'
 import { BrigadeWork as BrigadeWorkMapping} from './mapping.js'
-
+import { Complaint as ComplaintMapping } from './mapping.js'
 import { Op} from 'sequelize'
 
 
@@ -23,6 +23,15 @@ class BrigadesDate {
                 {
                     model: DateMapping,
                     attributes: ['date']
+                },
+                {
+                    model: ComplaintMapping,
+                    attributes: ['id'],
+                    include: [
+                        {model: ProjectMapping,
+                            attributes: ['name']
+                        }
+                    ]
                 }
               ],
         })
@@ -135,6 +144,15 @@ class BrigadesDate {
                             [Op.between]: [threeDaysAgo, threeDaysLater]
                         }
                     }
+                },
+                {
+                    model: ComplaintMapping,
+                    attributes: ['id'],
+                    include: [
+                        {model: ProjectMapping,
+                            attributes: ['name']
+                        }
+                    ]
                 }
             ],
         });
@@ -153,8 +171,8 @@ class BrigadesDate {
 
 
     async create(data) {
-        const {  projectId, brigadeId, dateId, regionId, weekend, warranty, downtime } = data;
-        const brigadesdate = await BrigadesDateMapping.create({projectId, brigadeId, dateId, regionId, weekend, warranty, downtime  });
+        const {  projectId, complaintId, brigadeId, dateId, regionId, weekend, warranty, downtime } = data;
+        const brigadesdate = await BrigadesDateMapping.create({projectId, complaintId, brigadeId, dateId, regionId, weekend, warranty, downtime  });
         const created = await BrigadesDateMapping.findByPk(brigadesdate.id);
         return created;
     }
@@ -168,14 +186,25 @@ class BrigadesDate {
         }
         const {
             projectId = brigadesdate.projectId,
+            complaintId = brigadesdate.complaintId,
             weekend = brigadesdate.weekend,
             warranty = brigadesdate.warranty,
             downtime = brigadesdate.downtime
         } = data
-        await brigadesdate.update({projectId, weekend, warranty, downtime})
+        await brigadesdate.update({projectId, complaintId, weekend, warranty, downtime})
         await brigadesdate.reload()
         return brigadesdate
     }
+
+    async refreshDataBrigadesDate(id) {
+        const brigadesdate = await BrigadesDateMapping.findByPk(id)
+        if (!brigadesdate) {
+            throw new Error('Проект не найден в БД')
+        }
+        await brigadesdate.update({projectId: 0, complaintId: 0, weekend: '', warranty: '', downtime: ''})
+        await brigadesdate.reload()
+        return brigadesdate
+    } 
 
     async delete(id) {
         const brigadesdate = await BrigadesDateMapping.findByPk(id);

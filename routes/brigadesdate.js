@@ -14,6 +14,7 @@ router.get('/getAllNumberOfDaysBrigadeForRegion', BrigadesDateController.getAllN
 router.get('/getAllNumberOfDaysBrigade/:brigadeId([0-9]+)/:projectId([0-9]+)', BrigadesDateController.getAllNumberOfDaysBrigade)
 router.put('/updateBrigadesDate/:id([0-9]+)', BrigadesDateController.updateBrigadesDate)
 router.delete('/delete/:id([0-9]+)', BrigadesDateController.delete)
+router.put('/refreshDataBrigadesDate/:id([0-9]+)', BrigadesDateController.refreshDataBrigadesDate)
 
 router.get('/getAllDate', BrigadesDateController.getAllDate)
 router.get('/getAllCertainDays', BrigadesDateController.getAllCertainDays)
