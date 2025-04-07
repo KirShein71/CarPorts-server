@@ -102,7 +102,7 @@ async getWaitShipmentProjectOneDetail() {
       include: [
         {
           model: ProjectMapping,
-          attributes: ['name', 'number', 'date_finish']
+          attributes: ['name', 'number', 'finish']
         },
         {
           model: AntypicalMapping,
@@ -114,7 +114,7 @@ async getWaitShipmentProjectOneDetail() {
       include: [
         {
           model: ProjectMapping,
-          attributes: ['name', 'number', 'date_finish']
+          attributes: ['name', 'number', 'finish']
         },
       ],
     });
@@ -151,7 +151,7 @@ async getWaitShipmentProjectOneDetail() {
           project: {
             name: project.name,
             number: project.number,
-            date_finish: project.date_finish
+            finish: project.finish
           },
           projectId,
           antypical: groupedAntypicals[projectId] || [],
@@ -174,7 +174,7 @@ async getWaitShipmentProjectOneDetail() {
           project: {
             name: project.name,
             number: project.number,
-            date_finish: project.date_finish
+            finish: project.finish
           },
           projectId,
           props: [{ detailId, shipment_quantity }]

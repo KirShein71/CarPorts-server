@@ -19,7 +19,7 @@ class User {
                 {model: ProjectMapping,
                 attributes: ['number', 'name'],
             where: {
-                date_finish: null
+                finish: null
             }
         },
             ]

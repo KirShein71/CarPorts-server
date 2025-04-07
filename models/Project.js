@@ -56,7 +56,7 @@ class Project {
     async getAllWithNoInstallers() {
         try {
             const projectsWithoutInstallers = await sequelize.query(
-              `SELECT name, id, date_finish, region_id
+              `SELECT name, id, finish, region_id
                FROM projects
                WHERE id NOT IN (
                  SELECT project_id
@@ -80,7 +80,7 @@ class Project {
              WHERE id NOT IN (
                SELECT project_id
                FROM project_details
-             ) AND date_finish IS NULL`,
+             ) AND finish IS NULL`,
             { model: ProjectMapping }
           );
       
@@ -100,7 +100,7 @@ class Project {
                    SELECT project_id
                    FROM project_materials
                  )
-                 AND date_finish IS NULL`, 
+                 AND finish IS NULL`, 
                 { model: ProjectMapping }
             );
     
@@ -136,7 +136,7 @@ class Project {
                WHERE id NOT IN (
                  SELECT project_id
                  FROM shipment_details
-               )`,
+               ) AND finish IS NULL`,
               { model: ProjectMapping }
             );
         
@@ -150,7 +150,7 @@ class Project {
     async getAllWithNoAccount() {
         try {
             const projectWithNoAccount = await sequelize.query(
-                `SELECT name, number, id, date_finish 
+                `SELECT name, number, id, finish 
                 FROM projects
                 WHERE id NOT IN (
                     SELECT project_id
@@ -174,7 +174,7 @@ class Project {
              WHERE id NOT IN (
                SELECT project_id
                FROM brigades_dates
-             ) AND date_finish IS NULL`,
+             ) AND finish IS NULL`,
             { model: ProjectMapping }
           );
       
@@ -338,19 +338,32 @@ class Project {
             throw new Error('Проект не найден в БД')
         }
         const {
-            date_finish = project.date_finish,
+            date_finish = project.date_finish, finish = project.finish
         } = data
-        await project.update({date_finish})
+        await project.update({date_finish, finish})
         await project.reload()
         return project
     }
 
-    async deleteDateFinish(id) {
+    async restoreProject(id) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
             throw new Error('Проект не найден в БД')
         }
-        await project.update({date_finish: null})
+        await project.update({finish: null})
+        await project.reload()
+        return project
+    }
+
+    async closedProject(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+             finish = project.finish
+        } = data
+        await project.update({finish})
         await project.reload()
         return project
     }

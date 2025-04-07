@@ -62,7 +62,7 @@ class complaintEstimateController {
             }
             const complaint_estimate = await ComplaintEstimateModel.create(req.body)
             res.json(complaint_estimate)
-            console.log(req.body)
+        
         } catch(e) {
             next(AppError.badRequest(e.message))
         }

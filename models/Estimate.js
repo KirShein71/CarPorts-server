@@ -17,7 +17,7 @@ class Estimate {
     async getAllEstimatesForAllProjects() {
         const projects = await ProjectMapping.findAll();
         const activeProjectIds = projects
-            .filter((project) => project.date_finish === null)
+            .filter((project) => project.finish === null)
             .map((project) => project.id); // Получаем массив ID активных проектов
     
         const [estimates, payments] = await Promise.all([
@@ -138,14 +138,14 @@ class Estimate {
             },
             include: [
                 { model: ServiceMapping, attributes: ['name'] },
-                { model: ProjectMapping, attributes: ['name', 'date_finish', 'installation_billing'] } 
+                { model: ProjectMapping, attributes: ['name', 'finish', 'installation_billing'] } 
             ]
         });
     
         const groupedEstimates = estimates.reduce((acc, estimate) => {
             const projectId = estimate.projectId; // Получаем id проекта
             const projectName = estimate.project.name; // Получаем название проекта
-            const projectFinish = estimate.project.date_finish;
+            const projectFinish = estimate.project.finish;
             const installationBilling = estimate.project.installation_billing
     
             // Проверяем, если projectFinish равен null
@@ -216,14 +216,14 @@ class Estimate {
             },
             include: [
                 { model: ServiceMapping, attributes: ['name'] },
-                { model: ProjectMapping, attributes: ['name', 'date_finish', 'installation_billing'] } 
+                { model: ProjectMapping, attributes: ['name', 'finish', 'installation_billing'] } 
             ]
         });
     
         const groupedEstimates = estimates.reduce((acc, estimate) => {
             const projectId = estimate.projectId; // Получаем id проекта
             const projectName = estimate.project.name; // Получаем название проекта
-            const projectFinish = estimate.project.date_finish;
+            const projectFinish = estimate.project.finish;
             const installationBilling = estimate.project.installation_billing
     
             // Проверяем, если projectFinish равен null

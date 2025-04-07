@@ -252,8 +252,8 @@ class BrigadesDate {
 
         const project = await ProjectMapping.findAll();
    
-        const spbProjects = project.filter(region => region.regionId === 1 && region.date_finish === null);
-        const mskProjects = project.filter(region => region.regionId === 2 && region.date_finish === null);
+        const spbProjects = project.filter(region => region.regionId === 1 && region.finish === null);
+        const mskProjects = project.filter(region => region.regionId === 2 && region.finish === null);
        
         const sumSpb = spbProjects.reduce((total, spbNum) => {
             return total + (spbNum.installation_billing || 0); 
@@ -412,8 +412,8 @@ class BrigadesDate {
 
         const projects = await ProjectMapping.findAll();
    
-        const spbProject = projects.filter(region => region.regionId === 1 && region.date_finish === null);
-        const mskProject = projects.filter(region => region.regionId === 2 && region.date_finish === null);
+        const spbProject = projects.filter(region => region.regionId === 1 && region.finish === null);
+        const mskProject = projects.filter(region => region.regionId === 2 && region.finish === null);
 
         const filteredSpbWorks = spbWorks.filter(work => 
             spbProject.some(project => project.id === work.projectId)
@@ -482,8 +482,8 @@ class BrigadesDate {
 
         const project = await ProjectMapping.findAll();
    
-        const spbProjects = project.filter(region => region.regionId === 1 && region.date_finish === null);
-        const mskProjects = project.filter(region => region.regionId === 2 && region.date_finish === null);
+        const spbProjects = project.filter(region => region.regionId === 1 && region.finish === null);
+        const mskProjects = project.filter(region => region.regionId === 2 && region.finish === null);
        
         const sumSpb = spbProjects.reduce((total, spbNum) => {
             return total + (spbNum.installation_billing || 0); 

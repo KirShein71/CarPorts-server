@@ -12,7 +12,7 @@ class ProjectBrigades {
                     model: ProjectMapping,
                     attributes: ['name', 'number', 'agreement_date', 'design_period', 'expiration_date', 'installation_period'],
                     where: {
-                        date_finish: null
+                        finish: null
                     }
                 },
                 {

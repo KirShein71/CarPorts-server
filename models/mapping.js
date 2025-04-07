@@ -91,7 +91,8 @@ const Project = sequelize.define('project', {
     project_delivery: {type: DataTypes.DATE, allowNull: true},
     date_inspection: {type: DataTypes.DATE, allowNull: true},
     inspection_designer: {type: DataTypes.STRING, allowNull: true},
-    date_finish: {type: DataTypes.DATE, allowNull: true}
+    date_finish: {type: DataTypes.DATE, allowNull: true},
+    finish: {type: DataTypes.STRING, allowNull: true}
 })
 
 const Material = sequelize.define('material', {

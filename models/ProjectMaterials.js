@@ -12,7 +12,7 @@ class ProjectMaterials {
                   model: ProjectMapping,
                   attributes: ['name', 'number', 'expiration_date', 'agreement_date', 'design_period', 'id'],
                   where: {
-                    date_finish: null
+                    finish: null
                 }
                 },
                  
@@ -57,7 +57,7 @@ class ProjectMaterials {
                   model: ProjectMapping,
                   attributes: ['name', 'number', 'expiration_date', 'agreement_date', 'design_period', 'id'],
                   where: {
-                    date_finish: null
+                    finish: null
                 }
                 },
                  

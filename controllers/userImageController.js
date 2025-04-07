@@ -38,7 +38,7 @@ class UserImageController {
                 throw new Error('Нет данных для отправки')
             }
             const userimage = await UserImageModel.create(req.body, req.files.image)
-            console.log(req.files.image)
+            
             res.json(userimage)
         } catch(e) {
             next(AppError.badRequest(e.message))

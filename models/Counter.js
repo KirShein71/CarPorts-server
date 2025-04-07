@@ -14,7 +14,7 @@ class Counter {
             const countNoDesigner = await ProjectMapping.findAndCountAll({
                 where: {
                     designer: null,
-                    date_finish: null
+                    finish: null
                 }
             });
     
@@ -24,7 +24,7 @@ class Counter {
                 WHERE id NOT IN (
                     SELECT project_id
                     FROM project_materials
-                ) AND date_finish IS NULL`,
+                ) AND finish IS NULL`,
                 { plain: true }
             );
             const countNoMaterials = Object.values(countNoMaterialsResult)[0];
@@ -35,14 +35,14 @@ class Counter {
                 WHERE id NOT IN (
                     SELECT project_id
                     FROM brigades_dates
-                ) AND date_finish IS NULL`,
+                ) AND finish IS NULL`,
                 { plain: true }
             );
             const countNoInstallers = Object.values(countNoInstallersResult)[0];
             // Проекты на монтаже
             const projects = await ProjectMapping.findAll()
 
-            const activeProject = projects.filter(project => project.date_finish === null)
+            const activeProject = projects.filter(project => project.finish === null)
 
             const brigadeProject = await BrigadesDateMapping.findAll()
 
