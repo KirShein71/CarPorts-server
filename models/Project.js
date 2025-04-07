@@ -165,6 +165,25 @@ class Project {
                 throw error;
         } 
     }
+
+    async getAllProjectsWithNoInBrigadesDate() {
+        try {
+          const projectsWithNoInBrigadesDate = await sequelize.query(
+            `SELECT *
+             FROM projects
+             WHERE id NOT IN (
+               SELECT project_id
+               FROM brigades_dates
+             ) AND date_finish IS NULL`,
+            { model: ProjectMapping }
+          );
+      
+          return projectsWithNoInBrigadesDate;
+        } catch (error) {
+          console.error('Error executing query:', error);
+          throw error;
+        }
+      }
     
 
 

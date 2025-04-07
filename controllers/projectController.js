@@ -75,6 +75,15 @@ class ProjectController {
         }
     }
 
+    async getAllProjectsWithNoInBrigadesDate(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllProjectsWithNoInBrigadesDate()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
