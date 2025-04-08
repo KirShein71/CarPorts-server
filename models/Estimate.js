@@ -149,18 +149,19 @@ class Estimate {
             const installationBilling = estimate.project.installation_billing
     
             // Проверяем, если projectFinish равен null
-            if (projectFinish === null) {
+           
                 if (!acc[projectId]) {
                     acc[projectId] = {
                         projectId: projectId,
-                        projectName: projectName, // Добавляем название проекта
+                        projectName: projectName, 
+                        projectFinish: projectFinish,
                         installationBilling: installationBilling,
                         estimates: []
                     };
                 }
     
                 acc[projectId].estimates.push(estimate);
-            }
+          
     
             return acc;
         }, {});
