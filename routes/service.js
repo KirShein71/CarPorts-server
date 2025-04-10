@@ -8,6 +8,7 @@ router.get('/getall', ServiceController.getAll)
 router.get('/getone/:id([0-9]+)', ServiceController.getOne)
 router.post('/create',  ServiceController.create)
 router.put('/update/:id([0-9]+)',  ServiceController.update)
+router.put('/updateNumber/:id([0-9]+)',  ServiceController.updateNumber)
 router.delete('/delete/:id([0-9]+)',  ServiceController.delete)
 
 

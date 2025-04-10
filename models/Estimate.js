@@ -270,7 +270,7 @@ class Estimate {
                 project_id: id
             },
             include: [
-                { model: ServiceMapping, attributes: ['name'] },
+                { model: ServiceMapping, attributes: ['name', 'number'] },
                 
             ]
         });
@@ -278,8 +278,7 @@ class Estimate {
         // Группируем данные по brigadeId
         const groupedEstimates = estimates.reduce((acc, estimate) => {
             const brigadeId = estimate.brigadeId; 
-           
-    
+       
             if (!acc[brigadeId]) {
                 acc[brigadeId] = {
                     brigadeId: brigadeId,

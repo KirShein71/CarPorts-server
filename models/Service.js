@@ -3,7 +3,11 @@ import {Service as ServiceMapping} from './mapping.js'
 
 class Service {
     async getAll() {
-        const service = await ServiceMapping.findAll()
+        const service = await ServiceMapping.findAll({
+            order: [
+                ['number', 'ASC']
+            ]
+        })
         return service
     }
 
@@ -16,8 +20,8 @@ class Service {
     }
 
     async create(data) {
-        const {name} = data
-        const service = await ServiceMapping.create({name})
+        const {name, number} = data
+        const service = await ServiceMapping.create({name, number})
         
         const created = await ServiceMapping.findByPk(service.id) 
         return created
@@ -30,9 +34,24 @@ class Service {
         }
         const {
             name = service.name,
+            number = service.number
             
         } = data
-        await service.update({name})
+        await service.update({name, number})
+        await service.reload()
+        return service
+    }
+
+    async updateNumber(id, data) {
+        const service = await ServiceMapping.findByPk(id)
+        if (!service) {
+            throw new Error('Услуга не найдена')
+        }
+        const {
+            number = service.number,
+            
+        } = data
+        await service.update({number})
         await service.reload()
         return service
     }
