@@ -60,6 +60,7 @@ class ServiceController {
             }
             const service = await ServiceModel.updateNumber(req.params.id, req.body,)
             res.json(service)
+            
         } catch(e) {
             next(AppError.badRequest(e.message))
         }

@@ -202,18 +202,31 @@ class Project {
               project_id: id
             }
           });
-          const projectdetails = await ProjectDetailsMapping.findAll({
+        const projectdetails = await ProjectDetailsMapping.findAll({
             where: {
               project_id: id
             }
           });
-          const extractedDetails = projectdetails.map(detail => {
+        const extractedDetails = projectdetails.map(detail => {
             return {
                 quantity: detail.quantity,
                 detailId: detail.detailId,
                 id: detail.id
             };
         });
+
+        const projectantypical = await AntypicalMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+        const antypicalDetails = projectantypical.map(antypical => {
+            return {
+                image: antypical.image,
+                id: antypical.id
+            };
+        });
+
         const shipmentdetails = await ShipmentDetailsMapping.findAll({
             where: {
               project_id: id
@@ -283,7 +296,7 @@ class Project {
             attributes: ['id', 'note', 'date']
         })
 
-        return {project, projectmaterials, extractedDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
+        return {project, projectmaterials, extractedDetails, antypicalDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
     }
 
     async getProjectInfoInstallation(id) {

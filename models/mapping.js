@@ -191,7 +191,7 @@ const Region = sequelize.define('region', {
 const Service = sequelize.define('service', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     name: {type: DataTypes.STRING, allowNull: false},
-    number: {type: DataTypes.FLOAT, allowNull: true},
+    number: {type: DataTypes.REAL, allowNull: true},
 })
 
 const Estimate = sequelize.define('estimate', {

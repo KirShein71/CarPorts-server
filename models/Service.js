@@ -4,9 +4,7 @@ import {Service as ServiceMapping} from './mapping.js'
 class Service {
     async getAll() {
         const service = await ServiceMapping.findAll({
-            order: [
-                ['number', 'ASC']
-            ]
+            
         })
         return service
     }
