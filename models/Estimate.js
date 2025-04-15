@@ -3,6 +3,8 @@ import { Service as ServiceMapping } from './mapping.js';
 import { Project as ProjectMapping } from './mapping.js';
 import { Payment as PaymentMapping} from './mapping.js'
 import { Brigade as BrigadeMapping } from './mapping.js';
+import { ComplaintEstimate as ComplaintEstimateMapping } from './mapping.js';
+import { Complaint as ComplaintMapping } from './mapping.js';
 
 
 
@@ -173,6 +175,7 @@ class Estimate {
     }
 
     async getAllEstimateForBrigadeAllProject(id) {
+        // Получаем обычные estimates
         const estimates = await EstimateMapping.findAll({
             where: {
                 brigade_id: id
@@ -183,30 +186,63 @@ class Estimate {
             ]
         });
     
+        // Группируем обычные estimates по проектам
         const groupedEstimates = estimates.reduce((acc, estimate) => {
-            const projectId = estimate.projectId; // Получаем id проекта
-            const projectName = estimate.project.name; // Получаем название проекта
-            const installationBilling = estimate.project.installation_billing
+            const projectId = estimate.projectId;
+            const projectName = estimate.project.name;
+            const installationBilling = estimate.project.installation_billing;
     
-            // Проверяем, если projectFinish равен null
-                if (!acc[projectId]) {
-                    acc[projectId] = {
-                        projectId: projectId,
-                        projectName: projectName, // Добавляем название проекта
-                        installationBilling: installationBilling,
-                        estimates: []
-                    };
-                }
+            if (!acc[projectId]) {
+                acc[projectId] = {
+                    projectId: projectId,
+                    projectName: projectName,
+                    installationBilling: installationBilling,
+                    estimates: []
+                };
+            }
     
-                acc[projectId].estimates.push(estimate);
-            
-    
+            acc[projectId].estimates.push(estimate);
             return acc;
         }, {});
     
-        // Преобразуем объект в массив для удобства
-        const result = Object.values(groupedEstimates);
+        // Получаем complaint estimates
+        const complaintEstimates = await ComplaintEstimateMapping.findAll({
+            where: {
+                brigade_id: id
+            },
+            include: [
+                { model: ServiceMapping, attributes: ['name'] },
+                { model: ComplaintMapping, 
+                    include: [
+                        { model: ProjectMapping, attributes: ['name'] } 
+                    ]
+                } 
+            ]
+        });
     
+        // Группируем complaint estimates
+        const groupedComplaintEstimates = complaintEstimates.reduce((acc, comEstimate) => {
+            const complaintId = comEstimate.complaintId;
+            const complaintName = comEstimate.complaint.project.name;
+    
+            if (!acc[complaintId]) {
+                acc[complaintId] = {
+                    complaintId: complaintId,
+                    complaintName: complaintName,
+                    estimates: [] // Переименовано в estimates для единообразия
+                };
+            }
+    
+            acc[complaintId].estimates.push(comEstimate); // Исправлено: убрали лишний acc
+            return acc;
+        }, {});
+    
+        // Объединяем результаты
+        const result = [
+            ...Object.values(groupedEstimates),
+            ...Object.values(groupedComplaintEstimates)
+        ];
+        
         return result;
     }
 

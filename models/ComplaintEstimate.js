@@ -22,7 +22,7 @@ class ComplaintEstimate {
                 complaint_id: id
             },
             include: [
-                { model: ServiceMapping, attributes: ['name'] },
+                { model: ServiceMapping, attributes: ['name', 'number'] },
                 
             ]
         });

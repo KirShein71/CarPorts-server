@@ -1,4 +1,5 @@
 import { Payment as PaymentMapping } from "./mapping.js";
+import { ComplaintPayment as ComplaintPaymentMapping } from "./mapping.js";
 
 class Payment {
     async getAll() {
@@ -28,8 +29,16 @@ class Payment {
                 brigade_id: id
             },
         });
+
+        const complaintPayment = await ComplaintPaymentMapping.findAll({
+            where: {
+                brigade_id: id
+            },
+        });
+
+        const result = [...payment, ...complaintPayment]
     
-        return payment;
+        return result;
     }
 
     async updatePaymentDate(id, data) {

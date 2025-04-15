@@ -5,6 +5,7 @@ import { Date as DateMapping} from './mapping.js'
 import { Estimate as EstimateMapping } from './mapping.js'
 import { BrigadeWork as BrigadeWorkMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from './mapping.js'
+import { ComplaintEstimate as ComplaintEstimateMapping } from './mapping.js'
 import { Op} from 'sequelize'
 
 
@@ -107,6 +108,12 @@ class BrigadesDate {
                     attributes: ['name'], 
                     include: {
                         model: EstimateMapping, attributes: ['price', 'done']
+                    }
+                },
+                {
+                    model: ComplaintMapping,
+                    include: {
+                        model: ComplaintEstimateMapping, attributes: ['price', 'done']
                     }
                 },
                 {
@@ -527,26 +534,39 @@ class BrigadesDate {
             throw new Error('Не проставлены дни в календарь');
         }
     
-        // Создаем объект для хранения количества дней по каждому projectId
+        // Создаем объекты для хранения количества дней
         const projectDaysCount = {};
+        const complaintDaysCount = {};
     
-        // Подсчитываем количество строк для каждого projectId
+        // Подсчитываем количество дней
         brigadesdate.forEach((brigdate) => {
-            if (brigdate.projectId !== 0) {
-                if (!projectDaysCount[brigdate.projectId]) {
-                    projectDaysCount[brigdate.projectId] = 0;
-                }
-                projectDaysCount[brigdate.projectId]++;
+            if (brigdate.projectId && brigdate.projectId !== 0) {
+                projectDaysCount[brigdate.projectId] = (projectDaysCount[brigdate.projectId] || 0) + 1;
+            }
+            
+            if (brigdate.complaintId && brigdate.complaintId !== 0) {
+                // Исправлена опечатка: было complaintId, стало complaintId
+                complaintDaysCount[brigdate.complaintId] = (complaintDaysCount[brigdate.complaintId] || 0) + 1;
             }
         });
     
-        // Преобразуем объект в массив
-        const result = Object.entries(projectDaysCount).map(([projectId, days]) => ({
-            projectId: Number(projectId), 
+        // Преобразуем в массивы
+        const projects = Object.entries(projectDaysCount).map(([id, days]) => ({
+            projectId: Number(id),
             days,
+            
         }));
     
-        return result;
+        const complaints = Object.entries(complaintDaysCount).map(([id, days]) => ({
+            complaintId: Number(id),
+            days,
+           
+        }));
+    
+        // Объединяем результаты
+        const resultAll = [...projects, ...complaints];
+        
+        return resultAll;
     }
     
 }
