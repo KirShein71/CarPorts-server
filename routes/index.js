@@ -32,6 +32,7 @@ import complaint from './complaint.js'
 import complaintimage from './complaintimage.js'
 import complaintestimate from './complaintestimate.js'
 import complaintpayment from './complaintpayment.js'
+import deliverydetails from './deliverydetails.js'
 
 
 
@@ -70,6 +71,7 @@ router.use('/complaint', complaint)
 router.use('/complaintimage', complaintimage)
 router.use('/complaintestimate', complaintestimate)
 router.use('/complaintpayment', complaintpayment)
+router.use('/deliverydetails', deliverydetails)
 
 
 

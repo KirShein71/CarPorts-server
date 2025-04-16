@@ -148,6 +148,11 @@ const ShipmentDetails = sequelize.define('shipment_details', {
     shipment_date: {type: DataTypes.DATE, allowNull: false}
 })
 
+const DeliverytDetails = sequelize.define('delivery_details', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    delivery_quantity: {type: DataTypes.INTEGER, allowNull: false},
+   
+})
 
 const Brigade= sequelize.define('brigade', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
@@ -254,6 +259,12 @@ ShipmentDetails.belongsTo(Detail)
 
 Project.hasMany(ShipmentDetails, {onDelete: 'CASCADE', hooks: true})
 ShipmentDetails.belongsTo(Project)
+
+Detail.hasMany(DeliverytDetails, { onDelete: 'CASCADE', hooks: true })
+DeliverytDetails.belongsTo(Detail)
+
+Project.hasMany(DeliverytDetails, {onDelete: 'CASCADE', hooks: true})
+DeliverytDetails.belongsTo(Project)
 
 Project.hasMany(Antypical)
 Antypical.belongsTo(Project)
@@ -383,5 +394,6 @@ export {
     Complaint,
     ComplaintImage,
     ComplaintEstimate,
-    ComplaintPayment
+    ComplaintPayment,
+    DeliverytDetails
 }

@@ -10,6 +10,7 @@ import { Region as RegionMapping} from './mapping.js'
 import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from "./mapping.js";
+import { DeliverytDetails as DeliveryDetailsMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -235,9 +236,25 @@ class Project {
           const shipmentDetails = shipmentdetails.map(detail => {
             return {
                 quantity: detail.shipment_quantity,
-                detailId: detail.detailId
+                detailId: detail.detailId,
+                id: detail.id,
+                date: detail.shipment_date
             };
         });
+
+        const deliverydetails = await DeliveryDetailsMapping.findAll({
+            where: {
+              project_id: id
+            }
+          });
+          const deliveryDetails = deliverydetails.map(detail => {
+            return {
+                quantity: detail.delivery_quantity,
+                detailId: detail.detailId,
+                id: detail.id,
+            };
+        });
+
         const projectbrigades = await ProjectBrigadesMapping.findAll({
             where: {
               project_id: id
@@ -296,7 +313,7 @@ class Project {
             attributes: ['id', 'note', 'date']
         })
 
-        return {project, projectmaterials, extractedDetails, antypicalDetails, shipmentDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
+        return {project, projectmaterials, extractedDetails, antypicalDetails, shipmentDetails, deliveryDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
     }
 
     async getProjectInfoInstallation(id) {
