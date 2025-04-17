@@ -59,6 +59,34 @@ class Brigade {
         return brigade
     }
 
+    async updateBrigadeName(id, data) {
+        const brigade = await BrigadeMapping.findByPk(id)
+        if (!brigade) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+            name = brigade.name,
+            
+        } = data
+        await brigade.update({name})
+        await brigade.reload()
+        return brigade
+    }
+
+    async updateBrigadePhone(id, data) {
+        const brigade = await BrigadeMapping.findByPk(id)
+        if (!brigade) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+            phone = brigade.phone,
+            
+        } = data
+        await brigade.update({phone})
+        await brigade.reload()
+        return brigade
+    }
+
     async createPassword(id, data) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {

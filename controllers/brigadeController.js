@@ -136,6 +136,36 @@ class BrigadeController {
         }
     }
 
+    async updateBrigadeName(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const bragade = await BrigadeModel.updateBrigadeName(req.params.id, req.body)
+            res.json(bragade)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateBrigadePhone(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const bragade = await BrigadeModel.updateBrigadePhone(req.params.id, req.body)
+            res.json(bragade)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     
     async delete(req, res, next) {
         try {

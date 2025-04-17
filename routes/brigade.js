@@ -15,6 +15,8 @@ router.post('/create',  BrigadeController.create)
 router.put('/createRegion/:id([0-9]+)', BrigadeController.createRegion)
 router.put('/createPassword/:id([0-9]+)', BrigadeController.createPassword)
 router.put('/update/:id([0-9]+)',  BrigadeController.update)
+router.put('/updateBrigadeName/:id([0-9]+)',  BrigadeController.updateBrigadeName)
+router.put('/updateBrigadePhone/:id([0-9]+)',  BrigadeController.updateBrigadePhone)
 router.delete('/delete/:id([0-9]+)',  BrigadeController.delete)
 
 
