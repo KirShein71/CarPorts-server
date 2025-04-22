@@ -220,6 +220,51 @@ class ProjectController {
         }
     }
 
+    async updateDesignPeriod(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.updateDesignPeriod(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateExpirationDate(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.updateExpirationDate(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateInstallationPeriod(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.updateInstallationPeriod(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
     async update(req, res, next) {
         try {

@@ -439,6 +439,45 @@ class Project {
         return project
     }
 
+    async updateDesignPeriod(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            design_period = project.design_period,
+        } = data
+        await project.update({design_period})
+        await project.reload()
+        return project
+    }
+
+    async updateExpirationDate(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            expiration_date = project.expiration_date,
+        } = data
+        await project.update({expiration_date})
+        await project.reload()
+        return project
+    }
+
+    async updateInstallationPeriod(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            installation_period = project.installation_period,
+        } = data
+        await project.update({installation_period})
+        await project.reload()
+        return project
+    }
+
     async update(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
