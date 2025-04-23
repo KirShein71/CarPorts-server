@@ -38,6 +38,20 @@ class ProjectDetailsController {
         }
     }
 
+    async addToProduction(req, res, next) {
+        try {
+          
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для создания')
+            }
+            const projectdetails = await ProjectDetailsModel.addToProduction(req.body)
+        
+            res.json(projectdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async update(req, res, next) {
         try {
             if (!req.params.id) {

@@ -39,6 +39,21 @@ class Detail {
         return detail
     }
 
+    async createNumber(id, data) {
+        const detail = await DetailMapping.findByPk(id)
+        if (!detail) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+
+            number = detail.number
+            
+        } = data
+        await detail.update({ number})
+        await detail.reload()
+        return detail
+    }
+
     async update(id, data) {
         const detail = await DetailMapping.findByPk(id)
         if (!detail) {

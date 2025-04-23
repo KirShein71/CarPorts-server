@@ -114,12 +114,13 @@ const ProjectMaterials = sequelize.define('project_materials', {
 const Detail = sequelize.define('detail', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true },
+    number: {type: DataTypes.STRING, allowNull: true},
     price: {type: DataTypes.INTEGER, allowNull: false}
 })
 
 const ProjectDetails = sequelize.define('project_details', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    quantity: {type: DataTypes.INTEGER, allowNull: false},
+    quantity: {type: DataTypes.INTEGER, allowNull: true},
  
    
 })

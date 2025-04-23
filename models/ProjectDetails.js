@@ -66,9 +66,14 @@ class ProjectDetails {
         return created;
     }
 
+    async addToProduction(data) {
+        const { projectId } = data;
+        const projectdetails = await ProjectDetailsMapping.create({ projectId });
+        const created = await ProjectDetailsMapping.findByPk(projectdetails.id);
+        return created;
+    }
 
-
-      async update(id, data) {
+    async update(id, data) {
         const projectdetails = await ProjectDetailsMapping.findByPk(id)
         if (!projectdetails) {
             throw new Error('Товар не найден в БД')
