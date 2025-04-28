@@ -1,6 +1,7 @@
 import { ProjectMaterials as ProjectMaterialsMapping } from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
 import { Material as MaterialMapping} from './mapping.js'
+import { Op } from 'sequelize'
 
 
 
@@ -88,6 +89,217 @@ class ProjectMaterials {
           }, []);
         
           return formattedData;
+    }
+
+    async getAllProjectMaterialForLogistic() {
+        // Получаем текущую дату и устанавливаем время на 00:00:00
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Создаем диапазон дат (вчера, сегодня, +2 дня)
+        const dateRange = {
+            start: new Date(today),
+            end: new Date(today)
+        };
+        dateRange.start.setDate(dateRange.start.getDate() - 1); // Вчера
+        dateRange.end.setDate(dateRange.end.getDate() + 2);     // +2 дня от сегодня
+        
+        const projectsmaterials = await ProjectMaterialsMapping.findAll({
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number', 'id', 'region_id'],
+                    where: {
+                        finish: null
+                    }
+                },
+            ],
+            where: {
+                shipping_date: {
+                    [Op.ne]: null, // shipping_date не равен null
+                    [Op.between]: [dateRange.start, dateRange.end] // В диапазоне дат
+                }
+            }
+        });
+    
+        // Создаем структуру для группировки: проект -> дата -> материалы
+        const groupedData = projectsmaterials.reduce((acc, item) => {
+            const { projectId, materialId, materialName, shipping_date, check, project, id } = item;
+            
+            // Проверяем, что дата отгрузки попадает в нужный диапазон
+            const shippingDate = new Date(shipping_date);
+            shippingDate.setHours(0, 0, 0, 0); // Нормализуем дату
+            
+            if (shippingDate >= dateRange.start && shippingDate <= dateRange.end) {
+                const dateStr = shippingDate.toISOString().split('T')[0]; // Формат YYYY-MM-DD
+                
+                // Находим или создаем проект
+                let projectEntry = acc.find(p => p.projectId === projectId);
+                if (!projectEntry) {
+                    projectEntry = {
+                        id: project.id,
+                        name: project.name,
+                        number: project.number,
+                        regionId: project.region_id,
+                        projectId: projectId,
+                        dates: {} // Объект для хранения данных по датам
+                    };
+                    acc.push(projectEntry);
+                }
+                
+                // Находим или создаем запись для даты
+                if (!projectEntry.dates[dateStr]) {
+                    projectEntry.dates[dateStr] = {
+                        date: dateStr,
+                        displayDate: this.getDisplayDate(shippingDate),
+                        props: []
+                    };
+                }
+                
+                // Добавляем материал
+                projectEntry.dates[dateStr].props.push({ 
+                    id: id, 
+                    materialId: materialId, 
+                    materialName: materialName, 
+                    shipping_date: shipping_date,
+                    check: check
+                });
+            }
+            return acc;
+        }, []);
+        
+        // Преобразуем объект dates в массив и сортируем даты в нужном порядке
+        const formattedData = groupedData.map(project => {
+            // Преобразуем объект dates в массив
+            const datesArray = Object.values(project.dates);
+            
+            // Сортируем даты в порядке: сегодня+2, сегодня+1, сегодня, вчера
+            datesArray.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateB - dateA; // Сортировка от новых к старым
+            });
+            
+            return {
+                ...project,
+                dates: datesArray
+            };
+        });
+        
+        return formattedData;
+    }
+
+    async getAllMaterialProjectForLogistic() {
+        // Получаем текущую дату и устанавливаем время на 00:00:00
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Создаем диапазон дат (вчера, сегодня, +2 дня)
+        const dateRange = {
+            start: new Date(today),
+            end: new Date(today)
+        };
+        dateRange.start.setDate(dateRange.start.getDate() - 1); // Вчера
+        dateRange.end.setDate(dateRange.end.getDate() + 2);     // +2 дня от сегодня
+        
+        const projectsmaterials = await ProjectMaterialsMapping.findAll({
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number', 'id', 'region_id'],
+                    where: {
+                        finish: null
+                    }
+                },
+            ],
+            where: {
+                shipping_date: {
+                    [Op.ne]: null, // shipping_date не равен null
+                    [Op.between]: [dateRange.start, dateRange.end] // В диапазоне дат
+                }
+            }
+        });
+    
+        // Создаем структуру для группировки: проект -> дата -> материалы
+        const groupedData = projectsmaterials.reduce((acc, item) => {
+            const { projectId, materialId, materialName, shipping_date, check, project, id } = item;
+            
+            // Проверяем, что дата отгрузки попадает в нужный диапазон
+            const shippingDate = new Date(shipping_date);
+            shippingDate.setHours(0, 0, 0, 0); // Нормализуем дату
+            
+            if (shippingDate >= dateRange.start && shippingDate <= dateRange.end) {
+                const dateStr = shippingDate.toISOString().split('T')[0]; // Формат YYYY-MM-DD
+                
+                // Находим или создаем проект
+                let materialEntry = acc.find(p => p.materialId === materialId);
+                if (!materialEntry) {
+                    materialEntry = {
+                        materialId: materialId, 
+                        materialName: materialName,
+                        dates: {} // Объект для хранения данных по датам
+                    };
+                    acc.push(materialEntry);
+                }
+                
+                // Находим или создаем запись для даты
+                if (!materialEntry.dates[dateStr]) {
+                    materialEntry.dates[dateStr] = {
+                        date: dateStr,
+                        displayDate: this.getDisplayDate(shippingDate),
+                        props: []
+                    };
+                }
+                
+                // Добавляем материал
+                materialEntry.dates[dateStr].props.push({ 
+                    id: id, 
+                    name: project.name,
+                    number: project.number,
+                    regionId: project.region_id,
+                    projectId: projectId,
+                    shipping_date: shipping_date,
+                    check: check
+                });
+            }
+            return acc;
+        }, []);
+        
+        // Преобразуем объект dates в массив и сортируем даты в нужном порядке
+        const formattedData = groupedData.map(project => {
+            // Преобразуем объект dates в массив
+            const datesArray = Object.values(project.dates);
+            
+            // Сортируем даты в порядке: сегодня+2, сегодня+1, сегодня, вчера
+            datesArray.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateB - dateA; // Сортировка от новых к старым
+            });
+            
+            return {
+                ...project,
+                dates: datesArray
+            };
+        });
+        
+        return formattedData;
+    }
+    
+    // Вспомогательная функция для получения отображаемого названия даты
+    getDisplayDate(date) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const diffDays = Math.floor((date - today) / (1000 * 60 * 60 * 24));
+        
+        switch(diffDays) {
+            case 0: return 'Сегодня';
+            case 1: return 'Завтра';
+            case 2: return 'Послезавтра';
+            case -1: return 'Вчера';
+            default: return date.toLocaleDateString('ru-RU');
+        }
     }
     
     async getOne(id) {

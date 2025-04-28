@@ -17,6 +17,8 @@ router.put('/createColorProjectMaterials/:id([0-9]+)', ProjectMaterialsControlle
 router.put('/createExpirationMaterialDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createExpirationMaterialDateProjectMaterials)
 router.get('/getall', ProjectMaterialsController.getAll)
 router.get('/getAllMaterialProject', ProjectMaterialsController.getAllMaterialProject)
+router.get('/getAllProjectMaterialForLogistic', ProjectMaterialsController.getAllProjectMaterialForLogistic)
+router.get('/getAllMaterialProjectForLogistic', ProjectMaterialsController.getAllMaterialProjectForLogistic)
 router.get('/getone/:id([0-9]+)', ProjectMaterialsController.getOne)
 router.delete('/delete/:id([0-9]+)', ProjectMaterialsController.delete)
 

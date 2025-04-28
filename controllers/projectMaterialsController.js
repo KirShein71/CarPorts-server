@@ -21,6 +21,24 @@ class ProjectMaterialsController {
         }
     }
 
+    async getAllProjectMaterialForLogistic(req, res, next) {
+        try {
+            const projectmaterials = await ProjectMaterialsModel.getAllProjectMaterialForLogistic()
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllMaterialProjectForLogistic(req, res, next) {
+        try {
+            const projectmaterials = await ProjectMaterialsModel.getAllMaterialProjectForLogistic()
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
     async getOne(req, res, next) {
         try {
