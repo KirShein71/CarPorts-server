@@ -11,6 +11,7 @@ import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from "./mapping.js";
 import { DeliverytDetails as DeliveryDetailsMapping } from "./mapping.js";
+import { UserFile as UserFileMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -266,17 +267,28 @@ class Project {
               }
             ]
           });
+          
           const user = await UserMapping.findAll({
             where: {
               project_id: id
-            }
+            },
           });
+
           const userProject = user.map(user => {
             return {
                 image: user.image,
                 userId: user.id
             }
           }) 
+
+          const userFile = await UserFileMapping.findAll({
+            include: [{
+              model: UserMapping,
+              where: { project_id: id },
+              attributes: []
+            }],
+            attributes: ['id', 'name', 'file', 'userId']
+          });
 
           const brigadesdate = await BrigadesDateMapping.findAll({
             where: {
@@ -313,7 +325,7 @@ class Project {
             attributes: ['id', 'note', 'date']
         })
 
-        return {project, projectmaterials, extractedDetails, antypicalDetails, shipmentDetails, deliveryDetails, projectbrigades, userProject, brigadesdate: formattedBrigadesDate, complaints }
+        return {project, projectmaterials, extractedDetails, antypicalDetails, shipmentDetails, deliveryDetails, projectbrigades, userProject, userFile, brigadesdate: formattedBrigadesDate, complaints }
     }
 
     async getProjectInfoInstallation(id) {

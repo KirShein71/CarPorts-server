@@ -109,6 +109,8 @@ const ProjectMaterials = sequelize.define('project_materials', {
     check: { type: DataTypes.STRING, allowNull: true},
     materialName: {type: DataTypes.STRING, allowNull: false},
     color: { type: DataTypes.STRING, allowNull: true},
+    weight: { type: DataTypes.INTEGER, allowNull: true},
+    dimensions: { type: DataTypes.INTEGER, allowNull: true},
 })
 
 const Detail = sequelize.define('detail', {
@@ -240,6 +242,17 @@ const ComplaintPayment = sequelize.define('complaint_payment', {
     sum: {type: DataTypes.INTEGER, allowNull: true},
 })
 
+const Supplier = sequelize.define('suppliers', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    name: {type: DataTypes.STRING, allowNull: false},
+    contact: {type: DataTypes.STRING, allowNull: true},
+    address: {type: DataTypes.STRING, allowNull: true},
+    shipment: {type: DataTypes.STRING, allowNull: true},
+    navigator: {type: DataTypes.STRING, allowNull: true},
+    note: {type: DataTypes.STRING, allowNull: true},
+    coordinates: {type: DataTypes.STRING, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -360,7 +373,14 @@ ComplaintPayment.belongsTo(Brigade)
 Complaint.hasMany(ComplaintPayment, { onDelete: 'CASCADE', hooks: true })
 ComplaintPayment.belongsTo(Complaint)
 
+Region.hasMany(Supplier)
+Supplier.belongsTo(Region)
 
+Supplier.hasMany(Material)
+Material.belongsTo(Supplier)
+
+Supplier.hasMany(ProjectMaterials)
+ProjectMaterials.belongsTo(Supplier)
 
 
 
@@ -396,5 +416,6 @@ export {
     ComplaintImage,
     ComplaintEstimate,
     ComplaintPayment,
-    DeliverytDetails
+    DeliverytDetails,
+    Supplier
 }

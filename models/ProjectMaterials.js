@@ -1,6 +1,7 @@
-import { ProjectMaterials as ProjectMaterialsMapping } from './mapping.js'
+import { ProjectMaterials as ProjectMaterialsMapping, Supplier } from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
 import { Material as MaterialMapping} from './mapping.js'
+import {Supplier as SupplierMapping} from './mapping.js'
 import { Op } from 'sequelize'
 
 
@@ -108,7 +109,7 @@ class ProjectMaterials {
             include: [
                 {
                     model: ProjectMapping,
-                    attributes: ['name', 'number', 'id', 'region_id'],
+                    attributes: ['name', 'number', 'id', 'regionId'],
                     where: {
                         finish: null
                     }
@@ -124,7 +125,7 @@ class ProjectMaterials {
     
         // Создаем структуру для группировки: проект -> дата -> материалы
         const groupedData = projectsmaterials.reduce((acc, item) => {
-            const { projectId, materialId, materialName, shipping_date, check, project, id } = item;
+            const { projectId, materialId, materialName, shipping_date, check, weight, dimensions, project, id } = item;
             
             // Проверяем, что дата отгрузки попадает в нужный диапазон
             const shippingDate = new Date(shipping_date);
@@ -140,7 +141,7 @@ class ProjectMaterials {
                         id: project.id,
                         name: project.name,
                         number: project.number,
-                        regionId: project.region_id,
+                        regionId: project.regionId,
                         projectId: projectId,
                         dates: {} // Объект для хранения данных по датам
                     };
@@ -162,7 +163,9 @@ class ProjectMaterials {
                     materialId: materialId, 
                     materialName: materialName, 
                     shipping_date: shipping_date,
-                    check: check
+                    check: check,
+                    weight: weight,
+                    dimensions: dimensions
                 });
             }
             return acc;
@@ -206,7 +209,7 @@ class ProjectMaterials {
             include: [
                 {
                     model: ProjectMapping,
-                    attributes: ['name', 'number', 'id', 'region_id'],
+                    attributes: ['name', 'number', 'id', 'regionId'],
                     where: {
                         finish: null
                     }
@@ -219,10 +222,12 @@ class ProjectMaterials {
                 }
             }
         });
-    
+
+   
+ 
         // Создаем структуру для группировки: проект -> дата -> материалы
         const groupedData = projectsmaterials.reduce((acc, item) => {
-            const { projectId, materialId, materialName, shipping_date, check, project, id } = item;
+            const { projectId, materialId, materialName, shipping_date, check, weight, dimensions, project, id } = item;
             
             // Проверяем, что дата отгрузки попадает в нужный диапазон
             const shippingDate = new Date(shipping_date);
@@ -256,10 +261,12 @@ class ProjectMaterials {
                     id: id, 
                     name: project.name,
                     number: project.number,
-                    regionId: project.region_id,
+                    regionId: project.regionId,
                     projectId: projectId,
                     shipping_date: shipping_date,
-                    check: check
+                    check: check,
+                    weight: weight,
+                    dimensions: dimensions
                 });
             }
             return acc;
@@ -285,7 +292,60 @@ class ProjectMaterials {
         
         return formattedData;
     }
+
+    async getPickupMaterialsForLogistic(date) { 
+        const projectmaterials = await ProjectMaterialsMapping.findAll({
+            where: {
+                shipping_date: date
+            },
+            include: [
+                {
+                    model: SupplierMapping
+                },
+                {
+                    model: ProjectMapping, attributes: ['name', 'regionId']
+                }
+            ]
+        });
     
+        if (!projectmaterials || projectmaterials.length === 0) { 
+            throw new Error('Товар не найден в БД');
+        }
+    
+        const formattedData = projectmaterials.reduce((acc, item) => {
+            const { supplierId, materialId, materialName, id, supplier, project, weight, dimensions } = item;
+            const existingSupplier = acc.find((supplier) => supplier.supplierId === supplierId);
+            
+            if (existingSupplier) {
+                existingSupplier.props.push({ id: id, materialId: materialId, materialName: materialName });
+                existingSupplier.projects.push({ name: project.name, region: project.regionId });
+                existingSupplier.weight += weight; // Суммируем вес
+                existingSupplier.dimensions = Math.max(existingSupplier.dimensions, dimensions); // Находим максимальное значение размеров
+            } else {
+                acc.push({
+                    id: supplier.id,
+                    name: supplier.name,
+                    contact: supplier.contact,
+                    address: supplier.address,
+                    shipment: supplier.shipment,
+                    note: supplier.note,
+                    navigator: supplier.navigator,
+                    coordinates: supplier.coordinates,
+                    supplierId: supplierId, 
+                    weight: weight, // Инициализируем вес
+                    dimensions: dimensions, // Инициализируем размеры
+                    props: [{ id: id, materialId: materialId, materialName: materialName }],
+                    projects: [{ name: project.name, region: project.regionId }]
+                });
+            }
+            return acc;
+        }, []);
+        
+        return formattedData;
+    }
+
+
+
     // Вспомогательная функция для получения отображаемого названия даты
     getDisplayDate(date) {
         const today = new Date();
@@ -311,8 +371,10 @@ class ProjectMaterials {
     } 
 
     async create(data) {
-        const { date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName } = data;
-        const projectmaterials = await ProjectMaterialsMapping.create({ date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName });
+        
+        const { date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId } = data;
+       
+        const projectmaterials = await ProjectMaterialsMapping.create({ date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId });
         const created = await ProjectMaterialsMapping.findByPk(projectmaterials.id);
         return created;
     }
@@ -436,6 +498,32 @@ class ProjectMaterials {
             expirationMaterial_date = projectmaterials.expirationMaterial_date
         } = data
         await projectmaterials.update({expirationMaterial_date})
+        await projectmaterials.reload()
+        return projectmaterials
+    }
+
+    async createWeightMaterial(id, data) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
+        if (!projectmaterials) {
+            throw new Error('Товар не найден в БД')
+        }
+        const {
+            weight = projectmaterials.weight
+        } = data
+        await projectmaterials.update({weight})
+        await projectmaterials.reload()
+        return projectmaterials
+    }
+
+    async createDimensionsMaterial(id, data) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
+        if (!projectmaterials) {
+            throw new Error('Товар не найден в БД')
+        }
+        const {
+            dimensions = projectmaterials.dimensions
+        } = data
+        await projectmaterials.update({dimensions})
         await projectmaterials.reload()
         return projectmaterials
     }

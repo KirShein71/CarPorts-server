@@ -1,11 +1,11 @@
-import MaterialModel from '../models/Material.js'
+import SupplierModel from '../models/Supplier.js'
 import AppError from '../errors/AppError.js'
 
-class MaterialsController {
+class SupplierController {
     async getAll(req, res, next) {
         try {
-            const materials = await MaterialModel.getAll()
-            res.json(materials)
+            const suppliers = await SupplierModel.getAll()
+            res.json(suppliers)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -14,10 +14,10 @@ class MaterialsController {
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id материала')
+                throw new Error('Не указан id поставщика')
             }
-            const material = await MaterialModel.getOne(req.params.id)
-            res.json(material)
+            const supplier = await SupplierModel.getOne(req.params.id)
+            res.json(supplier)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -28,8 +28,8 @@ class MaterialsController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const material = await MaterialModel.create(req.body)
-            res.json(material)
+            const supplier = await SupplierModel.create(req.body)
+            res.json(supplier)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -43,23 +43,8 @@ class MaterialsController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const material = await MaterialModel.update(req.params.id, req.body,)
-            res.json(material)
-        } catch(e) {
-            next(AppError.badRequest(e.message))
-        }
-    }
-
-    async createSupplier(req, res, next) {
-        try {
-            if (!req.params.id) {
-                throw new Error('Не указан id товара')
-            }
-            if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для обновления')
-            }
-            const material = await MaterialModel.createSupplier(req.params.id, req.body,)
-            res.json(material)
+            const supplier = await SupplierModel.update(req.params.id, req.body,)
+            res.json(supplier)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -70,12 +55,12 @@ class MaterialsController {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
             }
-            const material = await MaterialModel.delete(req.params.id)
-            res.json(material)
+            const supplier = await SupplierModel.delete(req.params.id)
+            res.json(supplier)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 }
 
-export default new MaterialsController()
+export default new SupplierController()

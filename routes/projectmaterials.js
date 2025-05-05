@@ -19,8 +19,11 @@ router.get('/getall', ProjectMaterialsController.getAll)
 router.get('/getAllMaterialProject', ProjectMaterialsController.getAllMaterialProject)
 router.get('/getAllProjectMaterialForLogistic', ProjectMaterialsController.getAllProjectMaterialForLogistic)
 router.get('/getAllMaterialProjectForLogistic', ProjectMaterialsController.getAllMaterialProjectForLogistic)
+router.get('/getPickupMaterialsForLogistic/:date', ProjectMaterialsController.getPickupMaterialsForLogistic)
 router.get('/getone/:id([0-9]+)', ProjectMaterialsController.getOne)
 router.delete('/delete/:id([0-9]+)', ProjectMaterialsController.delete)
+router.put('/createWeightMaterial/:id([0-9]+)',  ProjectMaterialsController.createWeightMaterial)
+router.put('/createDimensionsMaterial/:id([0-9]+)',  ProjectMaterialsController.createDimensionsMaterial)
 
 
 export default router
