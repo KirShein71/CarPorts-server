@@ -116,10 +116,22 @@ class ProjectMaterials {
                 },
             ],
             where: {
-                shipping_date: {
-                    [Op.ne]: null, // shipping_date не равен null
-                    [Op.between]: [dateRange.start, dateRange.end] // В диапазоне дат
-                }
+                [Op.and]: [
+                    { 
+                        shipping_date: {
+                            [Op.ne]: null,
+                            [Op.between]: [dateRange.start, dateRange.end]
+                        }
+                    },
+                    {
+                        supplierId: {
+                            [Op.and]: [
+                                { [Op.ne]: 0 },
+                                { [Op.ne]: null }
+                            ]
+                        }
+                    }
+                ]
             }
         });
     
@@ -165,7 +177,9 @@ class ProjectMaterials {
                     shipping_date: shipping_date,
                     check: check,
                     weight: weight,
-                    dimensions: dimensions
+                    dimensions: dimensions,
+                   
+
                 });
             }
             return acc;
@@ -216,10 +230,22 @@ class ProjectMaterials {
                 },
             ],
             where: {
-                shipping_date: {
-                    [Op.ne]: null, // shipping_date не равен null
-                    [Op.between]: [dateRange.start, dateRange.end] // В диапазоне дат
-                }
+                [Op.and]: [
+                    { 
+                        shipping_date: {
+                            [Op.ne]: null,
+                            [Op.between]: [dateRange.start, dateRange.end]
+                        }
+                    },
+                    {
+                        supplierId: {
+                            [Op.and]: [
+                                { [Op.ne]: 0 },
+                                { [Op.ne]: null }
+                            ]
+                        }
+                    }
+                ]
             }
         });
 
@@ -266,7 +292,8 @@ class ProjectMaterials {
                     shipping_date: shipping_date,
                     check: check,
                     weight: weight,
-                    dimensions: dimensions
+                    dimensions: dimensions,
+                    
                 });
             }
             return acc;
@@ -296,7 +323,19 @@ class ProjectMaterials {
     async getPickupMaterialsForLogistic(date) { 
         const projectmaterials = await ProjectMaterialsMapping.findAll({
             where: {
-                shipping_date: date
+                [Op.and]: [
+                    { 
+                        shipping_date: date
+                    },
+                    {
+                        supplierId: {
+                            [Op.and]: [
+                                { [Op.ne]: 0 },
+                                { [Op.ne]: null }
+                            ]
+                        }
+                    }
+                ]
             },
             include: [
                 {
