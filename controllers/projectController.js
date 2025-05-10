@@ -281,6 +281,21 @@ class ProjectController {
         }
     }
 
+    async createLogisticProject(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.createLogisticProject(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async reviseProjectNameAndNumberAndInstallationBilling(req, res, next) {
         try {
             if (!req.params.id) {

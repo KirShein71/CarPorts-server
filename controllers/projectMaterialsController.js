@@ -41,9 +41,19 @@ class ProjectMaterialsController {
 
     async getPickupMaterialsForLogistic(req, res, next) {
         try {
-            const date = req.params.date;
-          
-            const projectmaterials = await ProjectMaterialsModel.getPickupMaterialsForLogistic(date);
+            const { date, selectedItems } = req.body;
+            const projectmaterials = await ProjectMaterialsModel.getPickupMaterialsForLogistic(date, selectedItems);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
+    async getUnloadingForProject(req, res, next) {
+        try {
+            const { selectedProjectsId } = req.body;
+         
+            const projectmaterials = await ProjectMaterialsModel.getUnloadingForProject(selectedProjectsId);
             res.json(projectmaterials);
         } catch(e) {
             next(AppError.badRequest(e.message));

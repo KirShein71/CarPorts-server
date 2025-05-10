@@ -26,7 +26,7 @@ class Supplier {
     async update(id, data) {
         const supplier = await SupplierMapping.findByPk(id)
         if (!supplier) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Поставщик не найден в БД')
         }
         const {
             name = supplier.name,

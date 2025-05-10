@@ -178,6 +178,7 @@ class ProjectMaterials {
                     check: check,
                     weight: weight,
                     dimensions: dimensions,
+                    projectId: projectId
                    
 
                 });
@@ -319,32 +320,38 @@ class ProjectMaterials {
         
         return formattedData;
     }
-
-    async getPickupMaterialsForLogistic(date) { 
+    //запрос на забор материалов у поставщиков
+    async getPickupMaterialsForLogistic(date, selectedIds = []) { 
         const projectmaterials = await ProjectMaterialsMapping.findAll({
-            where: {
-                [Op.and]: [
-                    { 
-                        shipping_date: date
-                    },
-                    {
-                        supplierId: {
-                            [Op.and]: [
-                                { [Op.ne]: 0 },
-                                { [Op.ne]: null }
-                            ]
-                        }
-                    }
-                ]
-            },
-            include: [
-                {
-                    model: SupplierMapping
-                },
-                {
-                    model: ProjectMapping, attributes: ['name', 'regionId']
+          where: {
+            [Op.and]: [
+              { 
+                shipping_date: date
+              },
+              {
+                supplierId: {
+                  [Op.and]: [
+                    { [Op.ne]: 0 },
+                    { [Op.ne]: null }
+                  ]
                 }
+              },
+              {
+                id: {
+                  [Op.in]: selectedIds // Добавляем фильтр по выбранным ID
+                }
+              }
             ]
+          },
+          include: [
+            {
+              model: SupplierMapping
+            },
+            {
+              model: ProjectMapping, 
+              attributes: ['id','name', 'regionId', 'contact', 'address', 'navigator', 'coordinates']
+            }
+          ]
         });
     
         if (!projectmaterials || projectmaterials.length === 0) { 
@@ -357,7 +364,7 @@ class ProjectMaterials {
             
             if (existingSupplier) {
                 existingSupplier.props.push({ id: id, materialId: materialId, materialName: materialName });
-                existingSupplier.projects.push({ name: project.name, region: project.regionId });
+                existingSupplier.projects.push({id: project.id, name: project.name, region: project.regionId, contact: project.contact, address: project.address, navigator: project.navigator, coordinates: project.coordinates, materialName: materialName });
                 existingSupplier.weight += weight; // Суммируем вес
                 existingSupplier.dimensions = Math.max(existingSupplier.dimensions, dimensions); // Находим максимальное значение размеров
             } else {
@@ -374,13 +381,35 @@ class ProjectMaterials {
                     weight: weight, // Инициализируем вес
                     dimensions: dimensions, // Инициализируем размеры
                     props: [{ id: id, materialId: materialId, materialName: materialName }],
-                    projects: [{ name: project.name, region: project.regionId }]
+                    projects: [{ id: project.id, name: project.name, region: project.regionId, contact: project.contact, address: project.address, navigator: project.navigator, coordinates: project.coordinates, materialName: materialName }]
                 });
             }
             return acc;
         }, []);
         
         return formattedData;
+    }
+    //запрос на выгрузку материалов на проекте (заказчиков)
+    async getUnloadingForProject( selectedIds = []) { 
+        const projects = await ProjectMapping.findAll({
+          where: {
+            [Op.and]: [
+              {
+                id: {
+                  [Op.in]: selectedIds // Добавляем фильтр по выбранным ID
+                }
+              },
+              
+            ]
+          },
+          attributes: ['id', 'name', 'contact', 'regionId', 'address', 'navigator', 'coordinates'],
+        });
+    
+        if (!projects || projects.length === 0) { 
+            throw new Error('Товар не найден в БД');
+        }
+        
+        return projects;
     }
 
 

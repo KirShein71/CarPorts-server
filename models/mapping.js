@@ -92,7 +92,11 @@ const Project = sequelize.define('project', {
     date_inspection: {type: DataTypes.DATE, allowNull: true},
     inspection_designer: {type: DataTypes.STRING, allowNull: true},
     date_finish: {type: DataTypes.DATE, allowNull: true},
-    finish: {type: DataTypes.STRING, allowNull: true}
+    finish: {type: DataTypes.STRING, allowNull: true},
+    contact: {type: DataTypes.STRING, allowNull: true},
+    address: {type: DataTypes.STRING, allowNull: true},
+    navigator: {type: DataTypes.STRING, allowNull: true},
+    coordinates: {type: DataTypes.STRING, allowNull: true},
 })
 
 const Material = sequelize.define('material', {

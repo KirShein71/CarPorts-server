@@ -517,6 +517,22 @@ class Project {
         return project
     }
 
+    async createLogisticProject(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            contact = project.contact,
+            address = project.address,
+            navigator = project.navigator,
+            coordinates = project.coordinates,
+        } = data
+        await project.update({contact, address, navigator, coordinates})
+        await project.reload()
+        return project
+    }
+
     async reviseProjectNameAndNumberAndInstallationBilling(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
