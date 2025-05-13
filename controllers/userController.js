@@ -1,4 +1,5 @@
 import UserModel from '../models/User.js'
+import ProjectModel from '../models/Project.js'
 import AppError from "../errors/AppError.js"
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
@@ -107,7 +108,7 @@ class UserController {
                 throw new Error('Недопустимое значение роли')
             }
             const hash = await bcrypt.hash(password, 10)
-            const user = await UserModel.create({phone, password: hash, projectId, role})
+            const user = await ProjectModel.create({phone, password: hash, projectId, role})
             return res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))

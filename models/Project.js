@@ -15,10 +15,11 @@ import { UserFile as UserFileMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
+import bcrypt from 'bcrypt'
 
 
 
-
+const saltRounds = 10;
 
 class Project {
     async getAll() {
@@ -362,16 +363,56 @@ class Project {
     }
 
 
-    async create(data) {
-        const {name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId} = data
+    async create(data, img) {
+        const image = FileService.save(img) || ''
+        const { 
+            // Данные проекта
+            name, number, agreement_date, design_period, expiration_date, 
+            installation_period, installation_billing, note, designer, 
+            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates,
+            // Данные аккаунта
+            phone, password,
+        } = data;
 
-        const installationBillingValue = installation_billing ? parseInt(installation_billing) : null;
-        const regionIdValue = regionId ? parseInt(regionId) : null;
+        const transaction = await sequelize.transaction();
 
-        const project = await ProjectMapping.create({name, number, agreement_date, design_period, expiration_date, installation_period, installation_billing: installationBillingValue, note, designer, design_start, project_delivery, date_inspection, inspection_designer, regionId: regionIdValue})
-        
-        const created = await ProjectMapping.findByPk(project.id) 
-        return created
+        try {
+            // Создаем проект
+            const installationBillingValue = installation_billing ? parseInt(installation_billing) : null;
+            const regionIdValue = regionId ? parseInt(regionId) : null;
+
+            const project = await ProjectMapping.create({
+                name, number, agreement_date, design_period, expiration_date, 
+                installation_period, installation_billing: installationBillingValue, 
+                note, designer, design_start, project_delivery, 
+                date_inspection, inspection_designer, regionId: regionIdValue, contact, address, navigator, coordinates
+            }, { transaction });
+
+            // Хешируем пароль перед сохранением
+            const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
+
+
+            // Создаем аккаунт с хешированным паролем
+            const account = await UserMapping.create({
+                phone: phone.trim(),
+                password: hashedPassword, // Используем хешированный пароль
+                projectId: project.id,
+                image: image
+            }, { transaction });
+
+            await transaction.commit();
+
+            return {
+                project,
+                account: {
+                    ...account.get({ plain: true }),
+                    password: undefined // Не возвращаем пароль в ответе
+                }
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 
     async createDateFinish(id, data) {

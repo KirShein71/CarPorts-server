@@ -1,5 +1,6 @@
 import ProjectModel from '../models/Project.js'
 import AppError from '../errors/AppError.js'
+import bcrypt from 'bcrypt'
 
 class ProjectController {
     async getAll(req, res, next) {
@@ -123,12 +124,24 @@ class ProjectController {
     async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для отправки')
+                throw new Error('Нет данных для отправки');
             }
-            const project = await ProjectModel.create(req.body)
-            res.json(project)
+
+            // Проверяем обязательные поля для аккаунта
+            if (!req.body.phone || !req.body.password) {
+                throw new Error('Телефон и пароль обязательны для создания аккаунта');
+            }
+
+            const result = await ProjectModel.create(req.body, req.files.image);
+           
+            
+            res.json({
+                success: true,
+                project: result.project,
+                account: result.account
+            });
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 
