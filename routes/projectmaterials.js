@@ -5,6 +5,7 @@ const router = new express.Router()
 
 
 router.post('/create',  ProjectMaterialsController.create)
+router.put('/updateMaterialIdInOrderMaterials/:id([0-9]+)',  ProjectMaterialsController.updateMaterialIdInOrderMaterials)
 router.put('/createCheckProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createCheckProjectMaterials)
 router.delete('/deleteCheckProjectMaterials/:check', ProjectMaterialsController.deleteCheckProjectMaterials)
 router.put('/createReadyDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createReadyDateProjectMaterials)

@@ -439,12 +439,27 @@ class ProjectMaterials {
     } 
 
     async create(data) {
-        
+
         const { date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId } = data;
        
         const projectmaterials = await ProjectMaterialsMapping.create({ date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId });
         const created = await ProjectMaterialsMapping.findByPk(projectmaterials.id);
         return created;
+    }
+
+    async updateMaterialIdInOrderMaterials(id, data) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            materialId = projectmaterials.materialId,
+            supplierId = projectmaterials.supplierId,
+            materialName = projectmaterials.materialName
+        } = data
+        await projectmaterials.update({materialId, supplierId, materialName})
+        await projectmaterials.reload()
+        return projectmaterials
     }
 
    
