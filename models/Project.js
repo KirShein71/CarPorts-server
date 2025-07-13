@@ -428,6 +428,19 @@ class Project {
         return project
     }
 
+    async updateDateFinish(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            date_finish = project.date_finish
+        } = data
+        await project.update({date_finish})
+        await project.reload()
+        return project
+    }
+
     async restoreProject(id) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
