@@ -59,6 +59,21 @@ class Brigade {
         return brigade
     }
 
+    async updateActiveBrigade(id, data) {
+        const brigade = await BrigadeMapping.findByPk(id)
+        if (!brigade) {
+            throw new Error('Бригада не найдена в БД')
+        }
+        
+        const {
+            active = brigade.active
+            
+        } = data
+        await brigade.update({active})
+        await brigade.reload()
+        return brigade
+    }
+
     async updateBrigadeName(id, data) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {

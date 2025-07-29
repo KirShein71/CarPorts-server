@@ -19,7 +19,7 @@ class BrigadesDate {
                 },
                 {
                     model: BrigadeMapping,
-                    attributes: ['name', 'regionId']
+                    attributes: ['name', 'regionId', 'active']
                 },
                 {
                     model: DateMapping,

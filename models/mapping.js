@@ -168,6 +168,7 @@ const Brigade= sequelize.define('brigade', {
     image: {type: DataTypes.STRING, allowNull: false },
     role: { type: DataTypes.STRING, defaultValue: "INSTALLER" },
     password: { type: DataTypes.STRING, allowNull: false },
+    active: { type: DataTypes.STRING, allowNull: false}
 })
 
 const BrigadeWork= sequelize.define('brigade_work', {
