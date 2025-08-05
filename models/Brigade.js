@@ -27,13 +27,13 @@ class Brigade {
     }
 
     async create(data, img) {
-        const {name, phone, regionId, role, password} = data
+        const {name, phone, regionId, role, password, active} = data
         const image = FileService.save(img) || ''
         const check = await BrigadeMapping.findOne({where: {phone}})
         if (check) {
             throw new Error('Пользователь уже существует')
         }
-        const brigade = await BrigadeMapping.create({name, phone, image, regionId, role, password})
+        const brigade = await BrigadeMapping.create({name, phone, image, regionId, role, password, active})
         
         const created = await BrigadeMapping.findByPk(brigade.id) 
         return created

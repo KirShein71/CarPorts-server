@@ -73,7 +73,7 @@ class BrigadeController {
     }
 
     async create(req, res, next) {
-        const {name, phone, regionId, role  = 'INSTALLER', password} = req.body
+        const {name, phone, regionId, active, role  = 'INSTALLER', password} = req.body
         try {
             if (!phone || !password) {
                 throw new Error('Пустой номер телефона')
@@ -82,7 +82,7 @@ class BrigadeController {
                 throw new Error('Недопустимое значение роли')
             }
             const hash = await bcrypt.hash(password, 10)
-            const brigade = await BrigadeModel.create({phone, password: hash, role, name, regionId})
+            const brigade = await BrigadeModel.create({phone, password: hash, role, name, regionId, active})
             return res.json(brigade)
         } catch(e) {
             next(AppError.badRequest(e.message))
