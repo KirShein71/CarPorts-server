@@ -12,7 +12,8 @@ const User = sequelize.define('user', {
     projectId: {type: DataTypes.INTEGER, allowNull: false},
     manager: {type: DataTypes.STRING, allowNull: true},
     manager_phone: { type: DataTypes.STRING, allowNull: true },
-    image: {type: DataTypes.STRING, allowNull: true}
+    image: {type: DataTypes.STRING, allowNull: true},
+    telegram_chat_id: {type: DataTypes.INTEGER, allowNull: false}
 })
 
 const UserImage = sequelize.define('userimage', {

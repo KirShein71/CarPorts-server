@@ -16,6 +16,8 @@ import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
 import bcrypt from 'bcrypt'
+import bot from '../TelegramBot.js'
+
 
 
 
@@ -569,6 +571,168 @@ class Project {
         await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, installation_billing , note, designer, design_start, project_delivery, inspection_designer, date_inspection})
         await project.reload()
         return project
+    }
+
+    async updateDesignStart(id, data) {
+        try {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const oldDesignStart = project.design_start;
+        const { design_start = project.design_start } = data;
+        await project.update({design_start})
+        await project.reload()
+        if (oldDesignStart !== design_start) {
+            await this.notifyDesignStartChange(project.id, design_start);
+            
+        }
+        return project;
+        } catch (error) {
+            console.error('Ошибка при обновлении даты начала:', error);
+            throw error;
+        }
+    }
+
+    async notifyDesignStartChange(id) {
+        
+        try {
+            // Находим всех пользователей, связанных с этим проектом
+            const users = await sequelize.query(`
+                SELECT u.telegram_chat_id 
+                FROM users u
+                WHERE u.project_id = :id
+                AND u.telegram_chat_id IS NOT NULL
+            `, {
+                replacements: { id },
+                type: sequelize.QueryTypes.SELECT
+            });
+    
+            if (users.length > 0) {
+            
+                const message = `📅 Проект взяли в работу`;
+    
+                // Отправляем сообщение каждому пользователю
+                for (const user of users) {
+                    try {
+                        await bot.telegram.sendMessage(user.telegram_chat_id, message);
+                        console.log(`Уведомление отправлено пользователю ${user.telegram_chat_id}`);
+                    } catch (error) {
+                        console.error(`Ошибка при отправке уведомления пользователю ${user.telegram_chat_id}:`, error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке уведомлений:', error);
+        }
+    }
+
+    async updateProjectDelivery(id, data) {
+        try {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const oldProjectDelivery = project.project_delivery;
+        const { project_delivery = project.project_delivery } = data;
+        await project.update({project_delivery})
+        await project.reload()
+        if (oldProjectDelivery !== project_delivery) {
+            await this.notifyProjectDeliveryChange(project.id, project_delivery);
+            
+        }
+        return project;
+        } catch (error) {
+            console.error('Ошибка при обновлении даты начала:', error);
+            throw error;
+        }
+    }
+
+    async notifyProjectDeliveryChange(id) {
+        
+        try {
+            // Находим всех пользователей, связанных с этим проектом
+            const users = await sequelize.query(`
+                SELECT u.telegram_chat_id 
+                FROM users u
+                WHERE u.project_id = :id
+                AND u.telegram_chat_id IS NOT NULL
+            `, {
+                replacements: { id },
+                type: sequelize.QueryTypes.SELECT
+            });
+    
+            if (users.length > 0) {
+            
+                const message = `📅 Проект готов`;
+    
+                // Отправляем сообщение каждому пользователю
+                for (const user of users) {
+                    try {
+                        await bot.telegram.sendMessage(user.telegram_chat_id, message);
+                        console.log(`Уведомление отправлено пользователю ${user.telegram_chat_id}`);
+                    } catch (error) {
+                        console.error(`Ошибка при отправке уведомления пользователю ${user.telegram_chat_id}:`, error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке уведомлений:', error);
+        }
+    }
+
+    async updateDateInspection(id, data) {
+        try {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const oldDateInspection = project.date_inspection;
+        const { date_inspection = project.date_inspection } = data;
+        await project.update({date_inspection})
+        await project.reload()
+        if (oldDateInspection !== date_inspection) {
+            await this.notifyDateInspectionChange(project.id, date_inspection);
+            
+        }
+        return project;
+        } catch (error) {
+            console.error('Ошибка при обновлении даты начала:', error);
+            throw error;
+        }
+    }
+
+    async notifyDateInspectionChange(id) {
+        
+        try {
+            // Находим всех пользователей, связанных с этим проектом
+            const users = await sequelize.query(`
+                SELECT u.telegram_chat_id 
+                FROM users u
+                WHERE u.project_id = :id
+                AND u.telegram_chat_id IS NOT NULL
+            `, {
+                replacements: { id },
+                type: sequelize.QueryTypes.SELECT
+            });
+    
+            if (users.length > 0) {
+            
+                const message = `📅 Проект проверен`;
+    
+                // Отправляем сообщение каждому пользователю
+                for (const user of users) {
+                    try {
+                        await bot.telegram.sendMessage(user.telegram_chat_id, message);
+                        console.log(`Уведомление отправлено пользователю ${user.telegram_chat_id}`);
+                    } catch (error) {
+                        console.error(`Ошибка при отправке уведомления пользователю ${user.telegram_chat_id}:`, error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке уведомлений:', error);
+        }
     }
 
     async createLogisticProject(id, data) {

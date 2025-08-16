@@ -32,6 +32,9 @@ router.put('/updateInstallationPeriod/:id([0-9]+)', ProjectController.updateInst
 router.put('/createLogisticProject/:id([0-9]+)', ProjectController.createLogisticProject)
 router.put('/reviseProjectNameAndNumberAndInstallationBilling/:id([0-9]+)',  ProjectController.reviseProjectNameAndNumberAndInstallationBilling)
 router.put('/update/:id([0-9]+)',  ProjectController.update)
+router.put('/updateDateInspection/:id([0-9]+)',  ProjectController.updateDateInspection)
+router.put('/updateProjectDelivery/:id([0-9]+)',  ProjectController.updateProjectDelivery)
+router.put('/updateDesignStart/:id([0-9]+)',  ProjectController.updateDesignStart)
 router.delete('/delete/:id([0-9]+)',  ProjectController.delete)
 
 

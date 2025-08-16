@@ -7,7 +7,7 @@ const router = new express.Router()
 
 router.post('/signup', AdminController.signup)
 router.post('/login', AdminController.login)
-router.get('/check', authMiddleware, AdminController.check)
+router.get('/check', adminMiddleware, AdminController.check)
 
 router.get('/getall', AdminController.getAll)
 router.get('/getOne/:id([0-9]+)', AdminController.getOne)

@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser'
 import router from './routes/index.js'
 import bodyParser from 'body-parser'
 import errorMiddleware from './middleware/ErrorHandler.js'
+import bot from './TelegramBot.js'
 
 
 
@@ -46,10 +47,18 @@ app.use((req, res, next) => {
 
 
 
+
+
 const start = async () => {
     try {
         await sequelize.authenticate()
         await sequelize.sync()
+        
+        // Запуск бота
+        bot.launch().then(() => {
+          console.log('Telegram bot запущен');
+        });
+        
         app.listen(PORT, () => console.log('Сервер запущен на порту', PORT))
     } catch(e) {
         console.log(e)
