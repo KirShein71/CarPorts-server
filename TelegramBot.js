@@ -100,7 +100,7 @@ bot.on('text', async (ctx) => {
           process.env.JWT_SECRET // Используем секрет из .env
         );
 
-        const personalAccountLink = `${process.env.FRONTEND_URL}/personal-account?token=${token}`;
+        const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
         
         await ctx.replyWithHTML(
           '✅ Отлично! Ваш Telegram успешно привязан\n\n' +
