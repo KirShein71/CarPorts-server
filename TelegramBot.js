@@ -107,7 +107,7 @@ bot.command('getlink', async (ctx) => {
       process.env.JWT_SECRET
     );
 
-    const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount/${token}`
+    const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
     
     await ctx.replyWithHTML(
       '🔑 Новая ссылка для входа в личный кабинет (действует 15 минут):\n\n' +
@@ -180,7 +180,7 @@ bot.on('text', async (ctx) => {
           process.env.JWT_SECRET // Используем секрет из .env
         );
 
-        const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount/${token}`
+       const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
         
         await ctx.replyWithHTML(
           '✅ Отлично! Ваш Telegram успешно привязан\n\n' +

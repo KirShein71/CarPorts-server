@@ -176,16 +176,36 @@ class UserController {
     }
     
     async verifyToken(req, res) {
-        try {
-            const token = req.body.token || req.query.token;
-            if (!token) throw new Error('Token is required');
+  try {
+    // Получаем токен из разных источников
+    const token = req.body.token || 
+                 req.query.token || 
+                 (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+    
+    if (!token) throw new Error('Token is required');
 
-            const decoded = jwt.verify(token, process.env.SECRET_KEY);
-            res.json({ valid: true, userId: decoded.userId });
-        } catch (error) {
-            res.status(401).json({ valid: false, error: error.message });
-        }
+    const decoded = jwt.verify(token, process.env.SECRET_KEY, {
+      algorithms: ['HS256'],
+      ignoreExpiration: false
+    });
+
+    // Проверяем обязательные поля
+    if (!decoded.userId) {
+      throw new Error('Invalid token: missing userId');
     }
+
+    res.json({ 
+      valid: true, 
+      userId: decoded.userId,
+      chatId: decoded.chatId // Добавляем chatId в ответ
+    });
+  } catch (error) {
+    res.status(401).json({ 
+      valid: false, 
+      error: error.message 
+    });
+  }
+}
   
 }
 

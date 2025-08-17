@@ -2,62 +2,42 @@ import jwt from 'jsonwebtoken'
 import AppError from '../errors/AppError.js'
 
 const authMiddleware = async (req, res, next) => {
-  // Пропускаем preflight-запросы OPTIONS
   if (req.method === 'OPTIONS') {
-    return next()
+    return next();
   }
 
   try {
-    // 1. Проверка наличия заголовка Authorization
-    const authHeader = req.headers.authorization
-    if (!authHeader) {
-      throw new Error('Требуется авторизация: заголовок Authorization отсутствует')
+    const token = req.headers.authorization?.split(' ')[1] || 
+                 req.query.token;
+    
+    if (!token) {
+      throw new Error('Authorization token is missing');
     }
 
-    // 2. Извлечение токена из заголовка
-    const token = req.headers.authorization 
-        ? req.headers.authorization.split(' ')[1]
-        : req.query.token;
-
-        if (!token) {
-        throw new Error('Требуется авторизация: токен не предоставлен');
-    }
-
-    // 3. Верификация токена
     const decoded = jwt.verify(token, process.env.SECRET_KEY, {
-      algorithms: ['HS256'], // Явно указываем алгоритм
-      ignoreExpiration: false, // Проверяем срок действия
-    })
+      algorithms: ['HS256'],
+      ignoreExpiration: false
+    });
 
-    // 4. Проверка необходимых полей в токене
-    if (!decoded.userId || !decoded.chatId) {
-      throw new Error('Невалидный токен: отсутствуют обязательные поля')
+    if (!decoded.userId) {
+      throw new Error('Invalid token: missing userId');
     }
 
-    // 5. Добавляем декодированные данные в запрос
     req.auth = {
       userId: decoded.userId,
-      chatId: decoded.chatId,
-      // Другие данные из токена при необходимости
-    }
+      chatId: decoded.chatId
+    };
 
-    // 6. Передаем управление следующему middleware
-    next()
+    next();
   } catch (err) {
-    // Обработка разных типов ошибок
-    let errorMessage = 'Ошибка аутентификации'
+    const errorMessage = err instanceof jwt.TokenExpiredError 
+      ? 'Token expired' 
+      : err instanceof jwt.JsonWebTokenError 
+        ? 'Invalid token' 
+        : err.message;
     
-    if (err instanceof jwt.TokenExpiredError) {
-      errorMessage = 'Срок действия токена истек'
-    } else if (err instanceof jwt.JsonWebTokenError) {
-      errorMessage = 'Неверная подпись токена'
-    } else if (err.message.includes('authorization')) {
-      errorMessage = err.message
-    }
-
-    // Передаем ошибку в обработчик ошибок
-    next(AppError.forbidden(errorMessage))
+    next(AppError.unauthorized(errorMessage));
   }
-}
+};
 
-export default authMiddleware
+export default authMiddleware;
