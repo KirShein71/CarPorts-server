@@ -174,6 +174,8 @@ class UserController {
             next(AppError.badRequest(e.message))
         }
     }
+
+  
 }
 
 

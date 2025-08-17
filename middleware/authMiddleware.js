@@ -15,9 +15,12 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // 2. Извлечение токена из заголовка
-    const token = authHeader.split(' ')[1] // Bearer <token>
-    if (!token) {
-      throw new Error('Требуется авторизация: токен не предоставлен')
+    const token = req.headers.authorization 
+        ? req.headers.authorization.split(' ')[1]
+        : req.query.token;
+
+        if (!token) {
+        throw new Error('Требуется авторизация: токен не предоставлен');
     }
 
     // 3. Верификация токена
