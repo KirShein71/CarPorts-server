@@ -187,45 +187,6 @@ class UserController {
             next(AppError.badRequest(e.message))
         }
     }
-    
-    async verifyToken(req, res) {
-  try {
-    const { token } = req.body;
-
-    // 1. Проверяем JWT валидность
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // 2. Проверяем, что токен есть в базе и совпадает с temporary_token
-    const [user] = await sequelize.query(`
-      SELECT id FROM users 
-      WHERE temporary_token = :token 
-      AND id = :userId
-    `, {
-      replacements: { token, userId: decoded.userId },
-      type: sequelize.QueryTypes.SELECT
-    });
-
-    if (!user) {
-      throw new Error('Token not found in database or user mismatch');
-    }
-
-    // 3. Проверяем срок действия токена (уже проверен jwt.verify)
-    
-    res.json({ 
-      valid: true, 
-      userId: user.id 
-    });
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    res.status(401).json({ 
-      valid: false, 
-      error: error.message 
-    });
-  }
-}
-
-
-  
 }
 
 

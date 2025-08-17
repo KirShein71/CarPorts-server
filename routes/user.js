@@ -20,7 +20,7 @@ router.put('/createManager/:id([0-9]+)',  UserController.createManager)
 router.put('/createBrigade/:id([0-9]+)',  UserController.createBrigade)
 router.put('/createMainImage/:id([0-9]+)',  UserController.createMainImage)
 router.delete('/delete/:id([0-9]+)',  UserController.delete)
-router.post('/verifyToken', UserController.verifyToken)
+
 
 
 export default router
