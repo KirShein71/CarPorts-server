@@ -80,13 +80,14 @@ bot.start(async (ctx) => {
   }
 });
 
+// Обработка команды /getlink
 bot.command('getlink', async (ctx) => {
   try {
     const chatId = ctx.message.chat.id;
     
     // Проверяем, привязан ли уже аккаунт
     const [user] = await sequelize.query(`
-      SELECT id, phone FROM users WHERE telegram_chat_id = :chatId
+      SELECT id FROM users WHERE telegram_chat_id = :chatId
     `, {
       replacements: { chatId },
       type: sequelize.QueryTypes.SELECT
@@ -98,16 +99,26 @@ bot.command('getlink', async (ctx) => {
     }
 
     // Генерация нового JWT токена
-    const token = jwt.sign(
+    const newToken = jwt.sign(
       { 
         userId: user.id,
         chatId: chatId,
-        exp: Math.floor(Date.now() / 1000) + 900 // снова 15 минут
+        exp: Math.floor(Date.now() / 1000) + 900 // 15 минут
       },
       process.env.JWT_SECRET
     );
 
-    const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
+    // Обновляем temporary_token в БД
+    await sequelize.query(`
+      UPDATE users 
+      SET temporary_token = :token
+      WHERE telegram_chat_id = :chatId
+    `, {
+      replacements: { token: newToken, chatId },
+      type: sequelize.QueryTypes.UPDATE
+    });
+
+    const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${newToken}`;
     
     await ctx.replyWithHTML(
       '🔑 Новая ссылка для входа в личный кабинет (действует 15 минут):\n\n' +
@@ -158,35 +169,34 @@ bot.on('text', async (ctx) => {
         return;
       }
 
-      // Обновляем chat_id в БД
-      const [updatedCount] = await sequelize.query(`
+      // Генерация JWT токена
+      const token = jwt.sign(
+        { 
+          userId: user.id,
+          chatId: chatId,
+          exp: Math.floor(Date.now() / 1000) + 900 // 15 минут
+        },
+        process.env.JWT_SECRET
+      );
+
+      // Обновляем chat_id и temporary_token в БД
+      await sequelize.query(`
         UPDATE users 
-        SET telegram_chat_id = :chatId 
+        SET 
+          telegram_chat_id = :chatId,
+          temporary_token = :token
         WHERE phone = :phone
-        RETURNING id
       `, {
-        replacements: { chatId, phone },
+        replacements: { chatId, phone, token },
         type: sequelize.QueryTypes.UPDATE
       });
 
-      if (updatedCount.length > 0) {
-        // Генерация JWT токена
-        const token = jwt.sign(
-          { 
-            userId: user.id,
-            chatId: chatId,
-            exp: Math.floor(Date.now() / 1000) + 900 // 15 минут
-          },
-          process.env.JWT_SECRET // Используем секрет из .env
-        );
-
-       const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
-        
-        await ctx.replyWithHTML(
-          '✅ Отлично! Ваш Telegram успешно привязан\n\n' +
-          `<a href="${personalAccountLink}">🔗 Перейти в личный кабинет</a>`
-        );
-      }
+      const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
+      
+      await ctx.replyWithHTML(
+        '✅ Отлично! Ваш Telegram успешно привязан\n\n' +
+        `<a href="${personalAccountLink}">🔗 Перейти в личный кабинет</a>`
+      );
     } catch (error) {
       console.error('Ошибка:', error);
       await ctx.reply('🚨 Произошла ошибка. Попробуйте позже');

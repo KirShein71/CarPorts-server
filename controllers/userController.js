@@ -177,27 +177,26 @@ class UserController {
     
     async verifyToken(req, res) {
   try {
-    // Получаем токен из разных источников
-    const token = req.body.token || 
-                 req.query.token || 
-                 (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+    const { token } = req.body;
     
-    if (!token) throw new Error('Token is required');
-
-    const decoded = jwt.verify(token, process.env.SECRET_KEY, {
-      algorithms: ['HS256'],
-      ignoreExpiration: false
+    // Проверяем токен в базе данных
+    const [user] = await sequelize.query(`
+      SELECT id FROM users WHERE temporary_token = :token
+    `, {
+      replacements: { token },
+      type: sequelize.QueryTypes.SELECT
     });
 
-    // Проверяем обязательные поля
-    if (!decoded.userId) {
-      throw new Error('Invalid token: missing userId');
+    if (!user) {
+      throw new Error('Token not found in database');
     }
 
+    // Дополнительно проверяем JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     res.json({ 
       valid: true, 
-      userId: decoded.userId,
-      chatId: decoded.chatId // Добавляем chatId в ответ
+      userId: user.id 
     });
   } catch (error) {
     res.status(401).json({ 
