@@ -165,18 +165,6 @@ class User {
             throw new Error('Пользователь не найден по данному токену');
         }
 
-        // Дополнительно проверяем срок действия токена
-        try {
-            jwt.verify(token, process.env.JWT_SECRET);
-        } catch (e) {
-            // Если токен просрочен, очищаем его
-            await UserMapping.update(
-                { temporary_token: null },
-                { where: { id: user.id } }
-            );
-            throw new Error('Срок действия токена истек');
-        }
-
         return user;
     }
 
