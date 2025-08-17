@@ -175,37 +175,28 @@ class UserController {
         }
     }
     
-    async verifyToken(req, res) {
-  try {
-    // Получаем токен из разных источников
-    const token = req.body.token || 
-                 req.query.token || 
-                 (req.headers.authorization && req.headers.authorization.split(' ')[1]);
-    
-    if (!token) throw new Error('Token is required');
+   async verifyToken(req, res) {
+    try {
+      const { token } = req.body;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      // Проверяем наличие обязательных полей
+      if (!decoded.userId || !decoded.chatId) {
+        throw new Error('Invalid token structure');
+      }
 
-    const decoded = jwt.verify(token, process.env.SECRET_KEY, {
-      algorithms: ['HS256'],
-      ignoreExpiration: false
-    });
+      // Генерируем постоянный токен для сессии
+      const sessionToken = jwt.sign(
+        { userId: decoded.userId },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
 
-    // Проверяем обязательные поля
-    if (!decoded.userId) {
-      throw new Error('Invalid token: missing userId');
+      res.json({ token: sessionToken, userId: decoded.userId });
+    } catch (error) {
+      res.status(401).json({ error: error.message });
     }
-
-    res.json({ 
-      valid: true, 
-      userId: decoded.userId,
-      chatId: decoded.chatId // Добавляем chatId в ответ
-    });
-  } catch (error) {
-    res.status(401).json({ 
-      valid: false, 
-      error: error.message 
-    });
   }
-}
   
 }
 
