@@ -174,7 +174,18 @@ class UserController {
             next(AppError.badRequest(e.message))
         }
     }
+    
+    async verifyToken(req, res) {
+        try {
+            const token = req.body.token || req.query.token;
+            if (!token) throw new Error('Token is required');
 
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            res.json({ valid: true, userId: decoded.userId });
+        } catch (error) {
+            res.status(401).json({ valid: false, error: error.message });
+        }
+    }
   
 }
 
