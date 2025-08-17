@@ -39,6 +39,45 @@ bot.start(async (ctx) => {
   }
 });
 
+bot.command('getlink', async (ctx) => {
+  try {
+    const chatId = ctx.message.chat.id;
+    
+    // Проверяем, привязан ли уже аккаунт
+    const [user] = await sequelize.query(`
+      SELECT id, phone FROM users WHERE telegram_chat_id = :chatId
+    `, {
+      replacements: { chatId },
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    if (!user) {
+      await ctx.reply('🤷‍♂️ Ваш Telegram не привязан к аккаунту. Используйте /start для привязки');
+      return;
+    }
+
+    // Генерация нового JWT токена
+    const token = jwt.sign(
+      { 
+        userId: user.id,
+        chatId: chatId,
+        exp: Math.floor(Date.now() / 1000) + 900 // снова 15 минут
+      },
+      process.env.JWT_SECRET
+    );
+
+    const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
+    
+    await ctx.replyWithHTML(
+      '🔑 Новая ссылка для входа в личный кабинет (действует 15 минут):\n\n' +
+      `<a href="${personalAccountLink}">🔗 Перейти в личный кабинет</a>`
+    );
+  } catch (error) {
+    console.error('Ошибка в команде getlink:', error);
+    await ctx.reply('🚨 Произошла ошибка. Попробуйте позже');
+  }
+});
+
 // Обработка ввода номера телефона
 bot.on('text', async (ctx) => {
   const chatId = ctx.message.chat.id;
@@ -119,6 +158,11 @@ bot.on('text', async (ctx) => {
 bot.catch((err, ctx) => {
   console.error('Ошибка в боте:', err);
 });
+
+bot.telegram.setMyCommands([
+  { command: 'start', description: 'Привязать Telegram к аккаунту' },
+  { command: 'getlink', description: 'Получить ссылку для входа' },
+]);
 
 // Запуск бота
 bot.launch()
