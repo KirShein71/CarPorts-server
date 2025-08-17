@@ -124,6 +124,62 @@ class User {
         return user;
       }
 
+      async getOneAccountByToken(token) {
+        const user = await UserMapping.findOne({
+            where: { temporary_token: token },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['number', 'name', 'agreement_date', 'design_period', 'expiration_date', 'installation_period', 'design_start', 'project_delivery', 'date_inspection'],
+                    include: [
+                        { 
+                            model: ProjectMaterialsMappping, 
+                            attributes: ['materialId', 'material_name', 'date_payment', 'shipping_date']
+                        }
+                    ]
+                },
+                {
+                    model: BrigadeMapping,
+                    attributes: ['name', 'phone', 'image']
+                },
+                {
+                    model: UserFileMapping,
+                    attributes: ['name', 'file']
+                },
+                {
+                    model: UserImageMapping,
+                    attributes: ['image', 'date']
+                },
+                {
+                    model: EmployeeMapping,
+                    attributes: ['name', 'phone']
+                },
+                {
+                    model: ManagerProjectMapping,
+                    attributes: ['name', 'phone']
+                },
+            ],
+        });
+
+        if (!user) {
+            throw new Error('Пользователь не найден по данному токену');
+        }
+
+        // Дополнительно проверяем срок действия токена
+        try {
+            jwt.verify(token, process.env.JWT_SECRET);
+        } catch (e) {
+            // Если токен просрочен, очищаем его
+            await UserMapping.update(
+                { temporary_token: null },
+                { where: { id: user.id } }
+            );
+            throw new Error('Срок действия токена истек');
+        }
+
+        return user;
+    }
+
       async getUserForBrigade(projectId) {
         const user = await UserMapping.findOne({
             where: {

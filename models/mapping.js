@@ -13,7 +13,8 @@ const User = sequelize.define('user', {
     manager: {type: DataTypes.STRING, allowNull: true},
     manager_phone: { type: DataTypes.STRING, allowNull: true },
     image: {type: DataTypes.STRING, allowNull: true},
-    telegram_chat_id: {type: DataTypes.INTEGER, allowNull: true}
+    telegram_chat_id: {type: DataTypes.INTEGER, allowNull: true},
+    temporary_token: {type: DataTypes.INTEGER, allowNull: true},
 })
 
 const UserImage = sequelize.define('userimage', {

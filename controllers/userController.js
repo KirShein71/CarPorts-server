@@ -58,6 +58,19 @@ class UserController {
             next(AppError.badRequest(e.message))
         }
     }
+    async getOneAccountByToken(req, res, next) {
+        try {
+            const token = req.params.token;
+            if (!token) {
+                throw new Error('Не указан токен');
+            }
+            
+            const user = await UserModel.getOneAccountByToken(token);
+            res.json(user);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
 
     async check(req, res, next) {
         const token = makeJwt(req.auth.id, req.auth.phone, req.auth.role)
@@ -178,33 +191,40 @@ class UserController {
     async verifyToken(req, res) {
   try {
     const { token } = req.body;
+
+    // 1. Проверяем JWT валидность
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Проверяем токен в базе данных
+    // 2. Проверяем, что токен есть в базе и совпадает с temporary_token
     const [user] = await sequelize.query(`
-      SELECT id FROM users WHERE temporary_token = :token
+      SELECT id FROM users 
+      WHERE temporary_token = :token 
+      AND id = :userId
     `, {
-      replacements: { token },
+      replacements: { token, userId: decoded.userId },
       type: sequelize.QueryTypes.SELECT
     });
 
     if (!user) {
-      throw new Error('Token not found in database');
+      throw new Error('Token not found in database or user mismatch');
     }
 
-    // Дополнительно проверяем JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // 3. Проверяем срок действия токена (уже проверен jwt.verify)
     
     res.json({ 
       valid: true, 
       userId: user.id 
     });
   } catch (error) {
+    console.error('Token verification failed:', error);
     res.status(401).json({ 
       valid: false, 
       error: error.message 
     });
   }
 }
+
+
   
 }
 
