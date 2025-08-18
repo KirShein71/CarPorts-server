@@ -227,7 +227,7 @@ bot.telegram.setMyCommands([
 ]);
 
 // Конфигурация сервера
-const PORT = 7000;
+const PORT = 5000;
 const WEBHOOK_PATH = `/webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
 
 const startServer = async () => {
