@@ -5,6 +5,7 @@ import {Supplier as SupplierMapping} from './mapping.js'
 import { Op } from 'sequelize'
 import bot from '../TelegramBot.js'
 import sequelize from "../sequelize.js";
+import cron from 'node-cron';
 
 
 class ProjectMaterials {
@@ -513,75 +514,153 @@ class ProjectMaterials {
         return projectmaterials;
     }
 
+   constructor() {
+        this.notificationTimers = new Map(); // Инициализация хранилища таймеров
+        this.initCronJobs(); // Автоматически инициализируем cron задачи
+    }
+
     async createShippingDateProjectMaterials(id, data) {
-    try {
-        const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
-        if (!projectmaterials) {
-            throw new Error('Товар не найден в БД');
-        }
-
-        const oldShippingDate = projectmaterials.shipping_date;
-        const { shipping_date = projectmaterials.shipping_date } = data;
-
-        // Обновляем дату отгрузки
-        await projectmaterials.update({ shipping_date });
-        await projectmaterials.reload();
-
-        // Получаем текущую дату (без времени)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Проверяем, что дата изменилась И равна сегодняшней дате
-        if (oldShippingDate !== shipping_date && 
-            shipping_date &&
-            new Date(shipping_date).setHours(0, 0, 0, 0) === today.getTime()) {
-            
-            await this.notifyShippingDateChange(
-                projectmaterials.projectId, 
-                projectmaterials.materialName, 
-                shipping_date
-            );
-            console.log(`Отправлено уведомление для проекта ${projectmaterials.projectId}`);
-        }
-
-        return projectmaterials;
-    } catch (error) {
-        console.error('Ошибка при обновлении даты отгрузки:', error);
-        throw error;
-    }
-}
-
-async notifyShippingDateChange(projectId, materialName, shippingDate) {
-    try {
-        // Находим всех пользователей, связанных с этим проектом
-        const users = await sequelize.query(`
-            SELECT u.telegram_chat_id 
-            FROM users u
-            WHERE u.project_id = :projectId
-            AND u.telegram_chat_id IS NOT NULL
-        `, {
-            replacements: { projectId },
-            type: sequelize.QueryTypes.SELECT
-        });
-
-        if (users.length > 0) {
-           
-            const message = `🚚 Материал "${materialName}" отгружен`;
-
-            // Отправляем сообщение каждому пользователю
-            for (const user of users) {
-                try {
-                    await bot.telegram.sendMessage(user.telegram_chat_id, message);
-                    console.log(`Уведомление отправлено пользователю ${user.telegram_chat_id}`);
-                } catch (error) {
-                    console.error(`Ошибка при отправке уведомления пользователю ${user.telegram_chat_id}:`, error);
-                }
+        try {
+            const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
+            if (!projectmaterials) {
+                throw new Error('Товар не найден в БД');
             }
+
+            const oldShippingDate = projectmaterials.shipping_date;
+            const { shipping_date = projectmaterials.shipping_date } = data;
+
+            // Обновляем дату отгрузки
+            await projectmaterials.update({ shipping_date, notification_sent: false });
+            await projectmaterials.reload();
+
+            // Планируем уведомление на дату отгрузки
+            if (shipping_date) {
+                await this.scheduleShippingNotification(
+                    projectmaterials.projectId, 
+                    projectmaterials.materialName, 
+                    shipping_date,
+                    projectmaterials.id
+                );
+            }
+
+            return projectmaterials;
+        } catch (error) {
+            console.error('Ошибка при обновлении даты отгрузки:', error);
+            throw error;
         }
-    } catch (error) {
-        console.error('Ошибка при отправке уведомлений:', error);
     }
-}
+
+    async scheduleShippingNotification(projectId, materialName, shippingDate, materialId) {
+        try {
+            // Отменяем предыдущее планирование
+            await this.cancelScheduledNotification(materialId);
+            
+            const notificationTime = new Date(shippingDate).getTime() - Date.now();
+            
+            if (notificationTime > 0) {
+                const timer = setTimeout(async () => {
+                    try {
+                        await this.notifyShippingDateChange(projectId, materialName);
+                        await ProjectMaterialsMapping.update(
+                            { notification_sent: true },
+                            { where: { id: materialId } }
+                        );
+                        this.notificationTimers.delete(materialId);
+                    } catch (error) {
+                        console.error('Ошибка при отправке уведомления:', error);
+                    }
+                }, notificationTime);
+                
+                this.notificationTimers.set(materialId, timer);
+                console.log(`Уведомление запланировано на ${shippingDate}`);
+            } else {
+                console.log(`Дата ${shippingDate} уже прошла, уведомление не планируется`);
+            }
+        } catch (error) {
+            console.error('Ошибка планирования уведомления:', error);
+        }
+    }
+
+    async cancelScheduledNotification(materialId) {
+        if (this.notificationTimers.has(materialId)) {
+            clearTimeout(this.notificationTimers.get(materialId));
+            this.notificationTimers.delete(materialId);
+        }
+    }
+
+    async notifyShippingDateChange(projectId, materialName) {
+        try {
+            const users = await sequelize.query(`
+                SELECT DISTINCT u.telegram_chat_id 
+                FROM users u
+                JOIN projects p ON u.project_id = p.id
+                WHERE p.id = :projectId
+                AND u.telegram_chat_id IS NOT NULL
+                AND u.telegram_chat_id != ''
+            `, {
+                replacements: { projectId },
+                type: sequelize.QueryTypes.SELECT
+            });
+
+            if (users.length > 0) {
+                const message = `🚚 Материал "${materialName}" отгружен сегодня!`;
+                
+                for (const user of users) {
+                    try {
+                        await bot.telegram.sendMessage(user.telegram_chat_id, message);
+                        console.log(`Уведомление отправлено пользователю ${user.telegram_chat_id}`);
+                    } catch (error) {
+                        console.error(`Ошибка отправки пользователю ${user.telegram_chat_id}:`, error);
+                    }
+                }
+            } else {
+                console.log(`Не найдено пользователей для проекта ${projectId}`);
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке уведомлений:', error);
+        }
+    }
+
+    async initCronJobs() {
+        cron.schedule('0 9 * * *', async () => {
+            try {
+                console.log('Запуск ежедневной проверки дат отгрузки...');
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const materialsToShip = await ProjectMaterialsMapping.findAll({
+                    where: {
+                        shipping_date: {
+                            [Op.eq]: today
+                        },
+                        notification_sent: false
+                    }
+                });
+                
+                console.log(`Найдено материалов для отгрузки сегодня: ${materialsToShip.length}`);
+                
+                for (const material of materialsToShip) {
+                    try {
+                        await this.notifyShippingDateChange(
+                            material.projectId, 
+                            material.materialName
+                        );
+                        await material.update({ notification_sent: true });
+                        console.log(`Уведомление отправлено для материала: ${material.materialName}`);
+                    } catch (error) {
+                        console.error(`Ошибка при обработке материала ${material.id}:`, error);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка в cron-задаче:', error);
+            }
+        });
+        
+        console.log('Cron задачи инициализированы');
+    }
+
+
 
 
     async deleteShippingDateProjectMaterials(id) {

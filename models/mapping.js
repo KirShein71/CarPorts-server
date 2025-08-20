@@ -117,6 +117,7 @@ const ProjectMaterials = sequelize.define('project_materials', {
     color: { type: DataTypes.STRING, allowNull: true},
     weight: { type: DataTypes.INTEGER, allowNull: true},
     dimensions: { type: DataTypes.INTEGER, allowNull: true},
+    notification_sent: {type: DataTypes.BOOLEAN, allowNull: true},
 })
 
 const Detail = sequelize.define('detail', {
