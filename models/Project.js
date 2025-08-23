@@ -79,22 +79,24 @@ class Project {
 
     async getAllWithNoDetails() {
         try {
-          const projectsWithoutDetails = await sequelize.query(
+            const projectsWithoutDetails = await sequelize.query(
             `SELECT *
-             FROM projects
-             WHERE id NOT IN (
-               SELECT project_id
-               FROM project_details
-             ) AND finish IS NULL`,
+            FROM projects
+            WHERE id NOT IN (
+                SELECT project_id
+                FROM project_details
+                WHERE detail_id IS NOT NULL
+            ) 
+            AND finish IS NULL`,
             { model: ProjectMapping }
-          );
-      
-          return projectsWithoutDetails;
+            );
+
+            return projectsWithoutDetails;
         } catch (error) {
-          console.error('Error executing query:', error);
-          throw error;
+            console.error('Error executing query:', error);
+            throw error;
         }
-      }
+    }
 
       async getAllWithNoMaterials() {
         try {
