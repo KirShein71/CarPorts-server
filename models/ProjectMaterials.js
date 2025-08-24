@@ -622,43 +622,86 @@ class ProjectMaterials {
     }
 
     async initCronJobs() {
-        cron.schedule('0 9 * * *', async () => {
-            try {
-                console.log('Запуск ежедневной проверки дат отгрузки...');
-                
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                const materialsToShip = await ProjectMaterialsMapping.findAll({
-                    where: {
-                        shipping_date: {
-                            [Op.eq]: today
-                        },
-                        notification_sent: false
-                    }
-                });
-                
-                console.log(`Найдено материалов для отгрузки сегодня: ${materialsToShip.length}`);
-                
-                for (const material of materialsToShip) {
-                    try {
-                        await this.notifyShippingDateChange(
-                            material.projectId, 
-                            material.materialName
-                        );
-                        await material.update({ notification_sent: true });
-                        console.log(`Уведомление отправлено для материала: ${material.materialName}`);
-                    } catch (error) {
-                        console.error(`Ошибка при обработке материала ${material.id}:`, error);
-                    }
+    cron.schedule('0 9 * * *', async () => {
+        try {
+            console.log('Запуск ежедневной проверки дат отгрузки...', new Date().toISOString());
+            
+            // Используем начало и конец дня для сравнения
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            
+            const todayEnd = new Date();
+            todayEnd.setHours(23, 59, 59, 999);
+            
+            const materialsToShip = await ProjectMaterialsMapping.findAll({
+                where: {
+                    shipping_date: {
+                        [Op.between]: [todayStart, todayEnd]
+                    },
+                    notification_sent: false
                 }
-            } catch (error) {
-                console.error('Ошибка в cron-задаче:', error);
+            });
+            
+            console.log(`Найдено материалов для отгрузки сегодня: ${materialsToShip.length}`);
+            
+            for (const material of materialsToShip) {
+                try {
+                    await this.notifyShippingDateChange(
+                        material.projectId, 
+                        material.materialName
+                    );
+                    await material.update({ notification_sent: true });
+                    console.log(`Уведомление отправлено для материала: ${material.materialName}`);
+                } catch (error) {
+                    console.error(`Ошибка при обработке материала ${material.id}:`, error);
+                }
+            }
+        } catch (error) {
+            console.error('Ошибка в cron-задаче:', error);
+        }
+    });
+    
+    // Дополнительная проверка при старте сервера
+    this.checkMissedNotifications();
+    
+    console.log('Cron задачи инициализированы');
+}
+
+async checkMissedNotifications() {
+    try {
+        console.log('Проверка пропущенных уведомлений...');
+        
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+        
+        const missedMaterials = await ProjectMaterialsMapping.findAll({
+            where: {
+                shipping_date: {
+                    [Op.lt]: new Date() // Все прошедшие даты
+                },
+                notification_sent: false
             }
         });
         
-        console.log('Cron задачи инициализированы');
+        console.log(`Найдено пропущенных уведомлений: ${missedMaterials.length}`);
+        
+        for (const material of missedMaterials) {
+            try {
+                await this.notifyShippingDateChange(
+                    material.projectId, 
+                    material.materialName
+                );
+                await material.update({ notification_sent: true });
+                console.log(`Отправлено пропущенное уведомление для: ${material.materialName}`);
+            } catch (error) {
+                console.error(`Ошибка при обработке пропущенного материала ${material.id}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при проверке пропущенных уведомлений:', error);
     }
+}
 
 
 
