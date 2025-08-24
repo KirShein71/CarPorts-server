@@ -47,13 +47,41 @@ class Project {
         return projects;
     }
 
+    async getAllActiveProject() {
+        const projects = await ProjectMapping.findAll({
+            where: {
+                date_finish: null,
+                finish: null
+            },
+            attributes: ['id', 'name', 'agreement_date', 'design_period', 'expiration_date', 'installation_period'],
+            include: [
+                {
+                    model: RegionMapping,
+                    attributes: ['region']
+                },
+                {
+                    model: BrigadesDateMapping,
+                    attributes: ['date_id'], // Здесь можно оставить пустым, если не нужны другие поля
+                    include: [
+                        {
+                            model: DateMapping,
+                            attributes: ['date'], // Здесь указываем, что хотим получить поле date
+                            required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
+                        }
+                    ]
+                }
+            ],
+        });
+        return projects;
+    }
+
     async getFinishProject() {
         const projects = await ProjectMapping.findAll({
             where: {
                 date_finish: {
                     [Op.not]: null
                 }
-                }
+            }
         })
         return projects
     }
