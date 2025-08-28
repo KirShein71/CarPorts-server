@@ -11,7 +11,7 @@ class Complaint {
             include: [
                 {   
                     model: ProjectMapping,
-                    attributes: ['number', 'name']
+                    attributes: ['number', 'name', 'region_id']
                 },
                 {   
                     model: ComplaintEstimateMapping,
