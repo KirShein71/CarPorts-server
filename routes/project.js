@@ -8,6 +8,7 @@ const router = new express.Router()
 
 router.get('/getall', ProjectController.getAll)
 router.get('/getAllActiveProject', ProjectController.getAllActiveProject)
+router.get('/getAllStatProject', ProjectController.getAllStatProject)
 router.get('/getFinishProject', ProjectController.getFinishProject)
 router.get('/getAllWithNoDetails', ProjectController.getAllWithNoDetails)
 router.get('/getAllWithNoMaterials', ProjectController.getAllWithNoMaterials)

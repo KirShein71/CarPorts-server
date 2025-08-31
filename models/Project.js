@@ -79,6 +79,36 @@ class Project {
         return projects;
     }
 
+    async getAllStatProject() {
+        const projects = await ProjectMapping.findAll({
+            attributes: ['id', 'name', 'number', 'agreement_date', 'date_finish']
+        });
+        
+        // Получаем текущую дату
+        const currentDate = new Date();
+        
+        // Вычисляем дату 3 месяца назад
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+        
+        // Фильтруем проекты
+        const filteredProjects = projects.filter(project => {
+            const agreementDate = new Date(project.agreement_date);
+            const finishDate = project.date_finish ? new Date(project.date_finish) : null;
+            
+            // Проверяем agreement_date в пределах последних 3 месяцев
+            const isAgreementInRange = agreementDate >= threeMonthsAgo && agreementDate <= currentDate;
+            
+            // Проверяем date_finish в пределах последних 3 месяцев (если есть)
+            const isFinishInRange = finishDate && finishDate >= threeMonthsAgo && finishDate <= currentDate;
+            
+            // Возвращаем проекты, которые подходят под любое из условий
+            return isAgreementInRange || isFinishInRange;
+        });
+  
+        return filteredProjects;
+    }
+
     async getFinishProject() {
         const projects = await ProjectMapping.findAll({
             where: {
