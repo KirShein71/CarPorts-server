@@ -109,6 +109,59 @@ class Project {
         return filteredProjects;
     }
 
+    async getAllStatSignedProject() {
+        const projects = await ProjectMapping.findAll({});
+        
+        // Создаем объект для хранения статистики по месяцам
+        const monthlyStats = {};
+        
+        // Обрабатываем каждый проект
+        projects.forEach(project => {
+            // Обрабатываем дату подписания (agreement_date)
+            if (project.agreement_date) {
+            const agreementDate = new Date(project.agreement_date);
+            const agreementMonthKey = `${agreementDate.getFullYear()}-${(agreementDate.getMonth() + 1).toString().padStart(2, '0')}`;
+            const agreementMonthFormatted = `${(agreementDate.getMonth() + 1).toString().padStart(2, '0')}.${agreementDate.getFullYear()}`;
+            
+            if (!monthlyStats[agreementMonthKey]) {
+                monthlyStats[agreementMonthKey] = {
+                month: agreementMonthFormatted,
+                signed: 0,
+                finished: 0
+                };
+            }
+            monthlyStats[agreementMonthKey].signed++;
+            }
+            
+            // Обрабатываем дату сдачи (date_finish)
+            if (project.date_finish) {
+            const finishDate = new Date(project.date_finish);
+            const finishMonthKey = `${finishDate.getFullYear()}-${(finishDate.getMonth() + 1).toString().padStart(2, '0')}`;
+            const finishMonthFormatted = `${(finishDate.getMonth() + 1).toString().padStart(2, '0')}.${finishDate.getFullYear()}`;
+            
+            if (!monthlyStats[finishMonthKey]) {
+                monthlyStats[finishMonthKey] = {
+                month: finishMonthFormatted,
+                signed: 0,
+                finished: 0
+                };
+            }
+            monthlyStats[finishMonthKey].finished++;
+            }
+        });
+        
+        // Преобразуем объект в массив и сортируем по дате
+        const result = Object.values(monthlyStats).sort((a, b) => {
+            const [aMonth, aYear] = a.month.split('.').map(Number);
+            const [bMonth, bYear] = b.month.split('.').map(Number);
+            
+            if (aYear !== bYear) return aYear - bYear;
+            return aMonth - bMonth;
+        });
+        
+        return result;
+    }
+
     async getFinishProject() {
         const projects = await ProjectMapping.findAll({
             where: {

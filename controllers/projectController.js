@@ -30,6 +30,15 @@ class ProjectController {
         }
     }
 
+    async getAllStatSignedProject(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllStatSignedProject()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getFinishProject(req, res, next) {
         try {
             const project = await ProjectModel.getFinishProject()
