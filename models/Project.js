@@ -67,7 +67,11 @@ class Project {
                             model: DateMapping,
                             attributes: ['date'], // Здесь указываем, что хотим получить поле date
                             required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
-                        }
+                        },
+                        {
+                            model: BrigadeMapping,
+                            attributes: ['name']
+                        },
                     ]
                 }
             ],
