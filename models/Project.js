@@ -89,7 +89,7 @@ class Project {
         
         // Вычисляем дату 3 месяца назад
         const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+        threeMonthsAgo.setMonth(currentDate.getMonth() - 4);
         
         // Фильтруем проекты
         const filteredProjects = projects.filter(project => {
