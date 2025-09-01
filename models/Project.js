@@ -53,7 +53,7 @@ class Project {
                 date_finish: null,
                 finish: null
             },
-            attributes: ['id', 'name', 'number', 'regionId','designer', 'agreement_date', 'design_period', 'expiration_date', 'installation_period'],
+            attributes: ['id', 'name', 'number', 'regionId','designer', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period'],
             include: [
                 {
                     model: RegionMapping,
