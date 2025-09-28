@@ -210,6 +210,7 @@ class UserController {
                 throw new Error('Не указан id пользователя')
             }
             const user = await UserModel.generationUrlForClientAccount(req.params.id)
+            console.log(req.params.id)
             res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))

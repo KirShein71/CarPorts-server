@@ -273,21 +273,23 @@ class User {
         return user
     }
 
-    async generationUrlForClientAccount(userId) {
+    async generationUrlForClientAccount(id) {
+        const user = await UserMapping.findByPk(id)
         try {
             // Генерация JWT токена
             const token = jwt.sign(
                 { 
-                    userId: userId,
+                    id: id,
                     exp: Math.floor(Date.now() / 1000) + 900 // 15 минут
                 },
                 process.env.JWT_SECRET
             );
 
             // Сохранение токена в базу данных в поле temporary_token
-            await User.update(
+          
+            await user.update(
                 { temporary_token: token },
-                { where: { id: userId } }
+                { where: { id: id } }
             );
 
             // Формирование ссылки для личного кабинета
