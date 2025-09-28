@@ -190,14 +190,14 @@ class UserController {
     }
 
     async updatePassword(req, res, next) {
+        const {password} = req.body
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id пользователя')
+                throw new Error('Не указан id клиента')
             }
-            if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для обновления')
-            }
-            const user = await UserModel.updatePassword(req.params.id, req.body,)
+           
+            const hash = await bcrypt.hash(password, 10)
+            const user = await UserModel.createPassword(req.params.id, { password: hash})
             res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
