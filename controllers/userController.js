@@ -204,6 +204,18 @@ class UserController {
         }
     }
 
+    async generationUrlForClientAccount(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id пользователя')
+            }
+            const user = await UserModel.generationUrlForClientAccount(req.params.id)
+            res.json(user)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
    
 
     async delete(req, res, next) {

@@ -11,6 +11,7 @@ import { ManagerProduction as ManagerProductionMapping } from "./mapping.js";
 import {ProjectMaterials as ProjectMaterialsMappping} from './mapping.js'
 import {Constructor as ConstructorMapping} from './mapping.js'
 import FileService from '../services/File.js'
+import jwt from 'jsonwebtoken';
 
 class User {
     async getAll() {
@@ -271,6 +272,36 @@ class User {
         await user.update({password})
         return user
     }
+
+    async generationUrlForClientAccount(userId) {
+        try {
+            // Генерация JWT токена
+            const token = jwt.sign(
+                { 
+                    userId: userId,
+                    exp: Math.floor(Date.now() / 1000) + 900 // 15 минут
+                },
+                process.env.JWT_SECRET
+            );
+
+            // Сохранение токена в базу данных в поле temporary_token
+            await User.update(
+                { temporary_token: token },
+                { where: { id: userId } }
+            );
+
+            // Формирование ссылки для личного кабинета
+            const personalAccountLink = `${process.env.FRONTEND_URL}/personalaccount?token=${token}`;
+            
+            return personalAccountLink;
+            
+        } catch (error) {
+            console.error('Error generating URL for client account:', error);
+            throw new Error('Failed to generate personal account link');
+        }
+    }
+
+
 
     async delete(userId) {
         const user = await UserMapping.findByPk(userId);

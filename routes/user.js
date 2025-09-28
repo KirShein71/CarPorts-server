@@ -22,6 +22,7 @@ router.put('/createMainImage/:id([0-9]+)',  UserController.createMainImage)
 router.delete('/delete/:id([0-9]+)',  UserController.delete)
 router.put('/updatePhone/:id([0-9]+)',  UserController.updatePhone)
 router.put('/updatePassword/:id([0-9]+)',  UserController.updatePassword)
+router.get('/generationUrlForClientAccount/:id([0-9]+)', UserController.generationUrlForClientAccount)
 
 
 
