@@ -197,7 +197,7 @@ class UserController {
             }
            
             const hash = await bcrypt.hash(password, 10)
-            const user = await UserModel.createPassword(req.params.id, { password: hash})
+            const user = await UserModel.updatePassword(req.params.id, { password: hash})
             res.json(user)
         } catch(e) {
             next(AppError.badRequest(e.message))
