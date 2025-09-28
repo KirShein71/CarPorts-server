@@ -248,6 +248,30 @@ class User {
         return user
     }
 
+    async updatePhone(id, data) {
+        const user = await UserMapping.findByPk(id)
+        if (!user) {
+            throw new Error('Пользователь не найден в БД')
+        }
+        const {
+            phone = user.phone,
+        } = data
+        await user.update({phone})
+        return user
+    }
+
+    async updatePassword(id, data) {
+        const user = await UserMapping.findByPk(id)
+        if (!user) {
+            throw new Error('Пользователь не найден в БД')
+        }
+        const {
+            password = user.password,
+        } = data
+        await user.update({password})
+        return user
+    }
+
     async delete(userId) {
         const user = await UserMapping.findByPk(userId);
         if (!user) {

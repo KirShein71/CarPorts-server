@@ -174,6 +174,36 @@ class UserController {
         }
     }
 
+    async updatePhone(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id пользователя')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const user = await UserModel.updatePhone(req.params.id, req.body,)
+            res.json(user)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updatePassword(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id пользователя')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const user = await UserModel.updatePassword(req.params.id, req.body,)
+            res.json(user)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
    
 
     async delete(req, res, next) {

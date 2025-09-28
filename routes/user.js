@@ -20,6 +20,8 @@ router.put('/createManager/:id([0-9]+)',  UserController.createManager)
 router.put('/createBrigade/:id([0-9]+)',  UserController.createBrigade)
 router.put('/createMainImage/:id([0-9]+)',  UserController.createMainImage)
 router.delete('/delete/:id([0-9]+)',  UserController.delete)
+router.put('/updatePhone/:id([0-9]+)',  UserController.updatePhone)
+router.put('/updatePassword/:id([0-9]+)',  UserController.updatePassword)
 
 
 

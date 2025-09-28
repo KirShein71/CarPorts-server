@@ -65,7 +65,7 @@ class Project {
                     include: [
                         {
                             model: DateMapping,
-                            attributes: ['date'], // Здесь указываем, что хотим получить поле date
+                            attributes: ['date', 'id'], // Здесь указываем, что хотим получить поле date
                             required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
                         },
                         {
