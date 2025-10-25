@@ -11,6 +11,7 @@ import {BrigadesDate as BrigadesDateMapping} from './mapping.js'
 import { Date as DateMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from "./mapping.js";
 import { DeliverytDetails as DeliveryDetailsMapping } from "./mapping.js";
+import { ProjectExamination as ProjectExaminationMapping } from "./mapping.js";
 import { UserFile as UserFileMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
@@ -41,6 +42,10 @@ class Project {
                             required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
                         }
                     ]
+                },
+                {
+                    model: ProjectExaminationMapping,
+                    attributes: ['id', 'result']
                 }
             ],
         });
@@ -108,6 +113,49 @@ class Project {
   
         return filteredProjects;
     }
+
+    async getAllYearStatProject() {
+    const projects = await ProjectMapping.findAll({
+        attributes: ['id', 'name', 'number', 'agreement_date', 'date_finish']
+    });
+    
+    // Группируем проекты по годам
+    const projectsByYear = projects.reduce((acc, project) => {
+        const agreementYear = project.agreement_date ? new Date(project.agreement_date).getFullYear() : null;
+        const finishYear = project.date_finish ? new Date(project.date_finish).getFullYear() : null;
+        
+        // Добавляем в статистику по году подписания
+        if (agreementYear) {
+            if (!acc[agreementYear]) {
+                acc[agreementYear] = {
+                    year: agreementYear,
+                    signed: 0,
+                    finished: 0
+                };
+            }
+            acc[agreementYear].signed += 1;
+        }
+        
+        // Добавляем в статистику по году сдачи
+        if (finishYear) {
+            if (!acc[finishYear]) {
+                acc[finishYear] = {
+                    year: finishYear,
+                    signed: 0,
+                    finished: 0
+                };
+            }
+            acc[finishYear].finished += 1;
+        }
+        
+        return acc;
+    }, {});
+    
+    // Преобразуем объект в массив и сортируем по годам
+    const result = Object.values(projectsByYear).sort((a, b) => a.year - b.year);
+    
+    return result;
+}
 
     async getAllStatSignedProject() {
         const projects = await ProjectMapping.findAll({});

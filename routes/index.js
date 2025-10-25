@@ -34,6 +34,8 @@ import complaintestimate from './complaintestimate.js'
 import complaintpayment from './complaintpayment.js'
 import deliverydetails from './deliverydetails.js'
 import supplier from './supplier.js'
+import examination from './examination.js'
+import projectexamination from './projectexamination.js'
 
 
 
@@ -74,6 +76,8 @@ router.use('/complaintestimate', complaintestimate)
 router.use('/complaintpayment', complaintpayment)
 router.use('/deliverydetails', deliverydetails)
 router.use('/supplier', supplier)
+router.use('/examination', examination)
+router.use('/projectexamination', projectexamination)
 
 
 

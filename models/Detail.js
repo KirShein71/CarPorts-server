@@ -17,8 +17,8 @@ class Detail {
     }
 
     async create(data) {
-        const {name, price} = data
-        const detail = await DetailMapping.create({name, price})
+        const {number, name, price} = data
+        const detail = await DetailMapping.create({number, name, price})
         
         const created = await DetailMapping.findByPk(detail.id) 
         return created

@@ -30,6 +30,15 @@ class ProjectController {
         }
     }
 
+    async getAllYearStatProject(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllYearStatProject()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllStatSignedProject(req, res, next) {
         try {
             const project = await ProjectModel.getAllStatSignedProject()

@@ -261,6 +261,17 @@ const Supplier = sequelize.define('suppliers', {
     coordinates: {type: DataTypes.STRING, allowNull: true},
 })
 
+const Examination = sequelize.define('examination', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    name: {type: DataTypes.STRING, allowNull: false},
+    number: {type: DataTypes.REAL, allowNull: true},
+})
+
+const ProjectExamination = sequelize.define('project_examination', {
+     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+     result: {type: DataTypes.INTEGER, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -390,6 +401,15 @@ Material.belongsTo(Supplier)
 Supplier.hasMany(ProjectMaterials)
 ProjectMaterials.belongsTo(Supplier)
 
+Examination.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
+ProjectExamination.belongsTo(Examination)
+
+Project.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
+ProjectExamination.belongsTo(Project)
+
+Brigade.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
+ProjectExamination.belongsTo(Brigade)
+
 
 
 export {
@@ -425,5 +445,7 @@ export {
     ComplaintEstimate,
     ComplaintPayment,
     DeliverytDetails,
-    Supplier
+    Supplier,
+    Examination,
+    ProjectExamination
 }
