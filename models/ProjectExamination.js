@@ -246,6 +246,87 @@ class ProjectExamination {
     
         return result;
     }
+
+    async getAllExaminationForBrigade(brigadeId) {
+        if (!brigadeId) {
+            throw new Error('brigadeId обязателен');
+        }
+
+        const project_examination = await ProjectExaminationMapping.findAll({
+            where: { brigade_id: brigadeId },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number'], 
+                },
+                {
+                    model: BrigadeMapping, 
+                    attributes: ['name'],
+                }
+            ],
+            order: [
+                ['projectId', 'ASC'],
+            ],
+        });
+
+        // Если ничего не найдено, возвращаем пустой массив
+        if (project_examination.length === 0) {
+            return [];
+        }
+
+        // Группируем проекты для этой бригады
+        const brigadeData = {
+            brigadeId: brigadeId,
+            brigadeName: project_examination[0].brigade.name,
+            projects: {},
+            allResults: []
+        };
+
+        project_examination.forEach(item => {
+            const { projectId, project, result } = item;
+            
+            if (!brigadeData.projects[projectId]) {
+                brigadeData.projects[projectId] = {
+                    projectId: projectId,
+                    projectName: project.name,
+                    projectNumber: project.number,
+                    results: []
+                };
+            }
+            
+            brigadeData.projects[projectId].results.push(result);
+            brigadeData.allResults.push(result);
+        });
+
+        // Преобразуем в массив проектов
+        const projects = Object.values(brigadeData.projects).map(project => {
+            const total = project.results.length;
+            const sum = project.results.reduce((acc, result) => acc + result, 0);
+            const averagePercentage = total > 0 ? Math.round((sum / total) * 100) : 0;
+            
+            return {
+                project: project.projectName,
+                number: project.projectNumber,
+                result: averagePercentage,
+                projectId: project.projectId
+            };
+        });
+
+        // Среднее по бригаде
+        const projectAverages = projects.map(p => p.result);
+        const brigadeAverage = projectAverages.length > 0 ? 
+            Math.round(projectAverages.reduce((acc, avg) => acc + avg, 0) / projectAverages.length) : 0;
+
+        // Возвращаем массив объектов
+        return [
+            {
+                brigade: brigadeData.brigadeName,
+                brigadeId: brigadeData.brigadeId,
+                brigadeAverage: brigadeAverage,
+                projects: projects
+            }
+        ];
+    }
     
     async create(data) {
         const { examinationId, projectId, brigadeId, result } = data;

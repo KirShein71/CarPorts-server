@@ -43,6 +43,15 @@ class ProjectExaminationController {
             next(AppError.badRequest(e.message))
         }
     }
+
+     async getAllExaminationForBrigade(req, res, next) {
+        try {
+            const project_examination = await ProjectExaminationModel.getAllExaminationForBrigade(req.params.brigadeId)
+            res.json(project_examination)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
    
     async create(req, res, next) {
         try {
