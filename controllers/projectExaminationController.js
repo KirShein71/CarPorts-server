@@ -13,6 +13,15 @@ class ProjectExaminationController {
         }
     }
 
+    async getAllGroupByBrigade(req, res, next) {
+        try {
+            const project_examination = await ProjectExaminationModel.getAllGroupByBrigade()
+            res.json(project_examination)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
      async getAllProjectBrigadeExamination(req, res, next) {
         try {
                     

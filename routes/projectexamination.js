@@ -4,6 +4,7 @@ import ProjectExaminationController from '../controllers/projectExaminationContr
 const router = new express.Router()
 
 router.get('/getAll',  ProjectExaminationController.getAll)
+router.get('/getAllGroupByBrigade',  ProjectExaminationController.getAllGroupByBrigade)
 router.get('/getAllProjectBrigadeExamination/:brigadeId([0-9]+)/:projectId([0-9]+)', ProjectExaminationController.getAllProjectBrigadeExamination)
 router.get('/getAllExaminationForProject/:id([0-9]+)', ProjectExaminationController.getAllExaminationForProject)
 router.post('/create',  ProjectExaminationController.create)
