@@ -15,7 +15,7 @@ class BrigadesDate {
             include: [
                 {
                     model: ProjectMapping,
-                    attributes: ['name', 'regionId'],
+                    attributes: ['name', 'regionId', 'id'],
                 },
                 {
                     model: BrigadeMapping,
