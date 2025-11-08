@@ -10,6 +10,7 @@ router.post('/login', BrigadeController.login)
 router.get('/check', authMiddleware, BrigadeController.check)
 
 router.get('/getall', BrigadeController.getAll)
+router.get('/getAllActiveBrigade', BrigadeController.getAllActiveBrigade)
 router.get('/getone/:id([0-9]+)', BrigadeController.getOne)
 router.post('/create',  BrigadeController.create)
 router.put('/createRegion/:id([0-9]+)', BrigadeController.createRegion)

@@ -10,6 +10,17 @@ class Brigade {
         return brigades
     }
 
+    async getAllActiveBrigade() {
+        const brigades = await BrigadeMapping.findAll({
+            where: {
+                active: 'true'
+            },
+            attributes: ['id', 'name', 'regionId'],
+            
+        })
+        return brigades
+    }
+
     async getOne(id) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {

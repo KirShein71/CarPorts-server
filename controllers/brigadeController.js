@@ -60,6 +60,15 @@ class BrigadeController {
         }
     }
 
+    async getAllActiveBrigade(req, res, next) {
+        try {
+            const brigades = await BrigadeModel.getAllActiveBrigade()
+            res.json(brigades)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
