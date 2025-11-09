@@ -112,6 +112,7 @@ const ProjectMaterials = sequelize.define('project_materials', {
     expirationMaterial_date: { type: DataTypes.INTEGER, allowNull: true },
     ready_date: { type: DataTypes.DATE, allowNull: true },
     shipping_date: { type: DataTypes.DATE, allowNull: true },
+    plan_date: { type: DataTypes.DATE, allowNull: true },
     check: { type: DataTypes.STRING, allowNull: true},
     materialName: {type: DataTypes.STRING, allowNull: false},
     color: { type: DataTypes.STRING, allowNull: true},

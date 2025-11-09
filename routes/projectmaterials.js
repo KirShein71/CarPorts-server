@@ -12,6 +12,8 @@ router.put('/createReadyDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsCont
 router.delete('/deleteReadyDateProjectMaterials/:ready_date', ProjectMaterialsController.deleteReadyDateProjectMaterials)
 router.put('/createShippingDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createShippingDateProjectMaterials)
 router.delete('/deleteShippingDateProjectMaterials/:shipping_date', ProjectMaterialsController.deleteShippingDateProjectMaterials)
+router.put('/createPlanDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createPlanDateProjectMaterials)
+router.delete('/deletePlanDateProjectMaterials/:plan_date', ProjectMaterialsController.deletePlanDateProjectMaterials)
 router.put('/createPaymentDateProjectMaterials/:id([0-9]+)',  ProjectMaterialsController.createPaymentDateProjectMaterials)
 router.delete('/deletePaymentDateProjectMaterials/:date_payment', ProjectMaterialsController.deletePaymentDateProjectMaterials)
 router.put('/createColorProjectMaterials/:id([0-9]+)', ProjectMaterialsController.createColorProjectMaterials)

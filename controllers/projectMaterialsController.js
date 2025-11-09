@@ -64,7 +64,7 @@ class ProjectMaterialsController {
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             const projectmaterials = await ProjectMaterialsModel.getOne(req.params.id)
             res.json(projectmaterials)
@@ -90,7 +90,7 @@ class ProjectMaterialsController {
     async updateMaterialIdInOrderMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -105,7 +105,7 @@ class ProjectMaterialsController {
     async createCheckProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -132,7 +132,7 @@ class ProjectMaterialsController {
     async createReadyDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -158,7 +158,7 @@ class ProjectMaterialsController {
     async createShippingDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -181,10 +181,36 @@ class ProjectMaterialsController {
         }
     }
 
+    async createPlanDateProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id материала')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createPlanDateProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deletePlanDateProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.plan_date;
+            
+            const projectmaterials = await ProjectMaterialsModel.deletePlanDateProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async createPaymentDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -210,7 +236,7 @@ class ProjectMaterialsController {
     async createColorProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -227,7 +253,7 @@ class ProjectMaterialsController {
     async createExpirationMaterialDateProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -242,7 +268,7 @@ class ProjectMaterialsController {
     async createWeightMaterial(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -257,7 +283,7 @@ class ProjectMaterialsController {
     async createDimensionsMaterial(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id материала')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')

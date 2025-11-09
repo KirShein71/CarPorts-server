@@ -32,10 +32,10 @@ class ProjectMaterials {
         })
 
         const formattedData = projectsmaterials.reduce((acc, item) => {
-            const { projectId, materialId, materialName, date_payment, ready_date, shipping_date, check, color, project, id } = item;
+            const { projectId, materialId, materialName, date_payment, ready_date, shipping_date, plan_date, check, color, project, id } = item;
             const existingProject = acc.find((project) => project.projectId === projectId);
             if (existingProject) {
-              existingProject.props.push({ id: id, materialId: materialId, materialName: materialName, date_payment: date_payment, ready_date: ready_date, shipping_date: shipping_date, check: check, color: color });
+              existingProject.props.push({ id: id, materialId: materialId, materialName: materialName, date_payment: date_payment, ready_date: ready_date, shipping_date: shipping_date, plan_date: plan_date, check: check, color: color });
             } else {
               acc.push({
                 id: project.id,
@@ -45,7 +45,7 @@ class ProjectMaterials {
                 agreement_date: project.agreement_date,
                 design_period: project.design_period,
                 projectId: projectId,
-                props: [{ id:id, materialId: materialId, materialName: materialName, date_payment: date_payment,  ready_date: ready_date, shipping_date: shipping_date, check: check, color: color }]
+                props: [{ id:id, materialId: materialId, materialName: materialName, date_payment: date_payment,  ready_date: ready_date, shipping_date: shipping_date, plan_date: plan_date, check: check, color: color }]
               });
             }
             return acc;
@@ -77,15 +77,15 @@ class ProjectMaterials {
         })
 
         const formattedData = projectsmaterials.reduce((acc, item) => {
-            const { materialId, materialName, date_payment, ready_date, shipping_date, check, color, project, id } = item;
+            const { materialId, materialName, date_payment, ready_date, shipping_date, plan_date, check, color, project, id } = item;
             const existingProject = acc.find((material) => material.materialId === materialId);
             if (existingProject) {
-              existingProject.props.push({ id: id, name: project.name, number: project.number, expiration_date: project.expiration_date, agreement_date: project.agreement_date, design_period: project.design_period,  date_payment: date_payment, ready_date: ready_date, shipping_date: shipping_date, check: check, color: color });
+              existingProject.props.push({ id: id, name: project.name, number: project.number, expiration_date: project.expiration_date, agreement_date: project.agreement_date, design_period: project.design_period,  date_payment: date_payment, ready_date: ready_date, shipping_date: shipping_date, plan_date: plan_date, check: check, color: color });
             } else {
               acc.push({
                 materialId: materialId,
                 materialName: materialName,
-                props: [{ id:id, name: project.name, number: project.number, expiration_date: project.expiration_date, agreement_date: project.agreement_date, design_period: project.design_period, date_payment: date_payment,  ready_date: ready_date, shipping_date: shipping_date, check: check, color: color }]
+                props: [{ id:id, name: project.name, number: project.number, expiration_date: project.expiration_date, agreement_date: project.agreement_date, design_period: project.design_period, date_payment: date_payment,  ready_date: ready_date, shipping_date: shipping_date, plan_date: plan_date, check: check, color: color }]
               });
             }
             return acc;
@@ -442,9 +442,9 @@ class ProjectMaterials {
 
     async create(data) {
 
-        const { date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId } = data;
+        const { date_payment, expirationMaterial_date, ready_date, shipping_date, plan_date, check, color, projectId, materialId, materialName, supplierId } = data;
        
-        const projectmaterials = await ProjectMaterialsMapping.create({ date_payment, expirationMaterial_date, ready_date, shipping_date, check, color, projectId, materialId, materialName, supplierId });
+        const projectmaterials = await ProjectMaterialsMapping.create({ date_payment, expirationMaterial_date, ready_date, shipping_date, plan_date, check, color, projectId, materialId, materialName, supplierId });
         const created = await ProjectMaterialsMapping.findByPk(projectmaterials.id);
         return created;
     }
@@ -466,7 +466,7 @@ class ProjectMaterials {
 
    
 
-      async createCheckProjectMaterials(id, data) {
+    async createCheckProjectMaterials(id, data) {
         const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
         if (!projectmaterials) {
             throw new Error('Строка не найдена в БД')
@@ -713,6 +713,29 @@ async checkMissedNotifications() {
             throw new Error('Строка не найдена в БД');
         }
         await projectmaterials.update({ shipping_date: null });
+        return projectmaterials;
+    }
+
+    async createPlanDateProjectMaterials(id, data) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id)
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            plan_date = projectmaterials.plan_date
+        } = data
+        await projectmaterials.update({plan_date})
+        await projectmaterials.reload()
+        return projectmaterials
+    }
+
+    async deletePlanDateProjectMaterials(id) {
+        const projectmaterials = await ProjectMaterialsMapping.findByPk(id);
+        
+        if (!projectmaterials) {
+            throw new Error('Строка не найдена в БД');
+        }
+        await projectmaterials.update({ plan_date: null });
         return projectmaterials;
     }
 
