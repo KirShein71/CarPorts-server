@@ -58,7 +58,7 @@ class Project {
                 date_finish: null,
                 finish: null
             },
-            attributes: ['id', 'name', 'number', 'regionId','designer', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period'],
+            attributes: ['id', 'name', 'number', 'regionId','designer', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period', 'price'],
             include: [
                 {
                     model: RegionMapping,
@@ -534,7 +534,7 @@ class Project {
             // Данные проекта
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
-            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates,
+            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price,
             // Данные аккаунта
             phone, password,
         } = data;
@@ -550,7 +550,7 @@ class Project {
                 name, number, agreement_date, design_period, expiration_date, 
                 installation_period, installation_billing: installationBillingValue, 
                 note, designer, design_start, project_delivery, 
-                date_inspection, inspection_designer, regionId: regionIdValue, contact, address, navigator, coordinates
+                date_inspection, inspection_designer, regionId: regionIdValue, contact, address, navigator, coordinates, price
             }, { transaction });
 
             // Хешируем пароль перед сохранением
@@ -651,6 +651,19 @@ class Project {
             installation_billing = project.installation_billing,
         } = data
         await project.update({installation_billing})
+        await project.reload()
+        return project
+    }
+
+    async createPriceProject(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            price = project.price,
+        } = data
+        await project.update({price})
         await project.reload()
         return project
     }

@@ -99,6 +99,7 @@ const Project = sequelize.define('project', {
     address: {type: DataTypes.STRING, allowNull: true},
     navigator: {type: DataTypes.STRING, allowNull: true},
     coordinates: {type: DataTypes.STRING, allowNull: true},
+    price: {type: DataTypes.INTEGER, allowNull: true},
 })
 
 const Material = sequelize.define('material', {
