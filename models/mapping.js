@@ -274,6 +274,18 @@ const ProjectExamination = sequelize.define('project_examination', {
      result: {type: DataTypes.INTEGER, allowNull: true},
 })
 
+const Designer = sequelize.define('designer', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true },
+    active: { type: DataTypes.STRING, allowNull: false}
+})
+
+const Сoefficient = sequelize.define('coefficient', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true },
+    number: {type: DataTypes.REAL, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -413,7 +425,6 @@ Brigade.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
 ProjectExamination.belongsTo(Brigade)
 
 
-
 export {
     User,
     UserImage,
@@ -449,5 +460,7 @@ export {
     DeliverytDetails,
     Supplier,
     Examination,
-    ProjectExamination
+    ProjectExamination,
+    Designer,
+    Сoefficient
 }

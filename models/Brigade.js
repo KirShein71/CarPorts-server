@@ -24,7 +24,7 @@ class Brigade {
     async getOne(id) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Категория не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
         return brigade
     }
@@ -42,7 +42,7 @@ class Brigade {
         const image = FileService.save(img) || ''
         const check = await BrigadeMapping.findOne({where: {phone}})
         if (check) {
-            throw new Error('Пользователь уже существует')
+            throw new Error('Бригада уже существует')
         }
         const brigade = await BrigadeMapping.create({name, phone, image, regionId, role, password, active})
         
@@ -53,7 +53,7 @@ class Brigade {
     async update(id, data, img) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
         const file = FileService.save(img)
         if (file && brigade.image) {
@@ -88,7 +88,7 @@ class Brigade {
     async updateBrigadeName(id, data) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
         const {
             name = brigade.name,
@@ -102,7 +102,7 @@ class Brigade {
     async updateBrigadePhone(id, data) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
         const {
             phone = brigade.phone,
@@ -116,7 +116,7 @@ class Brigade {
     async createPassword(id, data) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
     
         const {
@@ -145,7 +145,7 @@ class Brigade {
     async delete(id) {
         const brigade = await BrigadeMapping.findByPk(id)
         if (!brigade) {
-            throw new Error('Деталь не найдена в БД')
+            throw new Error('Бригада не найдена в БД')
         }
         await brigade.destroy()
         return brigade

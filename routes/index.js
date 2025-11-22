@@ -36,6 +36,8 @@ import deliverydetails from './deliverydetails.js'
 import supplier from './supplier.js'
 import examination from './examination.js'
 import projectexamination from './projectexamination.js'
+import designer from './designer.js'
+import coefficient from './coefficient.js'
 
 
 
@@ -78,6 +80,8 @@ router.use('/deliverydetails', deliverydetails)
 router.use('/supplier', supplier)
 router.use('/examination', examination)
 router.use('/projectexamination', projectexamination)
+router.use('/designer', designer)
+router.use('/coefficient', coefficient)
 
 
 
