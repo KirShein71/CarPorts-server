@@ -38,6 +38,7 @@ import examination from './examination.js'
 import projectexamination from './projectexamination.js'
 import designer from './designer.js'
 import coefficient from './coefficient.js'
+import gant from './gant.js'
 
 
 
@@ -82,6 +83,7 @@ router.use('/examination', examination)
 router.use('/projectexamination', projectexamination)
 router.use('/designer', designer)
 router.use('/coefficient', coefficient)
+router.use('/gant', gant)
 
 
 

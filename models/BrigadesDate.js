@@ -7,7 +7,7 @@ import { BrigadeWork as BrigadeWorkMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from './mapping.js'
 import { ComplaintEstimate as ComplaintEstimateMapping } from './mapping.js'
 import { Op} from 'sequelize'
-import sequelize from '../sequelize.js'
+
 
 
 class BrigadesDate {
