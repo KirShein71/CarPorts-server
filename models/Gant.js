@@ -110,19 +110,13 @@ class Gant {
                 };
             });
 
-            // Функция для определения цвета ячейки проекта
+            // Функция для определения цвета ячейки проекта (БЕЗ учета проектировщика)
             function getWeekColor(project, weekStartDate) {
                 const currentWeek = new Date(weekStartDate);
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
-                // ПРИОРИТЕТ 1: Проектировщик работает
-                if (project._designStart && project._projectDelivery && 
-                    currentWeek <= project._projectDelivery && weekEnd >= project._designStart) {
-                    return '#1E3A8A'; // Темно-синий для работы проектировщика
-                }
-
-                // ПРИОРИТЕТ 2: Стандартные фазы проекта
+                // Только стандартные фазы проекта (БЕЗ проектировщика)
                 if (project._agreementDate && !isNaN(project._agreementDate.getTime()) &&
                     currentWeek <= project._installationEndDate && weekEnd >= project._agreementDate) {
                     
@@ -144,7 +138,7 @@ class Gant {
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
-                // Если проектировщик работает на этой неделе
+                // Если проектировщик работает на этой неделе - темно-синий
                 if (project._designStart && project._projectDelivery && 
                     currentWeek <= project._projectDelivery && weekEnd >= project._designStart) {
                     return '#1E3A8A'; // Темно-синий для работы проектировщика
@@ -177,7 +171,7 @@ class Gant {
                     design_start: project.design_start,
                     project_delivery: project.project_delivery,
                     region: project.RegionMapping?.region,
-                    // Цвета для проекта (с приоритетом проектировщика)
+                    // Цвета для проекта (БЕЗ проектировщика)
                     colors: weeks.map(week => ({
                         week_start: week.week_start,
                         color: getWeekColor(project, week.week_start)
@@ -203,4 +197,3 @@ class Gant {
 }
 
 export default new Gant();
-
