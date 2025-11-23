@@ -120,6 +120,15 @@ class BrigadesDateController {
         }
     }
 
+    async getAllWeeksDate(req, res, next) {
+        try {
+            const date = await BrigadesDateModel.getAllWeeksDate()
+            res.json(date)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
     async getAllNumberOfDaysBrigade(req, res, next) {
         try {

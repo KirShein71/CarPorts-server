@@ -7,6 +7,7 @@ import { BrigadeWork as BrigadeWorkMapping} from './mapping.js'
 import { Complaint as ComplaintMapping } from './mapping.js'
 import { ComplaintEstimate as ComplaintEstimateMapping } from './mapping.js'
 import { Op} from 'sequelize'
+import sequelize from '../sequelize.js'
 
 
 class BrigadesDate {
@@ -228,6 +229,39 @@ class BrigadesDate {
             order: [['id', 'ASC']]
         })
           return date;
+    }
+
+    async getAllWeeksDate() {
+        const allDates = await DateMapping.findAll({
+            order: [['date', 'ASC']]
+        });
+            
+        // Группируем даты по неделям и получаем только понедельники
+        const weekStarts = new Map();
+            
+        allDates.forEach(dateObj => {
+            const date = new Date(dateObj.date);
+            // Получаем день недели (0 - воскресенье, 1 - понедельник, ..., 6 - суббота)
+            const dayOfWeek = date.getDay();
+            // Вычисляем понедельник: отнимаем дни чтобы получить начало недели
+            // Если воскресенье (0), отнимаем 6 дней, если понедельник (1) - 0 дней и т.д.
+            const monday = new Date(date);
+            const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            monday.setDate(date.getDate() + diff);
+                
+            // Форматируем дату в YYYY-MM-DD
+            const weekStart = monday.toISOString().split('T')[0];
+                
+            if (!weekStarts.has(weekStart)) {
+                weekStarts.set(weekStart, {
+                    id: dateObj.id,
+                    date: weekStart,
+                    week_start: weekStart
+                });
+            }
+        });
+            
+        return Array.from(weekStarts.values());
     }
 
     async getAllNumberOfDaysBrigade(brigadeId, projectId) {

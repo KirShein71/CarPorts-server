@@ -17,6 +17,7 @@ router.delete('/delete/:id([0-9]+)', BrigadesDateController.delete)
 router.put('/refreshDataBrigadesDate/:id([0-9]+)', BrigadesDateController.refreshDataBrigadesDate)
 
 router.get('/getAllDate', BrigadesDateController.getAllDate)
+router.get('/getAllWeeksDate', BrigadesDateController.getAllWeeksDate)
 router.get('/getAllCertainDays', BrigadesDateController.getAllCertainDays)
 
 export default router
