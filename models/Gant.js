@@ -1,12 +1,14 @@
 import { Project as ProjectMapping } from "./mapping.js";
 import { Region as RegionMapping } from "./mapping.js";
-import {Date as DateMapping} from "./mapping.js";
+import { Date as DateMapping } from "./mapping.js";
+import { Brigade as BrigadeMapping } from "./mapping.js";
+import { BrigadesDate as BrigadesDateMapping } from "./mapping.js";
 
 class Gant {
     async getAllGanttData() {
         try {
-            // Параллельная загрузка проектов и дат
-            const [projects, allDates] = await Promise.all([
+            // Параллельная загрузка проектов, дат и бригад
+            const [projects, allDates, brigadesData] = await Promise.all([
                 ProjectMapping.findAll({
                     where: {
                         date_finish: null,
@@ -17,12 +19,30 @@ class Gant {
                         model: RegionMapping,
                         attributes: ['region']
                     }],
-                    raw: true, // Ускоряет выполнение
+                    raw: true,
                     nest: true
                 }),
                 DateMapping.findAll({
                     order: [['date', 'ASC']],
                     raw: true
+                }),
+                BrigadesDateMapping.findAll({
+                    include: [
+                        {
+                            model: ProjectMapping,
+                            attributes: ['id', 'name']
+                        },
+                        {
+                            model: BrigadeMapping,
+                            attributes: ['id', 'name', 'regionId', 'active']
+                        },
+                        {
+                            model: DateMapping,
+                            attributes: ['id', 'date']
+                        }
+                    ],
+                    raw: true,
+                    nest: true
                 })
             ]);
 
@@ -82,8 +102,51 @@ class Gant {
                 return currentDate;
             }
 
-            // Оптимизированная функция определения цвета
-            function getWeekColor(project, weekStartDate) {
+            // Функция для проверки периода проектировщика
+            function isDesignerWorking(project, weekStartDate) {
+                const designStart = project.design_start ? new Date(project.design_start) : null;
+                const projectDelivery = project.project_delivery ? new Date(project.project_delivery) : null;
+
+                if (!designStart || isNaN(designStart.getTime()) || !projectDelivery || isNaN(projectDelivery.getTime())) {
+                    return false;
+                }
+
+                const currentWeek = new Date(weekStartDate);
+                const weekEnd = new Date(currentWeek);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+
+                return currentWeek <= projectDelivery && weekEnd >= designStart;
+            }
+
+            // Функция для проверки работы бригады
+            function isBrigadeWorking(projectId, weekStartDate, brigadesData) {
+                const currentWeek = new Date(weekStartDate);
+                const weekEnd = new Date(currentWeek);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+
+                return brigadesData.some(brigade => {
+                    if (brigade.Project.id !== projectId) return false;
+                    
+                    const brigadeDate = new Date(brigade.Date.date);
+                    return brigadeDate >= currentWeek && brigadeDate <= weekEnd;
+                });
+            }
+
+            // Оптимизированная функция определения цвета с приоритетами
+            function getWeekColor(project, weekStartDate, brigadesData) {
+                const projectId = project.id;
+                
+                // Приоритет 1: Бригада работает (самый высокий приоритет)
+                if (isBrigadeWorking(projectId, weekStartDate, brigadesData)) {
+                    return '#FF0000'; // Красный цвет для бригад
+                }
+                
+                // Приоритет 2: Проектировщик работает
+                if (isDesignerWorking(project, weekStartDate)) {
+                    return '#1E3A8A'; // Темно-синий цвет для проектировщика
+                }
+
+                // Приоритет 3: Стандартные фазы проекта
                 const agreementDate = new Date(project.agreement_date);
                 if (!agreementDate || isNaN(agreementDate.getTime())) {
                     return 'transparent';
@@ -107,35 +170,63 @@ class Gant {
                 }
 
                 if (currentWeek <= designEndDate && weekEnd >= agreementDate) {
-                    return '#DFEDFF';
+                    return '#DFEDFF'; // Светло-синий для проектирования
                 } else if (currentWeek <= productionEndDate && weekEnd > designEndDate) {
-                    return '#E2EFDC';
+                    return '#E2EFDC'; // Светло-зеленый для производства
                 } else if (currentWeek <= installationEndDate && weekEnd > productionEndDate) {
-                    return '#EFDDDD';
+                    return '#EFDDDD'; // Светло-красный для монтажа
                 }
 
                 return 'transparent';
             }
 
+            // Группируем бригады по проектам для удобства
+            const brigadesByProject = {};
+            brigadesData.forEach(brigade => {
+                const projectId = brigade.Project.id;
+                if (!brigadesByProject[projectId]) {
+                    brigadesByProject[projectId] = [];
+                }
+                brigadesByProject[projectId].push({
+                    brigadeName: brigade.Brigade.name,
+                    date: brigade.Date.date,
+                    brigadeId: brigade.Brigade.id
+                });
+            });
+
             // Параллельная обработка проектов
             const processedProjects = await Promise.all(
-                projects.map(async (project) => ({
-                    id: project.id,
-                    name: project.name,
-                    number: project.number,
-                    regionId: project.regionId,
-                    designer: project.designer,
-                    region: project.RegionMapping?.region,
-                    colors: weeks.map(week => ({
-                        week_start: week.week_start,
-                        color: getWeekColor(project, week.week_start)
-                    }))
-                }))
+                projects.map(async (project) => {
+                    const projectBrigades = brigadesByProject[project.id] || [];
+                    
+                    return {
+                        id: project.id,
+                        name: project.name,
+                        number: project.number,
+                        regionId: project.regionId,
+                        designer: project.designer,
+                        design_start: project.design_start,
+                        project_delivery: project.project_delivery,
+                        region: project.RegionMapping?.region,
+                        brigades: projectBrigades,
+                        colors: weeks.map(week => ({
+                            week_start: week.week_start,
+                            color: getWeekColor(project, week.week_start, brigadesData)
+                        }))
+                    };
+                })
             );
+
+            // Собираем уникальных проектировщиков и бригады для легенды
+            const designers = [...new Set(projects.map(p => p.designer).filter(Boolean))];
+            const brigadesList = [...new Set(brigadesData.map(b => b.Brigade.name).filter(Boolean))];
 
             return {
                 weeks: weeks,
-                projects: processedProjects
+                projects: processedProjects,
+                designers: designers,
+                brigades: brigadesList,
+                brigadesData: brigadesData
             };
 
         } catch (error) {
@@ -145,5 +236,5 @@ class Gant {
     }
 }
 
-export default new Gant()
+export default new Gant();
 
