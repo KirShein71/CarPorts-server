@@ -1,12 +1,14 @@
 import { Project as ProjectMapping } from "./mapping.js";
 import { Region as RegionMapping } from "./mapping.js";
 import { Date as DateMapping } from "./mapping.js";
+import { Brigade as BrigadeMapping } from "./mapping.js";
+import { BrigadesDate as BrigadesDateMapping } from "./mapping.js";
 
 class Gant {
     async getAllGanttData() {
         try {
-            // Параллельная загрузка проектов и дат
-            const [projects, allDates] = await Promise.all([
+            // Параллельная загрузка проектов, дат и бригад
+            const [projects, allDates, brigadesData] = await Promise.all([
                 ProjectMapping.findAll({
                     where: {
                         date_finish: null,
@@ -17,13 +19,31 @@ class Gant {
                         model: RegionMapping,
                         attributes: ['region']
                     }],
-                    raw: true, // Ускоряет выполнение
+                    raw: true,
                     nest: true
                 }),
                 DateMapping.findAll({
                     order: [['date', 'ASC']],
                     raw: true,
-                    attributes: ['id', 'date'] // Только нужные поля
+                    attributes: ['id', 'date']
+                }),
+                BrigadesDateMapping.findAll({
+                    include: [
+                        {
+                            model: ProjectMapping,
+                            attributes: ['id']
+                        },
+                        {
+                            model: BrigadeMapping,
+                            attributes: ['id', 'name']
+                        },
+                        {
+                            model: DateMapping,
+                            attributes: ['id', 'date']
+                        }
+                    ],
+                    raw: true,
+                    nest: true
                 })
             ]);
 
@@ -110,13 +130,47 @@ class Gant {
                 };
             });
 
-            // Функция для определения цвета ячейки проекта (БЕЗ учета проектировщика)
+            // Группируем бригады по проектам для быстрого доступа
+            const brigadesByProject = {};
+            brigadesData.forEach(brigade => {
+                const projectId = brigade.ProjectMapping?.id;
+                if (projectId) {
+                    if (!brigadesByProject[projectId]) {
+                        brigadesByProject[projectId] = [];
+                    }
+                    brigadesByProject[projectId].push({
+                        brigadeName: brigade.BrigadeMapping?.name,
+                        date: brigade.DateMapping?.date,
+                        brigadeId: brigade.BrigadeMapping?.id
+                    });
+                }
+            });
+
+            // Функция для проверки работы бригады на неделе
+            function isBrigadeWorking(projectId, weekStartDate) {
+                const projectBrigades = brigadesByProject[projectId];
+                if (!projectBrigades || projectBrigades.length === 0) {
+                    return false;
+                }
+
+                const currentWeek = new Date(weekStartDate);
+                const weekEnd = new Date(currentWeek);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+
+                return projectBrigades.some(brigade => {
+                    if (!brigade.date) return false;
+                    const brigadeDate = new Date(brigade.date);
+                    return brigadeDate >= currentWeek && brigadeDate <= weekEnd;
+                });
+            }
+
+            // Функция для определения цвета ячейки проекта (БЕЗ учета проектировщика и бригад)
             function getWeekColor(project, weekStartDate) {
                 const currentWeek = new Date(weekStartDate);
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
-                // Только стандартные фазы проекта (БЕЗ проектировщика)
+                // Только стандартные фазы проекта (БЕЗ проектировщика и бригад)
                 if (project._agreementDate && !isNaN(project._agreementDate.getTime()) &&
                     currentWeek <= project._installationEndDate && weekEnd >= project._agreementDate) {
                     
@@ -160,33 +214,75 @@ class Gant {
                 return 'transparent';
             }
 
+            // Функция для определения цвета бригады
+            function getBrigadeColor(project, weekStartDate) {
+                const currentWeek = new Date(weekStartDate);
+                const weekEnd = new Date(currentWeek);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+
+                // Если бригада работает на этой неделе - темно-розовый
+                if (isBrigadeWorking(project.id, weekStartDate)) {
+                    return '#8B0000'; // Темно-розовый/красный для работы бригады
+                }
+
+                // Если бригада не работает, показываем цвет этапа проекта
+                if (project._agreementDate && !isNaN(project._agreementDate.getTime()) &&
+                    currentWeek <= project._installationEndDate && weekEnd >= project._agreementDate) {
+                    
+                    if (currentWeek <= project._designEndDate && weekEnd >= project._agreementDate) {
+                        return '#DFEDFF'; // Проектирование
+                    } else if (currentWeek <= project._productionEndDate && weekEnd > project._designEndDate) {
+                        return '#E2EFDC'; // Снабжение
+                    } else if (currentWeek <= project._installationEndDate && weekEnd > project._productionEndDate) {
+                        return '#EFDDDD'; // Монтаж
+                    }
+                }
+
+                return 'transparent';
+            }
+
             // Параллельная обработка проектов
             const processedProjects = await Promise.all(
-                projectsWithDates.map(async (project) => ({
-                    id: project.id,
-                    name: project.name,
-                    number: project.number,
-                    regionId: project.regionId,
-                    designer: project.designer,
-                    design_start: project.design_start,
-                    project_delivery: project.project_delivery,
-                    region: project.RegionMapping?.region,
-                    // Цвета для проекта (БЕЗ проектировщика)
-                    colors: weeks.map(week => ({
-                        week_start: week.week_start,
-                        color: getWeekColor(project, week.week_start)
-                    })),
-                    // Цвета для проектировщика (работа + этапы проекта)
-                    designerColors: weeks.map(week => ({
-                        week_start: week.week_start,
-                        color: getDesignerColor(project, week.week_start)
-                    }))
-                }))
+                projectsWithDates.map(async (project) => {
+                    const projectBrigades = brigadesByProject[project.id] || [];
+                    const brigadeNames = [...new Set(projectBrigades.map(b => b.brigadeName).filter(Boolean))];
+                    
+                    return {
+                        id: project.id,
+                        name: project.name,
+                        number: project.number,
+                        regionId: project.regionId,
+                        designer: project.designer,
+                        design_start: project.design_start,
+                        project_delivery: project.project_delivery,
+                        region: project.RegionMapping?.region,
+                        brigades: brigadeNames,
+                        // Цвета для проекта (БЕЗ проектировщика и бригад)
+                        colors: weeks.map(week => ({
+                            week_start: week.week_start,
+                            color: getWeekColor(project, week.week_start)
+                        })),
+                        // Цвета для проектировщика (работа + этапы проекта)
+                        designerColors: weeks.map(week => ({
+                            week_start: week.week_start,
+                            color: getDesignerColor(project, week.week_start)
+                        })),
+                        // Цвета для бригады (работа + этапы проекта)
+                        brigadeColors: weeks.map(week => ({
+                            week_start: week.week_start,
+                            color: getBrigadeColor(project, week.week_start)
+                        }))
+                    };
+                })
             );
+
+            // Собираем список всех бригад для легенды
+            const allBrigades = [...new Set(brigadesData.map(b => b.BrigadeMapping?.name).filter(Boolean))];
 
             return {
                 weeks: weeks,
-                projects: processedProjects
+                projects: processedProjects,
+                brigades: allBrigades
             };
 
         } catch (error) {
