@@ -27,25 +27,44 @@ class Gant {
                     raw: true,
                     attributes: ['id', 'date']
                 }),
+                // Упрощенный запрос бригад - только нужные поля без сложных include
                 BrigadesDateMapping.findAll({
-                    include: [
-                        {
-                            model: ProjectMapping,
-                            attributes: ['id']
-                        },
-                        {
-                            model: BrigadeMapping,
-                            attributes: ['id', 'name']
-                        },
-                        {
-                            model: DateMapping,
-                            attributes: ['id', 'date']
-                        }
-                    ],
-                    raw: true,
-                    nest: true
+                    attributes: ['id', 'project_id', 'date_id', 'brigade_id'],
+                    raw: true
                 })
             ]);
+
+            // Дополнительно загружаем данные о бригадах
+            const brigadeIds = [...new Set(brigadesData.map(b => b.brigade_id).filter(Boolean))];
+            const brigadesInfo = await BrigadeMapping.findAll({
+                where: {
+                    id: brigadeIds
+                },
+                attributes: ['id', 'name'],
+                raw: true
+            });
+
+            // Создаем мапу для быстрого доступа к именам бригад
+            const brigadeMap = new Map();
+            brigadesInfo.forEach(brigade => {
+                brigadeMap.set(brigade.id, brigade.name);
+            });
+
+            // Дополнительно загружаем даты бригад
+            const dateIds = [...new Set(brigadesData.map(b => b.date_id).filter(Boolean))];
+            const brigadeDatesInfo = await DateMapping.findAll({
+                where: {
+                    id: dateIds
+                },
+                attributes: ['id', 'date'],
+                raw: true
+            });
+
+            // Создаем мапу для быстрого доступа к датам
+            const dateMap = new Map();
+            brigadeDatesInfo.forEach(date => {
+                dateMap.set(date.id, date.date);
+            });
 
             // Оптимизированная группировка недель
             const weekStarts = new Map();
@@ -133,16 +152,22 @@ class Gant {
             // Группируем бригады по проектам для быстрого доступа
             const brigadesByProject = {};
             brigadesData.forEach(brigade => {
-                const projectId = brigade.ProjectMapping?.id;
+                const projectId = brigade.project_id;
                 if (projectId) {
                     if (!brigadesByProject[projectId]) {
                         brigadesByProject[projectId] = [];
                     }
-                    brigadesByProject[projectId].push({
-                        brigadeName: brigade.BrigadeMapping?.name,
-                        date: brigade.DateMapping?.date,
-                        brigadeId: brigade.BrigadeMapping?.id
-                    });
+                    
+                    const brigadeName = brigadeMap.get(brigade.brigade_id);
+                    const brigadeDate = dateMap.get(brigade.date_id);
+                    
+                    if (brigadeName && brigadeDate) {
+                        brigadesByProject[projectId].push({
+                            brigadeName: brigadeName,
+                            date: brigadeDate,
+                            brigadeId: brigade.brigade_id
+                        });
+                    }
                 }
             });
 
@@ -277,7 +302,7 @@ class Gant {
             );
 
             // Собираем список всех бригад для легенды
-            const allBrigades = [...new Set(brigadesData.map(b => b.BrigadeMapping?.name).filter(Boolean))];
+            const allBrigades = [...new Set(brigadesInfo.map(b => b.name).filter(Boolean))];
 
             return {
                 weeks: weeks,
