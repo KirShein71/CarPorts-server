@@ -100,6 +100,7 @@ const Project = sequelize.define('project', {
     navigator: {type: DataTypes.STRING, allowNull: true},
     coordinates: {type: DataTypes.STRING, allowNull: true},
     price: {type: DataTypes.INTEGER, allowNull: true},
+    designerId: {type: DataTypes.INTEGER, allowNull: true}
 })
 
 const Material = sequelize.define('material', {
@@ -423,6 +424,8 @@ ProjectExamination.belongsTo(Project)
 
 Brigade.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
 ProjectExamination.belongsTo(Brigade)
+
+
 
 
 export {

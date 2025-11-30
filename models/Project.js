@@ -58,7 +58,7 @@ class Project {
                 date_finish: null,
                 finish: null
             },
-            attributes: ['id', 'name', 'number', 'regionId','designer', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period', 'price'],
+            attributes: ['id', 'name', 'number', 'regionId','designer', 'designerId', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period', 'price'],
             include: [
                 {
                     model: RegionMapping,
@@ -745,6 +745,20 @@ class Project {
             
         } = data
         await project.update({name, number, agreement_date, design_period, project_delivery, expiration_date, installation_period, installation_billing , note, designer, design_start, project_delivery, inspection_designer, date_inspection})
+        await project.reload()
+        return project
+    }
+
+    async updateDesigner(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            designerId = project.designerId,
+            designer = project.designer,
+        } = data
+        await project.update({ designer, designerId})
         await project.reload()
         return project
     }

@@ -1,4 +1,5 @@
 import { Designer as DesignerMapping } from './mapping.js'
+import { Project as ProjectMapping } from './mapping.js'
 
 
 class Designer {
@@ -56,13 +57,27 @@ class Designer {
         if (!designer) {
             throw new Error('Проектировщик не найден в БД')
         }
-        const {
-            name = designer.name,
-            
-        } = data
-        await designer.update({name})
-        await designer.reload()
-        return designer
+        
+        const oldName = designer.name; // сохраняем старое имя
+        const { name = designer.name } = data;
+        
+        // Обновляем имя проектировщика
+        await designer.update({ name });
+        
+        // Если имя изменилось, обновляем все проекты с этим designerId
+        if (oldName !== name) {
+            await ProjectMapping.update(
+                { designer: name }, // устанавливаем новое имя
+                { 
+                    where: { 
+                        designerId: id // где designerId равен id проектировщика
+                    } 
+                }
+            );
+        }
+        
+        await designer.reload();
+        return designer;
     }
 
 
