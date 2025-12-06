@@ -50,6 +50,12 @@ class Gant {
                 brigadeMap.set(brigade.id, brigade.name);
             });
 
+            // Создаем обратную мапу: имя бригады -> ID
+            const brigadeNameToIdMap = new Map();
+            brigadesInfo.forEach(brigade => {
+                brigadeNameToIdMap.set(brigade.name, brigade.id);
+            });
+
             // Дополнительно загружаем даты бригад
             const dateIds = [...new Set(brigadesData.map(b => b.date_id).filter(Boolean))];
             const brigadeDatesInfo = await DateMapping.findAll({
@@ -149,32 +155,31 @@ class Gant {
                 };
             });
 
-            // Группируем бригады по проектам для быстрого доступа
-            const brigadesByProject = {};
+            // Группируем бригады по проектам и бригадам для быстрого доступа
+            // Структура: { projectId: { brigadeId: [dates], brigadeId2: [dates] } }
+            const brigadesByProjectAndBrigade = {};
+            
             brigadesData.forEach(brigade => {
                 const projectId = brigade.project_id;
-                if (projectId) {
-                    if (!brigadesByProject[projectId]) {
-                        brigadesByProject[projectId] = [];
+                const brigadeId = brigade.brigade_id;
+                const date = dateMap.get(brigade.date_id);
+                
+                if (projectId && brigadeId && date) {
+                    if (!brigadesByProjectAndBrigade[projectId]) {
+                        brigadesByProjectAndBrigade[projectId] = {};
                     }
                     
-                    const brigadeName = brigadeMap.get(brigade.brigade_id);
-                    const brigadeDate = dateMap.get(brigade.date_id);
-                    
-                    if (brigadeName && brigadeDate) {
-                        brigadesByProject[projectId].push({
-                            brigadeName: brigadeName,
-                            date: brigadeDate,
-                            brigadeId: brigade.brigade_id
-                        });
+                    if (!brigadesByProjectAndBrigade[projectId][brigadeId]) {
+                        brigadesByProjectAndBrigade[projectId][brigadeId] = [];
                     }
+                    
+                    brigadesByProjectAndBrigade[projectId][brigadeId].push(date);
                 }
             });
 
-            // Функция для проверки работы бригады на неделе
-            function isBrigadeWorking(projectId, weekStartDate) {
-                const projectBrigades = brigadesByProject[projectId];
-                if (!projectBrigades || projectBrigades.length === 0) {
+            // Функция для проверки работы конкретной бригады на неделе
+            function isBrigadeWorkingOnWeek(brigadeDates, weekStartDate) {
+                if (!brigadeDates || brigadeDates.length === 0) {
                     return false;
                 }
 
@@ -182,9 +187,9 @@ class Gant {
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
-                return projectBrigades.some(brigade => {
-                    if (!brigade.date) return false;
-                    const brigadeDate = new Date(brigade.date);
+                return brigadeDates.some(brigadeDateStr => {
+                    if (!brigadeDateStr) return false;
+                    const brigadeDate = new Date(brigadeDateStr);
                     return brigadeDate >= currentWeek && brigadeDate <= weekEnd;
                 });
             }
@@ -239,14 +244,17 @@ class Gant {
                 return 'transparent';
             }
 
-            // Функция для определения цвета бригады
-            function getBrigadeColor(project, weekStartDate) {
+            // Функция для определения цвета конкретной бригады
+            function getBrigadeColor(project, brigadeId, weekStartDate) {
                 const currentWeek = new Date(weekStartDate);
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
+                // Получаем даты для конкретной бригады
+                const brigadeDates = brigadesByProjectAndBrigade[project.id]?.[brigadeId];
+                
                 // Если бригада работает на этой неделе - темно-розовый
-                if (isBrigadeWorking(project.id, weekStartDate)) {
+                if (brigadeDates && isBrigadeWorkingOnWeek(brigadeDates, weekStartDate)) {
                     return '#AD1457'; // Темно-розовый/красный для работы бригады
                 }
 
@@ -269,9 +277,40 @@ class Gant {
             // Параллельная обработка проектов
             const processedProjects = await Promise.all(
                 projectsWithDates.map(async (project) => {
-                    const projectBrigades = brigadesByProject[project.id] || [];
-                    const brigadeNames = [...new Set(projectBrigades.map(b => b.brigadeName).filter(Boolean))];
+                    const projectBrigadesData = brigadesByProjectAndBrigade[project.id] || {};
                     
+                    // Создаем массив бригад с их ID и именами
+                    const brigades = Object.keys(projectBrigadesData).map(brigadeId => {
+                        const brigadeName = brigadeMap.get(Number(brigadeId));
+                        return brigadeName ? {
+                            id: brigadeId,
+                            name: brigadeName,
+                            dates: projectBrigadesData[brigadeId] || []
+                        } : null;
+                    }).filter(Boolean);
+
+                    // Цвета для проекта (БЕЗ проектировщика и бригад)
+                    const projectColors = weeks.map(week => ({
+                        week_start: week.week_start,
+                        color: getWeekColor(project, week.week_start)
+                    }));
+
+                    // Цвета для проектировщика (работа + этапы проекта)
+                    const designerColors = weeks.map(week => ({
+                        week_start: week.week_start,
+                        color: getDesignerColor(project, week.week_start)
+                    }));
+
+                    // Цвета для каждой бригады отдельно
+                    const brigadeColorsMap = {};
+                    
+                    brigades.forEach(brigade => {
+                        brigadeColorsMap[brigade.id] = weeks.map(week => ({
+                            week_start: week.week_start,
+                            color: getBrigadeColor(project, brigade.id, week.week_start)
+                        }));
+                    });
+
                     return {
                         id: project.id,
                         name: project.name,
@@ -281,22 +320,11 @@ class Gant {
                         design_start: project.design_start,
                         project_delivery: project.project_delivery,
                         region: project.RegionMapping?.region,
-                        brigades: brigadeNames,
-                        // Цвета для проекта (БЕЗ проектировщика и бригад)
-                        colors: weeks.map(week => ({
-                            week_start: week.week_start,
-                            color: getWeekColor(project, week.week_start)
-                        })),
-                        // Цвета для проектировщика (работа + этапы проекта)
-                        designerColors: weeks.map(week => ({
-                            week_start: week.week_start,
-                            color: getDesignerColor(project, week.week_start)
-                        })),
-                        // Цвета для бригады (работа + этапы проекта)
-                        brigadeColors: weeks.map(week => ({
-                            week_start: week.week_start,
-                            color: getBrigadeColor(project, week.week_start)
-                        }))
+                        brigades: brigades.map(b => b.name), // только имена для обратной совместимости
+                        brigadesDetails: brigades, // полная информация о бригадах
+                        colors: projectColors,
+                        designerColors: designerColors,
+                        brigadeColors: brigadeColorsMap // цвета по ID бригады
                     };
                 })
             );
