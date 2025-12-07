@@ -311,12 +311,12 @@ class Counter {
       }
 
       const groupedByBrigade = projectExaminations.reduce((acc, item) => {
-        const { brigadeId, Brigade, projectId, Project, result } = item;
+        const { brigadeId, brigade, projectId, project, result } = item;
         
         if (!acc[brigadeId]) {
           acc[brigadeId] = {
             brigadeId: brigadeId,
-            brigadeName: Brigade.name,
+            brigadeName: brigade.name,
             projects: {},
           };
         }
@@ -324,8 +324,8 @@ class Counter {
         if (!acc[brigadeId].projects[projectId]) {
           acc[brigadeId].projects[projectId] = {
             projectId: projectId,
-            projectName: Project.name,
-            projectNumber: Project.number,
+            projectName: project.name,
+            projectNumber: project.number,
             results: []
           };
         }
