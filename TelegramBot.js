@@ -39,6 +39,24 @@ import { Brigade as BrigadeMapping } from './models/mapping.js';
 import { Examination as ExaminationMapping } from './models/mapping.js';
 import { Date as DateMapping } from './models/mapping.js';
 
+const holydays = [
+  '2025-12-31',  
+  '2026-01-01',  
+  '2026-01-02',  
+  '2026-01-03', 
+  '2026-01-04',  
+  '2026-01-05',  
+  '2026-01-08',  
+  '2026-01-09',  
+  '2026-02-23',  
+  '2026-03-09',  
+  '2026-05-01',  
+  '2026-05-11',  
+  '2026-06-12',  
+  '2026-11-04',  
+  '2026-12-31',  
+];
+
 class Counter {
   async getProjectStatistics() {
     try {
@@ -423,6 +441,23 @@ class Counter {
   }
 }
 
+    // Функция для проверки, является ли день рабочим
+    function isWorkingDay(date) {
+        const dayOfWeek = date.getDay(); // 0 - воскресенье, 6 - суббота
+        // Проверяем выходные
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            return false;
+        }
+        
+        // Проверяем праздники
+        const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        if (holydays.includes(dateString)) {
+            return false;
+        }
+        
+        return true;
+    }
+
 // Функция для форматирования списка проектов в простом формате
 function formatSimpleProjectList(projects, maxLength = 10) {
   if (projects.length === 0) {
@@ -577,18 +612,21 @@ async function sendStatisticsMessage() {
 }
 
 // Настройка cron задачи
-cron.schedule('00 10 * * *', () => {
-  console.log(`[${new Date().toLocaleString()}] Запуск задачи на отправку статистики`);
+cron.schedule('00 10 * * 1-5', () => {
+  console.log(`[${new Date().toLocaleString()}] CRON: Запуск задачи на отправку статистики`);
   sendStatisticsMessage();
+}, {
+  scheduled: true,
+  timezone: "Europe/Moscow" // Указываем московское время
 });
 
 console.log('Бот настроен на отправку статистики каждый день в 10:00');
 
-// Тестовая отправка при запуске
-setTimeout(async () => {
-  console.log('Тестовая отправка статистики...');
-  await sendStatisticsMessage();
-}, 3000);
+// // Тестовая отправка при запуске
+// setTimeout(async () => {
+//   console.log('Тестовая отправка статистики...');
+//   await sendStatisticsMessage();
+// }, 3000);
 
 // Graceful shutdown
 process.once('SIGINT', () => {
