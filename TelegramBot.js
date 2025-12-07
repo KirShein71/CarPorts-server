@@ -571,7 +571,7 @@ async function sendStatisticsMessage() {
 }
 
 // Настройка cron задачи
-cron.schedule('20 12 * * *', () => {
+cron.schedule('00 13 * * *', () => {
   console.log(`[${new Date().toLocaleString()}] Запуск задачи на отправку статистики`);
   sendStatisticsMessage();
 });
