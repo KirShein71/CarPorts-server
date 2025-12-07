@@ -270,11 +270,20 @@ class Counter {
 
   async getTechnicalSupervisionThisMonth(startOfMonth, endOfMonth) {
     try {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        
+        // Локальное начало месяца (00:00:00)
+        const localStartOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);
+        // Локальный конец месяца (23:59:59.999)
+        const localEndOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
       const projectExaminations = await ProjectExaminationMapping.findAll({
+        
         where: {
           created_at: {
-            [Op.gte]: startOfMonth,
-            [Op.lte]: endOfMonth
+            [Op.gte]: localStartOfMonth,  // Используем локальное время
+            [Op.lte]: localEndOfMonth 
           }
         },
         include: [
