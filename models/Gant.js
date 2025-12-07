@@ -19,7 +19,7 @@ class Gant {
                         model: RegionMapping,
                         attributes: ['region']
                     }],
-                    order: [['agreement_date', 'ASC']],
+                    order: [['agreement_date', 'DESC']],
                     raw: true,
                     nest: true
                 }),
