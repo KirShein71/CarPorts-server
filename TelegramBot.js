@@ -447,7 +447,7 @@ function formatSimpleProjectList(projects, maxLength = 10) {
 
 // Функция для форматирования технадзора в простом формате
 function formatSimpleTechnicalSupervision(technicalSupervision) {
-  if (technicalSupervision.length === 0) {
+  if (!technicalSupervision || technicalSupervision.length === 0) {
     return '';
   }
   
@@ -456,15 +456,18 @@ function formatSimpleTechnicalSupervision(technicalSupervision) {
   for (let i = 0; i < technicalSupervision.length; i++) {
     const brigade = technicalSupervision[i];
     
-    list += `${brigade.brigade}\n`;
+    // Добавляем бригаду со средним процентом
+    list += `${brigade.brigade}: ${brigade.brigadeAverage}\n`;
     
+    // Добавляем проекты этой бригады с их процентами
     if (brigade.projects && brigade.projects.length > 0) {
       for (let j = 0; j < brigade.projects.length; j++) {
         const project = brigade.projects[j];
-        list += `${project.result}\n`;
-        list += `${project.project}\n`;
+        // Проект: процент
+        list += `  ${project.project}: ${project.result}\n`;
       }
     }
+    list += '\n';
   }
   
   return list;
@@ -541,7 +544,7 @@ async function sendStatisticsMessage() {
                    `Среднее кол-во раб.дней по ЛО: ${stats.workingDaysLO?.toFixed(1).replace('.', ',')}    (${stats.workingDaysLOCount}/14)\n\n` +
                    
                    `Технадзор в этом месяце:\n` +
-                   `${formatSimpleTechnicalSupervision(stats.technicalSupervision)}\n` +
+                   `${formatSimpleTechnicalSupervision(stats.technicalSupervision)}` +
                    
                    `Незакрытые рекламации: ${stats.openComplaintsCount}\n` +
                    `МО: ${stats.complaintsMOCount}\n` +
@@ -574,12 +577,12 @@ async function sendStatisticsMessage() {
 }
 
 // Настройка cron задачи
-cron.schedule('00 13 * * *', () => {
+cron.schedule('00 10 * * *', () => {
   console.log(`[${new Date().toLocaleString()}] Запуск задачи на отправку статистики`);
   sendStatisticsMessage();
 });
 
-console.log('Бот настроен на отправку статистики каждый день в 11:35');
+console.log('Бот настроен на отправку статистики каждый день в 10:00');
 
 // Тестовая отправка при запуске
 setTimeout(async () => {
