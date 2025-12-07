@@ -156,23 +156,27 @@ class Counter {
 
       // Очередь на снабжение
       const supplyQueue = await sequelize.query(
-        `SELECT COUNT(*)
-            FROM projects
-            WHERE id NOT IN (
-                SELECT project_id
-                FROM project_materials
-            ) AND finish IS NULL`,
+        `SELECT p.id, p.name, p.number
+        FROM projects p
+        WHERE p.id NOT IN (
+          SELECT project_id
+          FROM project_materials
+        ) 
+        AND p.finish IS NULL
+        ORDER BY p.agreement_date ASC`,
         { type: sequelize.QueryTypes.SELECT }
       );
 
       // Очередь на монтаж
       const installationQueue = await sequelize.query(
-        `SELECT COUNT(*)
-            FROM projects
-            WHERE id NOT IN (
-                SELECT project_id
-                FROM brigades_dates
-            ) AND finish IS NULL`,
+        `SELECT p.id, p.name, p.number
+        FROM projects p
+        WHERE p.id NOT IN (
+          SELECT project_id
+          FROM brigades_dates
+        ) 
+        AND p.finish IS NULL
+        ORDER BY p.agreement_date ASC`,
         { type: sequelize.QueryTypes.SELECT }
       );
 
