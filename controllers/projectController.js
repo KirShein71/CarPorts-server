@@ -21,6 +21,16 @@ class ProjectController {
         }
     }
 
+    async getAllActiveWithDateFinishProject(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllActiveWithDateFinishProject()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+
     async getAllStatProject(req, res, next) {
         try {
             const project = await ProjectModel.getAllStatProject()

@@ -84,6 +84,37 @@ class Project {
         return projects;
     }
 
+    async getAllActiveWithDateFinishProject() {
+        const projects = await ProjectMapping.findAll({
+            where: {
+                finish: null
+            },
+            attributes: ['id', 'name', 'number', 'regionId','designer', 'designerId', 'agreement_date', 'design_period', 'design_start', 'project_delivery', 'expiration_date', 'installation_period', 'price'],
+            include: [
+                {
+                    model: RegionMapping,
+                    attributes: ['region']
+                },
+                {
+                    model: BrigadesDateMapping,
+                    attributes: ['date_id'], // Здесь можно оставить пустым, если не нужны другие поля
+                    include: [
+                        {
+                            model: DateMapping,
+                            attributes: ['date', 'id'], // Здесь указываем, что хотим получить поле date
+                            required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
+                        },
+                        {
+                            model: BrigadeMapping,
+                            attributes: ['name']
+                        },
+                    ]
+                }
+            ],
+        });
+        return projects;
+    }
+
     async getAllStatProject() {
         const projects = await ProjectMapping.findAll({
             attributes: ['id', 'name', 'number', 'agreement_date', 'date_finish']
