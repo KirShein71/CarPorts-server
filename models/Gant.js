@@ -226,13 +226,32 @@ class Gant {
                 const weekEnd = new Date(currentWeek);
                 weekEnd.setDate(weekEnd.getDate() + 6);
 
-                // Если проектировщик работает на этой неделе - темно-синий
-                if (project._designStart && project._projectDelivery && 
-                    currentWeek <= project._projectDelivery && weekEnd >= project._designStart) {
-                    return '#3b83bd'; // Темно-синий для работы проектировщика
+                // Если есть design_start (проектировщик назначен)
+                if (project._designStart) {
+                    let endDateForDesigner;
+                    
+                    // 1. Если есть project_delivery - используем его как конечную дату
+                    if (project._projectDelivery) {
+                        endDateForDesigner = project._projectDelivery;
+                    } 
+                    // 2. Если нет project_delivery, но есть дата окончания проектирования - используем designEndDate
+                    else if (project._designEndDate) {
+                        endDateForDesigner = project._designEndDate;
+                    }
+                    // 3. Если нет вообще конечных дат, проектировщик не работает
+                    else {
+                        endDateForDesigner = null;
+                    }
+
+                    // Проверяем, попадает ли текущая неделя в диапазон работы проектировщика
+                    if (endDateForDesigner && 
+                        currentWeek <= endDateForDesigner && 
+                        weekEnd >= project._designStart) {
+                        return '#3b83bd'; // Темно-синий для работы проектировщика
+                    }
                 }
 
-                // Если проектировщик не работает, показываем цвет этапа проекта
+                // Если проектировщик не работает на этой неделе, показываем цвет этапа проекта
                 if (project._agreementDate && !isNaN(project._agreementDate.getTime()) &&
                     currentWeek <= project._installationEndDate && weekEnd >= project._agreementDate) {
                     
