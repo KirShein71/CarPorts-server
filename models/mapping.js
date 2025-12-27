@@ -133,13 +133,20 @@ const Detail = sequelize.define('detail', {
 const ProjectDetails = sequelize.define('project_details', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: {type: DataTypes.INTEGER, allowNull: true},
+    color: {type: DataTypes.STRING, allowNull: true },
  
    
 })
 
 const Antypical = sequelize.define('antypical', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    image: {type: DataTypes.STRING, allowNull: false }
+    image: {type: DataTypes.STRING, allowNull: false },
+    antypicals_quantity: {type: DataTypes.INTEGER, allowNull: true},
+    color: {type: DataTypes.STRING, allowNull: true },
+    name: {type: DataTypes.STRING, allowNull: true },
+    antypicals_shipment_quantity: {type: DataTypes.INTEGER, allowNull: true},
+    antypicals_delivery_quantity: {type: DataTypes.INTEGER, allowNull: true},
+    antypicals_welders_quantity: {type: DataTypes.INTEGER, allowNull: true},
 })
 
 const StockAntypical = sequelize.define('stock_antypical', {

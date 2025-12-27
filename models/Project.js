@@ -422,7 +422,11 @@ class Project {
         const antypicalDetails = projectantypical.map(antypical => {
             return {
                 image: antypical.image,
-                id: antypical.id
+                id: antypical.id,
+                name: antypical.name,
+                antypicals_quantity: antypical.antypicals_quantity,
+                antypicals_shipment_quantity: antypical.antypicals_shipment_quantity,
+                antypicals_delivery_quantity: antypical.antypicals_delivery_quantity
             };
         });
 
