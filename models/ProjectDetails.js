@@ -17,7 +17,7 @@ class ProjectDetails {
             },
             ],
             order: [
-            ['projectId', 'ASC'],
+            ['projectId', 'DESC'],
             ],
         });
 

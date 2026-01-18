@@ -12,7 +12,7 @@ class Service {
     async getOne(id) {
         const service = await ServiceMapping.findByPk(id)
         if (!service) {
-            throw new Error('Категория не найдена в БД')
+            throw new Error('Услуга не найдена')
         }
         return service
     }

@@ -13,6 +13,8 @@ import { Complaint as ComplaintMapping } from "./mapping.js";
 import { DeliverytDetails as DeliveryDetailsMapping } from "./mapping.js";
 import { ProjectExamination as ProjectExaminationMapping } from "./mapping.js";
 import { UserFile as UserFileMapping } from "./mapping.js";
+import { NpsProject as NpsProjectMapping } from "./mapping.js";
+import { NpsChapter as NpsChapterMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -34,12 +36,12 @@ class Project {
                 },
                 {
                     model: BrigadesDateMapping,
-                    attributes: ['date_id'], // Здесь можно оставить пустым, если не нужны другие поля
+                    attributes: ['date_id'],
                     include: [
                         {
                             model: DateMapping,
-                            attributes: ['date'], // Здесь указываем, что хотим получить поле date
-                            required: true // Это гарантирует, что будут возвращены только те записи, у которых есть соответствующий DateMapping
+                            attributes: ['date'],
+                            required: true
                         }
                     ]
                 },
@@ -47,9 +49,63 @@ class Project {
                     model: ProjectExaminationMapping,
                     attributes: ['id', 'result']
                 }
-            ],
+            ]
         });
-        return projects;
+
+        // Получаем все главы
+        const chapters = await NpsChapterMapping.findAll({
+            attributes: ['id', 'number'],
+            raw: true
+        });
+
+        // Создаем карту chapter_id -> number
+        const chapterMap = {};
+        chapters.forEach(chapter => {
+            chapterMap[chapter.id] = chapter.number;
+        });
+
+        // Получаем NPS оценки сгруппированные по проекту и главе
+        const projectIds = projects.map(p => p.id);
+        const npsScores = await NpsProjectMapping.findAll({
+            where: {
+                project_id: projectIds
+            },
+            attributes: [
+                'project_id',
+                'nps_chapter_id',
+                [sequelize.fn('AVG', sequelize.col('score')), 'averageScore']
+            ],
+            group: ['project_id', 'nps_chapter_id'],
+            raw: true
+        });
+
+        // Группируем результаты по проекту
+        const npsByProject = {};
+        npsScores.forEach(item => {
+            if (!npsByProject[item.project_id]) {
+                npsByProject[item.project_id] = {};
+            }
+            
+            const chapterNumber = chapterMap[item.nps_chapter_id];
+            if (chapterNumber) {
+                const average = parseFloat(item.averageScore) || 0;
+                npsByProject[item.project_id][`npsChapter${chapterNumber}`] = 
+                    Math.round((average / 5) * 100 * 100) / 100;
+            }
+        });
+
+        // Добавляем NPS к проектам как отдельные поля
+        return projects.map(project => {
+            const projectData = project.toJSON();
+            const projectNps = npsByProject[project.id] || {};
+            
+            // Добавляем каждую главу как отдельное поле
+            Object.keys(projectNps).forEach(key => {
+                projectData[key] = projectNps[key];
+            });
+            
+            return projectData;
+        });
     }
 
     async getAllActiveProject() {

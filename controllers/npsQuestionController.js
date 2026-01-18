@@ -1,11 +1,11 @@
-import ServiceModel from '../models/Service.js'
+import NpsQuestionModel  from '../models/NpsQuestion.js'
 import AppError from '../errors/AppError.js'
 
-class ServiceController {
+class NpsQuestionController {
     async getAll(req, res, next) {
         try {
-            const service = await ServiceModel.getAll()
-            res.json(service)
+            const nps_question = await NpsQuestionModel.getAll()
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -14,10 +14,10 @@ class ServiceController {
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id услуги')
+                throw new Error('Не указан id вопроса')
             }
-            const service = await ServiceModel.getOne(req.params.id)
-            res.json(service)
+            const nps_question = await NpsQuestionModel.getOne(req.params.id)
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
@@ -28,55 +28,55 @@ class ServiceController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки')
             }
-            const service = await ServiceModel.create(req.body)
-            res.json(service)
+            const nps_question = await NpsQuestionModel.create(req.body)
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
-    async update(req, res, next) {
+    async updateName(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id вопроса')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const service = await ServiceModel.update(req.params.id, req.body,)
-            res.json(service)
+            const nps_question = await NpsQuestionModel.updateName(req.params.id, req.body,)
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
-    async updateNumber(req, res, next) {
+    async updateChapter(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id услуги')
+                throw new Error('Не указан id вопроса')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const service = await ServiceModel.updateNumber(req.params.id, req.body,)
-            res.json(service)
-            
+            const nps_question = await NpsQuestionModel.updateChapter(req.params.id, req.body,)
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 
+    
     async delete(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не услуги id услуги')
+                throw new Error('Не указан id вопроса')
             }
-            const service = await ServiceModel.delete(req.params.id)
-            res.json(service)
+            const nps_question = await NpsQuestionModel.delete(req.params.id)
+            res.json(nps_question)
         } catch(e) {
             next(AppError.badRequest(e.message))
         }
     }
 }
 
-export default new ServiceController()
+export default new NpsQuestionController()

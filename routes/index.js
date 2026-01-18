@@ -39,6 +39,9 @@ import projectexamination from './projectexamination.js'
 import designer from './designer.js'
 import coefficient from './coefficient.js'
 import gant from './gant.js'
+import npschapter from './npschapter.js'
+import npsquestion from './npsquestion.js'
+import npsproject from './npsproject.js'
 
 
 
@@ -84,6 +87,9 @@ router.use('/projectexamination', projectexamination)
 router.use('/designer', designer)
 router.use('/coefficient', coefficient)
 router.use('/gant', gant)
+router.use('/npschapter', npschapter)
+router.use('/npsquestion', npsquestion)
+router.use('/npsproject', npsproject)
 
 
 

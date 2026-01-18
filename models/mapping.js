@@ -294,6 +294,30 @@ const Сoefficient = sequelize.define('coefficient', {
     number: {type: DataTypes.REAL, allowNull: true},
 })
 
+const NpsChapter = sequelize.define('nps_chapter', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true },
+    number: {type: DataTypes.REAL, allowNull: true},
+})
+
+const NpsQuestion = sequelize.define('nps_question', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING },
+    nps_chapter_id: {type: DataTypes.INTEGER, allowNull: true}
+})
+
+const NpsProject = sequelize.define('nps_project', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    score: {type: DataTypes.INTEGER},
+    nps_chapter_id: {type: DataTypes.INTEGER, allowNull: true},
+    nps_question_id: {type: DataTypes.INTEGER, allowNull: true}
+})
+
+const NpsNote = sequelize.define('nps_note', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    note: {type: DataTypes.STRING, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -432,6 +456,23 @@ ProjectExamination.belongsTo(Project)
 Brigade.hasMany(ProjectExamination, {onDelete: 'CASCADE', hooks: true})
 ProjectExamination.belongsTo(Brigade)
 
+NpsChapter.hasMany(NpsQuestion, {onDelete: 'CASCADE', hooks: true})
+NpsQuestion.belongsTo(NpsChapter)
+
+
+NpsChapter.hasMany(NpsProject, {onDelete: 'CASCADE', hooks: true})
+NpsProject.belongsTo(NpsChapter)
+
+NpsQuestion.hasMany(NpsProject, {onDelete: 'CASCADE', hooks: true})
+NpsProject.belongsTo(NpsQuestion)
+
+Project.hasMany(NpsProject, {onDelete: 'CASCADE', hooks: true})
+NpsProject.belongsTo(Project)
+
+Project.hasMany(NpsNote, {onDelete: 'CASCADE', hooks: true})
+NpsNote.belongsTo(Project)
+
+
 
 
 
@@ -472,5 +513,9 @@ export {
     Examination,
     ProjectExamination,
     Designer,
-    Сoefficient
+    Сoefficient,
+    NpsChapter,
+    NpsQuestion,
+    NpsProject,
+    NpsNote
 }
