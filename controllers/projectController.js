@@ -167,7 +167,7 @@ class ProjectController {
         }
     }
     
-    async create(req, res, next) {
+   async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки');
@@ -178,8 +178,32 @@ class ProjectController {
                 throw new Error('Телефон и пароль обязательны для создания аккаунта');
             }
 
-            const result = await ProjectModel.create(req.body, req.files.image);
-           
+            // Преобразуем пустые строки в null для числовых полей
+            const processedData = { ...req.body };
+            
+            // Список числовых полей из вашей модели
+            const numericFields = [
+                'design_period',
+                'expiration_date', 
+                'installation_period',
+                'installation_billing',
+                'price',
+                'designerId',
+                'regionId' 
+            ];
+
+            // Преобразуем пустые строки в null
+            numericFields.forEach(field => {
+                if (processedData[field] === '') {
+                    processedData[field] = null;
+                }
+                // Также можно преобразовать строковые числа в числа
+                else if (processedData[field] && !isNaN(processedData[field])) {
+                    processedData[field] = Number(processedData[field]);
+                }
+            });
+
+            const result = await ProjectModel.create(processedData, req.files?.image);
             
             res.json({
                 success: true,
