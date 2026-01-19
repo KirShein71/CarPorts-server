@@ -4,7 +4,9 @@ import { NpsChapter as NpsChapterMapping } from "./mapping.js"
 class NpsChapter {
     async getAll() {
         const nps_chapter = await NpsChapterMapping.findAll({
-            
+            order: [
+                ['number', 'ASC'],
+            ],
         })
         return nps_chapter
     }
