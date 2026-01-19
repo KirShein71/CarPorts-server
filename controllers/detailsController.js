@@ -14,7 +14,7 @@ class DetailsController {
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id материала')
+                throw new Error('Не указан id детали')
             }
             const detail = await DetailModel.getOne(req.params.id)
             res.json(detail)
@@ -38,7 +38,7 @@ class DetailsController {
     async createPrice(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id детали')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -53,7 +53,7 @@ class DetailsController {
     async createNumber(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id детали')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -68,7 +68,7 @@ class DetailsController {
     async update(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id детали')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
@@ -83,7 +83,7 @@ class DetailsController {
     async delete(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id детали')
             }
             const detail = await DetailModel.delete(req.params.id)
             res.json(detail)

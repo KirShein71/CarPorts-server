@@ -318,6 +318,15 @@ const NpsNote = sequelize.define('nps_note', {
     note: {type: DataTypes.STRING, allowNull: true},
 })
 
+const WarehouseAssortment = sequelize.define('warehouse_assortements', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, allowNull: true},
+    cost_price: {type: DataTypes.REAL, allowNull: true},
+    shipment_price: {type: DataTypes.REAL, allowNull: true},
+    weight: {type: DataTypes.REAL, allowNull: true},
+    number: {type: DataTypes.REAL, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -517,5 +526,6 @@ export {
     NpsChapter,
     NpsQuestion,
     NpsProject,
-    NpsNote
+    NpsNote,
+    WarehouseAssortment
 }

@@ -42,6 +42,7 @@ import gant from './gant.js'
 import npschapter from './npschapter.js'
 import npsquestion from './npsquestion.js'
 import npsproject from './npsproject.js'
+import warehouseassortment from './warehouseassortment.js'
 
 
 
@@ -90,6 +91,7 @@ router.use('/gant', gant)
 router.use('/npschapter', npschapter)
 router.use('/npsquestion', npsquestion)
 router.use('/npsproject', npsproject)
+router.use('/warehouseassortment', warehouseassortment)
 
 
 
