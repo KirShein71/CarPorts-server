@@ -11,6 +11,15 @@ class ServiceController {
         }
     }
 
+    async getAllActiveService(req, res, next) {
+        try {
+            const service = await ServiceModel.getAllActiveService()
+            res.json(service)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
@@ -59,6 +68,22 @@ class ServiceController {
                 throw new Error('Нет данных для обновления')
             }
             const service = await ServiceModel.updateNumber(req.params.id, req.body,)
+            res.json(service)
+            
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateActiveService(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id услуги')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const service = await ServiceModel.updateActiveService(req.params.id, req.body,)
             res.json(service)
             
         } catch(e) {

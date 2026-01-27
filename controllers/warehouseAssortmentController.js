@@ -11,6 +11,15 @@ class WarehouseAssortmentController {
         }
     }
 
+    async getAllActiveWarehouseAssortement(req, res, next) {
+        try {
+            const warehouse_assortments = await WarehouseAssortmentModel.getAllActiveWarehouseAssortement()
+            res.json(warehouse_assortments)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
@@ -45,6 +54,21 @@ class WarehouseAssortmentController {
                 throw new Error('Нет данных для обновления')
             }
             const warehouse_assortment = await WarehouseAssortmentModel.update(req.params.id, req.body,)
+            res.json(warehouse_assortment)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async updateActiveWarehouseAssortment(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const warehouse_assortment = await WarehouseAssortmentModel.updateActiveWarehouseAssortment(req.params.id, req.body,)
             res.json(warehouse_assortment)
         } catch(e) {
             next(AppError.badRequest(e.message))

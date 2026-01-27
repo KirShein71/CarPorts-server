@@ -134,8 +134,6 @@ const ProjectDetails = sequelize.define('project_details', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: {type: DataTypes.INTEGER, allowNull: true},
     color: {type: DataTypes.STRING, allowNull: true },
- 
-   
 })
 
 const Antypical = sequelize.define('antypical', {
@@ -218,6 +216,7 @@ const Service = sequelize.define('service', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     name: {type: DataTypes.STRING, allowNull: false},
     number: {type: DataTypes.REAL, allowNull: true},
+    active: { type: DataTypes.STRING, allowNull: false}
 })
 
 const Estimate = sequelize.define('estimate', {
@@ -325,6 +324,20 @@ const WarehouseAssortment = sequelize.define('warehouse_assortements', {
     shipment_price: {type: DataTypes.REAL, allowNull: true},
     weight: {type: DataTypes.REAL, allowNull: true},
     number: {type: DataTypes.REAL, allowNull: true},
+    active: { type: DataTypes.STRING, allowNull: false}
+})
+
+const ProjectWarehouse = sequelize.define('project_warehouse', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    quantity: {type: DataTypes.INTEGER, allowNull: true},
+    quantity_stat: {type: DataTypes.INTEGER, allowNull: true},
+    warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true}
+})
+
+const ShipmentWarehouse = sequelize.define('shipment_warehouse', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    done: { type: DataTypes.STRING, allowNull: false},
+    warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true}
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
@@ -481,7 +494,17 @@ NpsProject.belongsTo(Project)
 Project.hasMany(NpsNote, {onDelete: 'CASCADE', hooks: true})
 NpsNote.belongsTo(Project)
 
+Project.hasMany(ProjectWarehouse, {onDelete: 'CASCADE', hooks: true})
+ProjectWarehouse.belongsTo(Project)
 
+WarehouseAssortment.hasMany(ProjectWarehouse, { onDelete: 'CASCADE', hooks: true })
+ProjectWarehouse.belongsTo(WarehouseAssortment)
+
+Project.hasMany(ShipmentWarehouse, {onDelete: 'CASCADE', hooks: true})
+ShipmentWarehouse.belongsTo(Project)
+
+WarehouseAssortment.hasMany(ShipmentWarehouse, { onDelete: 'CASCADE', hooks: true })
+ShipmentWarehouse.belongsTo(WarehouseAssortment)
 
 
 
@@ -527,5 +550,7 @@ export {
     NpsQuestion,
     NpsProject,
     NpsNote,
-    WarehouseAssortment
+    WarehouseAssortment,
+    ProjectWarehouse,
+    ShipmentWarehouse
 }

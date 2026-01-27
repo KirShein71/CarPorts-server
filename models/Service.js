@@ -9,6 +9,19 @@ class Service {
         return service
     }
 
+     async getAllActiveService() {
+        const service = await ServiceMapping.findAll({
+            where: {
+                active: 'true'
+            },
+            order: [
+                ['number', 'ASC'],
+            ],
+            
+        })
+        return service
+    }
+
     async getOne(id) {
         const service = await ServiceMapping.findByPk(id)
         if (!service) {
@@ -18,8 +31,8 @@ class Service {
     }
 
     async create(data) {
-        const {name, number} = data
-        const service = await ServiceMapping.create({name, number})
+        const {name, number, active} = data
+        const service = await ServiceMapping.create({name, number, active})
         
         const created = await ServiceMapping.findByPk(service.id) 
         return created
@@ -50,6 +63,19 @@ class Service {
             
         } = data
         await service.update({number})
+        await service.reload()
+        return service
+    }
+
+    async updateActiveService(id, data) {
+        const service = await ServiceMapping.findByPk(id)
+        if (!service) {
+            throw new Error('Услуга не найдена')
+        }
+        const {
+            active = service.active, 
+        } = data
+        await service.update({active})
         await service.reload()
         return service
     }

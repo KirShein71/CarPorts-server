@@ -14,6 +14,19 @@ class WarehouseAssortment {
         return warehouse_assortments
     }
 
+    async getAllActiveWarehouseAssortement() {
+        const warehouse_assortments = await WarehouseAssortmentMapping.findAll({
+            where: {
+                active: 'true'
+            },
+            order: [
+                ['number', 'ASC'],
+            ],
+            
+        })
+        return warehouse_assortments
+    }
+
     async getOne(id) {
         const warehouse_assortment = await WarehouseAssortmentMapping.findByPk(id)
         if (!warehouse_assortment) {
@@ -23,8 +36,8 @@ class WarehouseAssortment {
     }
 
     async create(data) {
-        const {name, cost_price, shipment_price, weight, number} = data
-        const warehouse_assortment = await WarehouseAssortmentMapping.create({name, cost_price, shipment_price, weight, number})
+        const {name, cost_price, shipment_price, weight, number, active} = data
+        const warehouse_assortment = await WarehouseAssortmentMapping.create({name, cost_price, shipment_price, weight, number, active})
         
         const created = await WarehouseAssortmentMapping.findByPk(warehouse_assortment.id) 
         return created
@@ -45,6 +58,21 @@ class WarehouseAssortment {
             
         } = data
         await warehouse_assortment.update({ name, cost_price, shipment_price, weight, number})
+        await warehouse_assortment.reload()
+        return warehouse_assortment
+    }
+
+    async updateActiveWarehouseAssortment(id, data) {
+        const warehouse_assortment = await WarehouseAssortmentMapping.findByPk(id)
+        if (!warehouse_assortment) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        
+        const {
+            active = warehouse_assortment.active
+            
+        } = data
+        await warehouse_assortment.update({active})
         await warehouse_assortment.reload()
         return warehouse_assortment
     }

@@ -43,6 +43,8 @@ import npschapter from './npschapter.js'
 import npsquestion from './npsquestion.js'
 import npsproject from './npsproject.js'
 import warehouseassortment from './warehouseassortment.js'
+import projectwarehouse from './projectwarehouse.js'
+import shipmentwarehouse from './shipmentwarehouse.js'
 
 
 
@@ -92,6 +94,8 @@ router.use('/npschapter', npschapter)
 router.use('/npsquestion', npsquestion)
 router.use('/npsproject', npsproject)
 router.use('/warehouseassortment', warehouseassortment)
+router.use('/projectwarehouse', projectwarehouse)
+router.use('/shipmentwarehouse', shipmentwarehouse)
 
 
 

@@ -122,6 +122,15 @@ class ProjectController {
         }
     }
 
+    async getAllWithNoWarehouseOrder(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllWithNoWarehouseOrder()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllProjectsWithNoInBrigadesDate(req, res, next) {
         try {
             const project = await ProjectModel.getAllProjectsWithNoInBrigadesDate()

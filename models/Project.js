@@ -344,7 +344,7 @@ class Project {
           console.error('Error executing query:', error);
           throw error;
         }
-      }
+    }
 
       async getAllWithNoMaterials() {
         try {
@@ -438,7 +438,26 @@ class Project {
           console.error('Error executing query:', error);
           throw error;
         }
-      }
+    }
+
+    async getAllWithNoWarehouseOrder() {
+        try {
+          const projectsWithoutDetails = await sequelize.query(
+            `SELECT *
+             FROM projects
+             WHERE id NOT IN (
+               SELECT project_id
+               FROM project_warehouses
+             ) AND finish IS NULL`,
+            { model: ProjectMapping }
+          );
+      
+          return projectsWithoutDetails;
+        } catch (error) {
+          console.error('Error executing query:', error);
+          throw error;
+        }
+    }
     
 
 
