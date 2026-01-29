@@ -17,8 +17,8 @@ class Detail {
     }
 
     async create(data) {
-        const {number, name, price} = data
-        const detail = await DetailMapping.create({number, name, price})
+        const {number, name, price, weight} = data
+        const detail = await DetailMapping.create({number, name, price, weight})
         
         const created = await DetailMapping.findByPk(detail.id) 
         return created
@@ -50,6 +50,21 @@ class Detail {
             
         } = data
         await detail.update({ number})
+        await detail.reload()
+        return detail
+    }
+
+    async createWeight(id, data) {
+        const detail = await DetailMapping.findByPk(id)
+        if (!detail) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        const {
+
+            weight = detail.weight
+            
+        } = data
+        await detail.update({ weight})
         await detail.reload()
         return detail
     }

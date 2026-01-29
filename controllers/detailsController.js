@@ -49,6 +49,21 @@ class DetailsController {
             next(AppError.badRequest(e.message))
         }
     }
+    
+    async createWeight(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id детали')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const detail = await DetailModel.createWeight(req.params.id, req.body,)
+            res.json(detail)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
 
     async createNumber(req, res, next) {
         try {
