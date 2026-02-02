@@ -172,7 +172,7 @@ class ShipmentWarehouse {
 
     async delete(id) {
         const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id)
-        if (!warehouse_assortment) {
+        if (!shipment_warehouse) {
             throw new Error('Деталь не найдена в БД')
         }
         await shipment_warehouse.destroy()
