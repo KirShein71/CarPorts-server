@@ -338,7 +338,8 @@ const ProjectWarehouse = sequelize.define('project_warehouse', {
 const ShipmentWarehouse = sequelize.define('shipment_warehouse', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     done: { type: DataTypes.STRING, allowNull: false},
-    warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true}
+    warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true},
+    note: {type: DataTypes.STRING, allowNull: true}
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})

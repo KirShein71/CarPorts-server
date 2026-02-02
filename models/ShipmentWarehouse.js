@@ -35,7 +35,7 @@ class ShipmentWarehouse {
 
         // Обрабатываем shipment_warehouse данные
         shipment_warehouse.forEach((item) => {
-            const { projectId, project, id, warehouse_assortement_id, done } = item;
+            const { projectId, project, id, warehouse_assortement_id, done, note } = item;
             
             // Ищем существующий проект в combinedData
             let existingProject = combinedData.find(p => p.projectId === projectId);
@@ -60,7 +60,8 @@ class ShipmentWarehouse {
             existingProject.shipments.push({
                 id: id,
                 warehouse_assortement_id: warehouse_assortement_id,
-                done: done
+                done: done,
+                note: note
             });
         });
 
@@ -92,7 +93,7 @@ class ShipmentWarehouse {
                 id: id,
                 warehouse_assortement_id: warehouse_assortement_id,
                 quantity: quantity,
-                quantity_stat: quantity_stat // Добавляем quantity_stat в order
+                quantity_stat: quantity_stat,
             });
             
             // Проверяем превышение quantity_stat над quantity
@@ -138,21 +139,44 @@ class ShipmentWarehouse {
 
 
     async create(data) {
-        const { done, projectId, warehouse_assortement_id } = data;
-        const shipment_warehouse = await ShipmentWarehouseMapping.create({ done, projectId, warehouse_assortement_id});
+        const { done, projectId, warehouse_assortement_id, note } = data;
+        const shipment_warehouse = await ShipmentWarehouseMapping.create({ done, projectId, warehouse_assortement_id, note});
         const created = await ShipmentWarehouseMapping.findByPk(shipment_warehouse.id);
         return created;
+    }
+
+    async createNote(id, data) {
+        const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id)
+        if (!shipment_warehouse) {
+            throw new Error('Деталь не найден в БД')
+        }
+        const {
+            note = shipment_warehouse.note
+        } = data
+        await shipment_warehouse.update({note})
+        await shipment_warehouse.reload()
+        return shipment_warehouse
+    }
+
+    async deleteNote(id) {
+        const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id);
+            
+        if (!shipment_warehouse) {
+            throw new Error('Комментарий не найден в БД');
+        }
+        await shipment_warehouse.update({ note: null });
+        return shipment_warehouse;
     }
 
 
 
     async delete(id) {
-        const warehouse_assortment = await ShipmentWarehouseMapping.findByPk(id)
+        const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id)
         if (!warehouse_assortment) {
             throw new Error('Деталь не найдена в БД')
         }
-        await warehouse_assortment.destroy()
-        return warehouse_assortment
+        await shipment_warehouse.destroy()
+        return shipment_warehouse
     }
 
 }

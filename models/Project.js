@@ -15,6 +15,7 @@ import { ProjectExamination as ProjectExaminationMapping } from "./mapping.js";
 import { UserFile as UserFileMapping } from "./mapping.js";
 import { NpsProject as NpsProjectMapping } from "./mapping.js";
 import { NpsChapter as NpsChapterMapping } from "./mapping.js";
+import {Estimate as EstimateMapping} from './mapping.js'
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -66,6 +67,19 @@ class Project {
 
         // Получаем NPS оценки сгруппированные по проекту и главе
         const projectIds = projects.map(p => p.id);
+        
+        // Получаем все project_id, которые есть в таблице Estimate
+        const estimates = await EstimateMapping.findAll({
+            where: {
+                project_id: projectIds
+            },
+            attributes: ['project_id'],
+            raw: true
+        });
+
+        // Создаем Set для быстрой проверки наличия project_id в таблице Estimate
+        const estimateProjectIds = new Set(estimates.map(est => est.project_id));
+
         const npsScores = await NpsProjectMapping.findAll({
             where: {
                 project_id: projectIds
@@ -94,7 +108,7 @@ class Project {
             }
         });
 
-        // Добавляем NPS к проектам как отдельные поля
+        // Добавляем NPS к проектам как отдельные поля и поле estimate
         return projects.map(project => {
             const projectData = project.toJSON();
             const projectNps = npsByProject[project.id] || {};
@@ -103,6 +117,9 @@ class Project {
             Object.keys(projectNps).forEach(key => {
                 projectData[key] = projectNps[key];
             });
+            
+            // Добавляем поле estimate
+            projectData.estimate = estimateProjectIds.has(project.id);
             
             return projectData;
         });

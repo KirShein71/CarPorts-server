@@ -69,7 +69,7 @@ class ShipmentDetails {
     }
 
 
-      async update(id, data) {
+    async update(id, data) {
         const shipmentdetails = await ShipmentDetailsMapping.findByPk(id)
         if (!shipmentdetails) {
             throw new Error('Товар не найден в БД')

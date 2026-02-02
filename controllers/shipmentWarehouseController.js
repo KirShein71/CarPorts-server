@@ -38,6 +38,32 @@ class ShipmentWarehouseController {
         }
     }
 
+    async createNote(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const shipment_warehouse = await ShipmentWarehouseModel.createNote(req.params.id, req.body,)
+            res.json(shipment_warehouse)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deleteNote(req, res, next) {
+        try {
+            const id = req.params.note;
+            
+            const shipment_warehouse = await ShipmentWarehouseModel.deleteNote(id);
+            res.json(shipment_warehouse);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
 
     async delete(req, res, next) {
         try {
