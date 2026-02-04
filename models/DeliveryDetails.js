@@ -93,6 +93,15 @@ class DeliveryDetails {
         return deliverydetails;
     }
 
+    async deleteOneDeliveryDetail(id) {
+        const deliverydetails = await DeliverytDetailsMapping.findByPk(id)
+        if (!deliverydetails) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        await deliverydetails.destroy()
+        return deliverydetails
+    }
+
 }
 
 export default new DeliveryDetails()

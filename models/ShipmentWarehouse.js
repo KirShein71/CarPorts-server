@@ -1,5 +1,6 @@
 import { ShipmentWarehouse as ShipmentWarehouseMapping } from './mapping.js';
 import { ProjectWarehouse as ProjectWarehouseMapping } from './mapping.js';
+import { WarehouseAssortment as WarehouseAssortmentMapping } from "./mapping.js";
 import { Project as ProjectMapping } from './mapping.js'
 
 
@@ -30,12 +31,23 @@ class ShipmentWarehouse {
             ],
         });
 
+        const warehouse_assortement = await WarehouseAssortmentMapping.findAll();
+
+        // Создаем Map для быстрого доступа к весу и цене ассортимента по ID
+        const assortmentMap = new Map();
+        warehouse_assortement.forEach(item => {
+            assortmentMap.set(item.id, {
+                weight: item.weight || 0,
+                cost_price: item.cost_price || 0
+            });
+        });
+
         // Создаем массив для объединенных данных
         const combinedData = [];
 
         // Обрабатываем shipment_warehouse данные
         shipment_warehouse.forEach((item) => {
-            const { projectId, project, id, warehouse_assortement_id, done, note } = item;
+            const { projectId, project, id, warehouse_assortement_id, done } = item;
             
             // Ищем существующий проект в combinedData
             let existingProject = combinedData.find(p => p.projectId === projectId);
@@ -51,7 +63,9 @@ class ShipmentWarehouse {
                     },
                     shipments: [],
                     orders: [],
-                    exceeded: [] // Добавляем массив для превышений
+                    exceeded: [], // Добавляем массив для превышений
+                    totalWeight: 0, // Общий вес
+                    totalCost: 0    // Общая стоимость
                 };
                 combinedData.push(existingProject);
             }
@@ -61,13 +75,12 @@ class ShipmentWarehouse {
                 id: id,
                 warehouse_assortement_id: warehouse_assortement_id,
                 done: done,
-                note: note
             });
         });
 
         // Обрабатываем project_warehouse данные
         project_warehouse.forEach((item) => {
-            const { projectId, project, id, warehouse_assortement_id, quantity, quantity_stat } = item;
+            const { projectId, project, id, warehouse_assortement_id, quantity, quantity_stat, note } = item;
             
             // Ищем существующий проект в combinedData
             let existingProject = combinedData.find(p => p.projectId === projectId);
@@ -83,7 +96,9 @@ class ShipmentWarehouse {
                     },
                     shipments: [],
                     orders: [],
-                    exceeded: [] // Добавляем массив для превышений
+                    exceeded: [], // Добавляем массив для превышений
+                    totalWeight: 0, // Общий вес
+                    totalCost: 0    // Общая стоимость
                 };
                 combinedData.push(existingProject);
             }
@@ -94,7 +109,20 @@ class ShipmentWarehouse {
                 warehouse_assortement_id: warehouse_assortement_id,
                 quantity: quantity,
                 quantity_stat: quantity_stat,
+                note: note
             });
+            
+            // Получаем вес и стоимость ассортимента из Map
+            const assortmentInfo = assortmentMap.get(warehouse_assortement_id);
+            const weightPerUnit = assortmentInfo ? assortmentInfo.weight : 0;
+            const costPerUnit = assortmentInfo ? assortmentInfo.cost_price : 0;
+            
+            // Преобразуем quantity в число (на всякий случай)
+            const qty = parseFloat(quantity) || 0;
+            
+            // Рассчитываем и добавляем к общему весу и стоимости
+            existingProject.totalWeight += qty * weightPerUnit;
+            existingProject.totalCost += qty * costPerUnit;
             
             // Проверяем превышение quantity_stat над quantity
             if (quantity_stat > quantity) {
@@ -121,8 +149,17 @@ class ShipmentWarehouse {
             }
         });
 
+        // Для проектов, у которых есть только shipment_warehouse (без project_warehouse)
+        // общий вес и стоимость останутся 0
+        
         // Сортируем по projectId DESC (уже отсортировано в запросах, но для надежности)
         combinedData.sort((a, b) => b.projectId - a.projectId);
+
+        // Округляем значения для лучшего представления
+        combinedData.forEach(project => {
+            project.totalWeight = Math.round(project.totalWeight * 100) / 100; // 2 знака после запятой
+            project.totalCost = Math.round(project.totalCost * 100) / 100;    // 2 знака после запятой
+        });
 
         return combinedData;
     }
@@ -139,36 +176,11 @@ class ShipmentWarehouse {
 
 
     async create(data) {
-        const { done, projectId, warehouse_assortement_id, note } = data;
-        const shipment_warehouse = await ShipmentWarehouseMapping.create({ done, projectId, warehouse_assortement_id, note});
+        const { done, projectId, warehouse_assortement_id } = data;
+        const shipment_warehouse = await ShipmentWarehouseMapping.create({ done, projectId, warehouse_assortement_id});
         const created = await ShipmentWarehouseMapping.findByPk(shipment_warehouse.id);
         return created;
     }
-
-    async createNote(id, data) {
-        const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id)
-        if (!shipment_warehouse) {
-            throw new Error('Деталь не найден в БД')
-        }
-        const {
-            note = shipment_warehouse.note
-        } = data
-        await shipment_warehouse.update({note})
-        await shipment_warehouse.reload()
-        return shipment_warehouse
-    }
-
-    async deleteNote(id) {
-        const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id);
-            
-        if (!shipment_warehouse) {
-            throw new Error('Комментарий не найден в БД');
-        }
-        await shipment_warehouse.update({ note: null });
-        return shipment_warehouse;
-    }
-
-
 
     async delete(id) {
         const shipment_warehouse = await ShipmentWarehouseMapping.findByPk(id)

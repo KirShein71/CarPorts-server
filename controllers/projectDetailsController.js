@@ -94,6 +94,18 @@ class ProjectDetailsController {
         }
     }
 
+    async deleteOneProjectDetail(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id детали')
+            }
+            const projectdetails = await ProjectDetailsModel.deleteOneProjectDetail(req.params.id)
+            res.json(projectdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
   
 }
 

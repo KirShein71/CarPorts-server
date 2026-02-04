@@ -9,6 +9,8 @@ router.post('/addToProduction',  ProjectWarehoueseController.addToProduction)
 router.patch('/update/:id([0-9]+)', ProjectWarehoueseController.update)
 router.get('/getall', ProjectWarehoueseController.getAll)
 router.get('/getone/:id([0-9]+)', ProjectWarehoueseController.getOne)
+router.patch('/createNote/:id([0-9]+)', ProjectWarehoueseController.createNote)
+router.delete('/deleteNote/:note', ProjectWarehoueseController.deleteNote)
 router.delete('/delete/:projectId',  ProjectWarehoueseController.delete)
 router.delete('/deleteOneWarehouseDetail/:id([0-9]+)',  ProjectWarehoueseController.deleteOneWarehouseDetail)
 

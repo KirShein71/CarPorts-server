@@ -26,7 +26,8 @@ class ProjectWarehouse {
                 id: id, 
                 warehouse_assortement_id: item.warehouse_assortement_id, 
                 quantity: item.quantity, 
-                quantity_stat: item.quantity_stat
+                quantity_stat: item.quantity_stat,
+                note: item.note
               
             });
             
@@ -42,7 +43,8 @@ class ProjectWarehouse {
                     id: id, 
                     warehouse_assortement_id: item.warehouse_assortement_id, 
                     quantity: item.quantity, 
-                    quantity_stat: item.quantity_stat
+                    quantity_stat: item.quantity_stat,
+                    note: item.note
                 }]
             });
             }
@@ -64,8 +66,8 @@ class ProjectWarehouse {
 
 
     async create(data) {
-        const { quantity, quantity_stat, projectId, warehouse_assortement_id } = data;
-        const project_warehouse = await ProjectWarehouseMapping.create({ quantity, quantity_stat, projectId, warehouse_assortement_id});
+        const { quantity, quantity_stat, projectId, warehouse_assortement_id, note } = data;
+        const project_warehouse = await ProjectWarehouseMapping.create({ quantity, quantity_stat, projectId, warehouse_assortement_id, note});
         const created = await ProjectWarehouseMapping.findByPk(project_warehouse.id);
         return created;
     }
@@ -90,6 +92,29 @@ class ProjectWarehouse {
         await project_warehouse.update({quantity, quantity_stat})
         await project_warehouse.reload()
         return project_warehouse
+    }
+
+     async createNote(id, data) {
+        const project_warehouse = await ProjectWarehouseMapping.findByPk(id)
+        if (!project_warehouse) {
+            throw new Error('Деталь не найден в БД')
+        }
+        const {
+            note = project_warehouse.note
+        } = data
+        await project_warehouse.update({note})
+        await project_warehouse.reload()
+        return project_warehouse
+    }
+
+    async deleteNote(id) {
+        const project_warehouse = await ProjectWarehouseMapping.findByPk(id);
+            
+        if (!project_warehouse) {
+            throw new Error('Комментарий не найден в БД');
+        }
+        await project_warehouse.update({ note: null });
+        return project_warehouse;
     }
 
     async delete(projectId) {

@@ -140,6 +140,15 @@ class ProjectDetails {
         return projectdetails;
     }
 
+    async deleteOneProjectDetail(id) {
+        const projectdetails = await ProjectDetailsMapping.findByPk(id)
+        if (!projectdetails) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        await projectdetails.destroy()
+        return projectdetails
+    }
+
 }
 
 export default new ProjectDetails()

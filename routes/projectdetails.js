@@ -11,5 +11,6 @@ router.put('/update/:id([0-9]+)', ProjectDetailsController.update)
 router.get('/getall', ProjectDetailsController.getAll)
 router.get('/getone/:id([0-9]+)', ProjectDetailsController.getOne)
 router.delete('/delete/:projectId',  ProjectDetailsController.delete)
+router.delete('/deleteOneProjectDetail/:id([0-9]+)',  ProjectDetailsController.deleteOneProjectDetail)
 
 export default router

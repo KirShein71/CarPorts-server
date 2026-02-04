@@ -68,6 +68,32 @@ class ProjectWarehouseController {
         }
     }
 
+    async createNote(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project_warehouse = await ProjectWarehouseModel.createNote(req.params.id, req.body,)
+            res.json(project_warehouse)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }    
+    }
+    
+    async deleteNote(req, res, next) {
+        try {
+            const id = req.params.note;
+                
+            const project_warehouse = await ProjectWarehouseModel.deleteNote(id);
+            res.json(project_warehouse);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async delete(req, res, next) {
         try {
             if (!req.params.projectId) {

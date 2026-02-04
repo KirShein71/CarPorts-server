@@ -94,6 +94,15 @@ class ShipmentDetails {
         return shipmentdetails;
     }
 
+    async deleteOneShipmentDetail(id) {
+        const shipmentdetails = await ShipmentDetailsMapping.findByPk(id)
+        if (!shipmentdetails) {
+            throw new Error('Деталь не найдена в БД')
+        }
+        await shipmentdetails.destroy()
+        return shipmentdetails
+    }
+
 }
 
 export default new ShipmentDetails()

@@ -76,6 +76,18 @@ class DeliveryDetailsController {
         }
     }
 
+    async deleteOneDeliveryDetail(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id детали')
+            }
+            const deliverydetails = await DeliveryDetailsModel.deleteOneDeliveryDetail(req.params.id)
+            res.json(deliverydetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
   
 }

@@ -9,6 +9,7 @@ router.get('/getone/:id([0-9]+)', DeliveryDetailsController.getOne)
 router.put('/update/:id([0-9]+)', DeliveryDetailsController.update)
 router.get('/getSumOneDeliveryDetail', DeliveryDetailsController.getSumOneDeliveryDetail)
 router.delete('/delete/:projectId',  DeliveryDetailsController.delete)
+router.delete('/deleteOneDeliveryDetail/:id([0-9]+)',  DeliveryDetailsController.deleteOneDeliveryDetail)
 
 
 export default router
