@@ -45,6 +45,8 @@ import npsproject from './npsproject.js'
 import warehouseassortment from './warehouseassortment.js'
 import projectwarehouse from './projectwarehouse.js'
 import shipmentwarehouse from './shipmentwarehouse.js'
+import templatestask from './templatestask.js'
+import projecttask from './projecttask.js'
 
 
 
@@ -96,6 +98,8 @@ router.use('/npsproject', npsproject)
 router.use('/warehouseassortment', warehouseassortment)
 router.use('/projectwarehouse', projectwarehouse)
 router.use('/shipmentwarehouse', shipmentwarehouse)
+router.use('/templatestask', templatestask)
+router.use('/projecttask', projecttask)
 
 
 

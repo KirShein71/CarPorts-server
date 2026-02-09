@@ -343,6 +343,24 @@ const ShipmentWarehouse = sequelize.define('shipment_warehouse', {
     
 })
 
+const TemplatesTask = sequelize.define('templates_task', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    number: {type: DataTypes.REAL, allowNull: true},
+    name: {type: DataTypes.STRING, allowNull: true},
+    note: {type: DataTypes.STRING, allowNull: true},
+    term: {type: DataTypes.STRING, allowNull: true},
+    active: { type: DataTypes.STRING, allowNull: false}
+})
+
+const ProjectTask = sequelize.define('project_task', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    number: {type: DataTypes.REAL, allowNull: true},
+    name: {type: DataTypes.STRING, allowNull: true},
+    note: {type: DataTypes.STRING, allowNull: true},
+    term: {type: DataTypes.STRING, allowNull: true},
+    done: { type: DataTypes.STRING, allowNull: false}
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -509,6 +527,8 @@ ShipmentWarehouse.belongsTo(Project)
 WarehouseAssortment.hasMany(ShipmentWarehouse, { onDelete: 'CASCADE', hooks: true })
 ShipmentWarehouse.belongsTo(WarehouseAssortment)
 
+Project.hasMany(ProjectTask, {onDelete: 'CASCADE', hooks: true})
+ProjectTask.belongsTo(Project)
 
 
 export {
@@ -555,5 +575,7 @@ export {
     NpsNote,
     WarehouseAssortment,
     ProjectWarehouse,
-    ShipmentWarehouse
+    ShipmentWarehouse,
+    TemplatesTask,
+    ProjectTask
 }

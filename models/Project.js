@@ -16,6 +16,8 @@ import { UserFile as UserFileMapping } from "./mapping.js";
 import { NpsProject as NpsProjectMapping } from "./mapping.js";
 import { NpsChapter as NpsChapterMapping } from "./mapping.js";
 import {Estimate as EstimateMapping} from './mapping.js'
+import { TemplatesTask as TemplatesTaskMapping } from "./mapping.js";
+import { ProjectTask as ProjectTaskMapping } from "./mapping.js";
 import sequelize from "../sequelize.js";
 import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
@@ -559,31 +561,31 @@ class Project {
                   attributes: ['name']
               }
             ]
-          });
-          
-          const user = await UserMapping.findAll({
-            where: {
-              project_id: id
-            },
-          });
+        });
 
-          const userProject = user.map(user => {
+        const user = await UserMapping.findAll({
+            where: {
+                project_id: id
+            },
+        });
+
+        const userProject = user.map(user => {
             return {
                 image: user.image,
                 userId: user.id
             }
-          }) 
+        }) 
 
-          const userFile = await UserFileMapping.findAll({
-            include: [{
-              model: UserMapping,
-              where: { project_id: id },
-              attributes: []
-            }],
-            attributes: ['id', 'name', 'file', 'userId']
-          });
+        const userFile = await UserFileMapping.findAll({
+        include: [{
+            model: UserMapping,
+            where: { project_id: id },
+            attributes: []
+        }],
+        attributes: ['id', 'name', 'file', 'userId']
+        });
 
-          const brigadesdate = await BrigadesDateMapping.findAll({
+        const brigadesdate = await BrigadesDateMapping.findAll({
             where: {
                 project_id: id
             },
@@ -656,7 +658,7 @@ class Project {
 
 
     async create(data, img) {
-        const image = FileService.save(img) || ''
+        const image = FileService.save(img) || '';
         const { 
             // Данные проекта
             name, number, agreement_date, design_period, expiration_date, 
@@ -683,7 +685,6 @@ class Project {
             // Хешируем пароль перед сохранением
             const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
 
-
             // Создаем аккаунт с хешированным паролем
             const account = await UserMapping.create({
                 phone: phone.trim(),
@@ -691,6 +692,26 @@ class Project {
                 projectId: project.id,
                 image: image
             }, { transaction });
+
+            // Получаем все шаблоны задач
+            const taskTemplates = await TemplatesTaskMapping.findAll({
+                attributes: ['number', 'name', 'note', 'term'],
+                raw: true
+            }, { transaction });
+
+            // Создаем задачи для проекта на основе шаблонов
+            if (taskTemplates && taskTemplates.length > 0) {
+                const projectTasks = taskTemplates.map(template => ({
+                    projectId: project.id,
+                    number: template.number,
+                    name: template.name,
+                    note: template.note || '',
+                    term: template.term || '',
+                    done: 'false' // Строка 'false'
+                }));
+
+                await ProjectTaskMapping.bulkCreate(projectTasks, { transaction });
+            }
 
             await transaction.commit();
 
