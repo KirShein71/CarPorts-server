@@ -707,7 +707,9 @@ class Project {
                     name: template.name,
                     note: template.note || '',
                     term: template.term || '',
-                    done: 'false' // Строка 'false'
+                    done: 'false',
+                    executor: null,
+                    executor_name: null
                 }));
 
                 await ProjectTaskMapping.bulkCreate(projectTasks, { transaction });

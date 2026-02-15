@@ -358,7 +358,9 @@ const ProjectTask = sequelize.define('project_task', {
     name: {type: DataTypes.STRING, allowNull: true},
     note: {type: DataTypes.STRING, allowNull: true},
     term: {type: DataTypes.STRING, allowNull: true},
-    done: { type: DataTypes.STRING, allowNull: false}
+    done: { type: DataTypes.STRING, allowNull: false},
+    executor: {type: DataTypes.INTEGER, allowNull: true},
+    executor_name: { type: DataTypes.STRING, allowNull: true}
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})

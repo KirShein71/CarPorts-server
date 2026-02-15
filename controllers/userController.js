@@ -4,9 +4,9 @@ import AppError from "../errors/AppError.js"
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
-const makeJwt = (id, phone, role) => {
+const makeJwt = (id, name, phone, role) => {
     return jwt.sign(
-        {id, phone, role},
+        {id, name, phone, role},
         process.env.SECRET_KEY,
         {expiresIn: '120h'}
     )
@@ -36,11 +36,21 @@ class UserController {
         try {
             const {phone, password} = req.body
             const user = await UserModel.getByPhone(phone)
+            
             let compare = bcrypt.compareSync(password, user.password)
             if (!compare) {
                 throw new Error('Указан неверный пароль')
             }
-            const token = makeJwt(user.id, user.phone, user.role, user.projectId)
+            
+            // Определяем имя только для менеджеров по продажам и проектов
+            let userName = null;
+            
+            if (user.role === 'ManagerSale' || user.role === 'ManagerProject') {
+                // Для менеджеров формируем имя
+                userName = user.name;
+            }
+            
+            const token = makeJwt(user.id, userName, user.phone, user.role, user.projectId)
             return res.json({token})
         } catch(e) {
             next(AppError.badRequest(e.message))
@@ -73,7 +83,7 @@ class UserController {
     }
 
     async check(req, res, next) {
-        const token = makeJwt(req.auth.id, req.auth.phone, req.auth.role)
+        const token = makeJwt(req.auth.id, req.auth.name, req.auth.phone, req.auth.role)
         return res.json({token})
     }
 

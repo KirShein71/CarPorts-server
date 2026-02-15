@@ -38,7 +38,7 @@ class ManagerProjectController {
             if (!compare) {
                 throw new Error('Указан неверный пароль')
             }
-            const token = makeJwt(manager.id, manager.phone, manager.role)
+            const token = makeJwt(manager.id, manager.name, manager.phone, manager.role)
             return res.json({token})
         } catch(e) {
             next(AppError.badRequest(e.message))

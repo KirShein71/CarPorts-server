@@ -55,33 +55,96 @@ class User {
             return user;
           }
 
+    // async getByPhone(phone) {
+    //         let user = await UserMapping.findOne({ where: { phone } });
+    //         if (!user) {
+    //             user = await EmployeeMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await AdminMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await BrigadeMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await ManagerSaleMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await ManagerProjectMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await ConstructorMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             user = await ManagerProductionMapping.findOne({ where: { phone } });
+    //         }
+    //         if (!user) {
+    //             throw new Error('Личный кабинет еще не создан');
+    //     }
+    //         return user;
+    // }
+
+
     async getByPhone(phone) {
-            let user = await UserMapping.findOne({ where: { phone } });
-            if (!user) {
-                user = await EmployeeMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await AdminMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await BrigadeMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await ManagerSaleMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await ManagerProjectMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await ConstructorMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                user = await ManagerProductionMapping.findOne({ where: { phone } });
-            }
-            if (!user) {
-                throw new Error('Личный кабинет еще не создан');
+        let user = null;
+        let userType = null;
+        
+        // Проверяем все таблицы по порядку
+        user = await UserMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'user';
+            return user; // Обычный пользователь без name
         }
-            return user;
+        
+        user = await EmployeeMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'employee';
+            return user; // Сотрудник без name
+        }
+        
+        user = await AdminMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'admin';
+            return user; // Админ без name
+        }
+        
+        user = await BrigadeMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'brigade';
+            return user; // Бригада без name
+        }
+        
+        user = await ManagerSaleMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'managerSale';
+            // Для менеджера по продажам формируем name
+            const userData = user.toJSON();
+            userData.name = userData.name;
+            return userData;
+        }
+        
+        user = await ManagerProjectMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'managerProject';
+            // Для менеджера проектов формируем name
+            const userData = user.toJSON();
+            userData.name = userData.name;
+            return userData;
+        }
+        
+        user = await ConstructorMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'constructor';
+            return user; // Конструктор без name
+        }
+        
+        user = await ManagerProductionMapping.findOne({ where: { phone } });
+        if (user) {
+            userType = 'managerProduction';
+            return user; // Менеджер производства без name
+        }
+        
+        throw new Error('Личный кабинет еще не создан');
     }
 
     async getOneAccount(id) {
