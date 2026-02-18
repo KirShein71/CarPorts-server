@@ -36,8 +36,9 @@ class TemplatesTask {
     }
 
     async create(data) {
-        const {name, note, term, number, active} = data
-        const templates_task = await TemplatesTaskMapping.create({name, note, term, number, active})
+        const {name, note, term, number, active, executor, executor_name} = data
+        const executorValue = executor ? parseInt(executor) : null;
+        const templates_task = await TemplatesTaskMapping.create({name, note, term, number, active, executor: executorValue, executor_name})
         
         const created = await TemplatesTaskMapping.findByPk(templates_task.id) 
         return created
@@ -53,10 +54,12 @@ class TemplatesTask {
             name = templates_task.name,
             note = templates_task.note,
             term = templates_task.term,
-            number = templates_task.number
+            number = templates_task.number,
+            executor = templates_task.executor,
+            executor_name = templates_task.executor_name
             
         } = data
-        await templates_task.update({ name, note, term, number})
+        await templates_task.update({ name, note, term, number, executor, executor_name})
         await templates_task.reload()
         return templates_task
     }

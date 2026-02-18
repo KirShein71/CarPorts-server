@@ -695,7 +695,7 @@ class Project {
 
             // Получаем все шаблоны задач
             const taskTemplates = await TemplatesTaskMapping.findAll({
-                attributes: ['number', 'name', 'note', 'term'],
+                attributes: ['number', 'name', 'note', 'term', 'executor', 'executor_name'],
                 raw: true
             }, { transaction });
 
@@ -707,9 +707,10 @@ class Project {
                     name: template.name,
                     note: template.note || '',
                     term: template.term || '',
-                    done: 'false',
-                    executor: null,
-                    executor_name: null
+                    executor: template.executor,
+                    executor_name: template.executor_name,
+                    done: 'false'
+            
                 }));
 
                 await ProjectTaskMapping.bulkCreate(projectTasks, { transaction });

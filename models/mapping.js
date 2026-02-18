@@ -349,7 +349,9 @@ const TemplatesTask = sequelize.define('templates_task', {
     name: {type: DataTypes.STRING, allowNull: true},
     note: {type: DataTypes.STRING, allowNull: true},
     term: {type: DataTypes.STRING, allowNull: true},
-    active: { type: DataTypes.STRING, allowNull: false}
+    active: { type: DataTypes.STRING, allowNull: false},
+    executor: {type: DataTypes.INTEGER, allowNull: true},
+    executor_name: { type: DataTypes.STRING, allowNull: true}
 })
 
 const ProjectTask = sequelize.define('project_task', {

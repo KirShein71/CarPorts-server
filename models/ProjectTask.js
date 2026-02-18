@@ -135,15 +135,16 @@ class ProjectTask {
 
 
     async create(data) {
-        const { number, name, projectId, term, note, done } = data;
-        const project_task = await ProjectTaskMapping.create({ number, name, projectId, term, note, done});
+        const { number, name, projectId, term, note, done, executor, executor_name } = data;
+         const executorValue = executor ? parseInt(executor) : null;
+        const project_task = await ProjectTaskMapping.create({ number, name, projectId, term, note, done, executor: executorValue, executor_name});
         const created = await ProjectTaskMapping.findByPk(project_task.id);
         return created;
     }
 
     async createTasksFromTemplates(projectId, options = {}) {
         const templates = await TemplatesTaskMapping.findAll({
-            attributes: ['number', 'name', 'note', 'term'],
+            attributes: ['number', 'name', 'note', 'term', 'executor', 'executor_name'],
             raw: true,
             transaction: options.transaction 
         });
@@ -160,8 +161,8 @@ class ProjectTask {
             note: template.note || '',
             term: template.term || '',
             done: 'false',
-            executor: null,
-            executor_name: null
+            executor: template.executor,
+            executor_name: template.executor_name
 
         }));
 
