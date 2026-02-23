@@ -176,8 +176,8 @@ class ProjectTask {
 
     async create(data) {
         const { number, name, projectId, term, note, done, executor, executor_name, previous_task, term_integer, done_date } = data;
-         const executorValue = executor ? parseInt(executor) : null;
-         const previousTaskValue = previous_task ? parseInt(previous_task) : null;
+        const executorValue = executor ? parseInt(executor) : null;
+        const previousTaskValue = previous_task ? parseInt(previous_task) : null;
         const termIntegerValue = term_integer ? parseInt(term_integer) : null;
         const project_task = await ProjectTaskMapping.create({ number, name, projectId, term, note, done, executor: executorValue, executor_name, previous_task: previousTaskValue, term_integer: termIntegerValue, done_date});
         const created = await ProjectTaskMapping.findByPk(project_task.id);
@@ -241,6 +241,7 @@ class ProjectTask {
         if (!project_task) {
             throw new Error('Задача не найдена в БД')
         }
+        
         const {
             number = project_task.number,
             name = project_task.name,
@@ -249,7 +250,9 @@ class ProjectTask {
             term_integer = project_task.term_integer,
             previous_task = project_task.previous_task
         } = data
-        await project_task.update({number, name, note, term, term_integer, previous_task})
+        const previousTaskValue = previous_task ? parseInt(previous_task) : null;
+        const termIntegerValue = term_integer ? parseInt(term_integer) : null;
+        await project_task.update({number, name, note, term, term_integer: termIntegerValue, previous_task: previousTaskValue})
         await project_task.reload()
         return project_task
     }

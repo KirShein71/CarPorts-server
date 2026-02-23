@@ -52,6 +52,7 @@ class TemplatesTask {
         if (!templates_task) {
             throw new Error('Деталь не найдена в БД')
         }
+    
         const {
             name = templates_task.name,
             note = templates_task.note,
@@ -63,7 +64,12 @@ class TemplatesTask {
             term_integer = templates_task.term_integer
             
         } = data
-        await templates_task.update({ name, note, term, number, executor, executor_name, previous_task, term_integer})
+
+        const executorValue = executor ? parseInt(executor) : null;
+        const previousTaskValue = previous_task ? parseInt(previous_task) : null;
+        const termIntegerValue = term_integer ? parseInt(term_integer) : null;
+        
+        await templates_task.update({ name, note, term, number, executor: executorValue, executor_name, previous_task: previousTaskValue, term_integer: termIntegerValue})
         await templates_task.reload()
         return templates_task
     }
