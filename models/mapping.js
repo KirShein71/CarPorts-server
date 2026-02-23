@@ -348,10 +348,12 @@ const TemplatesTask = sequelize.define('templates_task', {
     number: {type: DataTypes.REAL, allowNull: true},
     name: {type: DataTypes.STRING, allowNull: true},
     note: {type: DataTypes.STRING, allowNull: true},
-    term: {type: DataTypes.STRING, allowNull: true},
+    term_integer: {type: DataTypes.INTEGER, allowNull: true},
     active: { type: DataTypes.STRING, allowNull: false},
     executor: {type: DataTypes.INTEGER, allowNull: true},
-    executor_name: { type: DataTypes.STRING, allowNull: true}
+    executor_name: { type: DataTypes.STRING, allowNull: true},
+    previous_task: {type: DataTypes.INTEGER, allowNull: true},
+    term: {type: DataTypes.STRING, allowNull: true},
 })
 
 const ProjectTask = sequelize.define('project_task', {
@@ -362,7 +364,10 @@ const ProjectTask = sequelize.define('project_task', {
     term: {type: DataTypes.STRING, allowNull: true},
     done: { type: DataTypes.STRING, allowNull: false},
     executor: {type: DataTypes.INTEGER, allowNull: true},
-    executor_name: { type: DataTypes.STRING, allowNull: true}
+    executor_name: { type: DataTypes.STRING, allowNull: true},
+    previous_task: {type: DataTypes.INTEGER, allowNull: true},
+    term_integer: {type: DataTypes.INTEGER, allowNull: true},
+    done_date: {type: DataTypes.DATE, allowNull: true}
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})

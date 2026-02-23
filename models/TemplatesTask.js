@@ -36,9 +36,11 @@ class TemplatesTask {
     }
 
     async create(data) {
-        const {name, note, term, number, active, executor, executor_name} = data
+        const {name, note, term, term_integer, number, active, executor, executor_name, previous_task} = data
         const executorValue = executor ? parseInt(executor) : null;
-        const templates_task = await TemplatesTaskMapping.create({name, note, term, number, active, executor: executorValue, executor_name})
+        const previousTaskValue = previous_task ? parseInt(previous_task) : null;
+        const termIntegerValue = term_integer ? parseInt(term_integer) : null;
+        const templates_task = await TemplatesTaskMapping.create({name, note, term, term_integer: termIntegerValue, number, active, executor: executorValue, executor_name, previous_task: previousTaskValue})
         
         const created = await TemplatesTaskMapping.findByPk(templates_task.id) 
         return created
@@ -56,10 +58,12 @@ class TemplatesTask {
             term = templates_task.term,
             number = templates_task.number,
             executor = templates_task.executor,
-            executor_name = templates_task.executor_name
+            executor_name = templates_task.executor_name,
+            previous_task = templates_task.previous_task,
+            term_integer = templates_task.term_integer
             
         } = data
-        await templates_task.update({ name, note, term, number, executor, executor_name})
+        await templates_task.update({ name, note, term, number, executor, executor_name, previous_task, term_integer})
         await templates_task.reload()
         return templates_task
     }
