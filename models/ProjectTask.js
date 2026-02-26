@@ -1,7 +1,12 @@
 import { ProjectTask as ProjectTaskMapping } from './mapping.js';
 import { Project as ProjectMapping } from './mapping.js'
 import { TemplatesTask as TemplatesTaskMapping } from './mapping.js';
-import sequelize from '../sequelize.js';
+import { ProjectMaterials as ProjectMaterialsMapping } from './mapping.js';
+import { Date as DateMapping } from './mapping.js';
+import { BrigadesDate as BrigadesDateMapping } from './mapping.js';
+import { Op } from 'sequelize';
+
+
 
 
 
@@ -58,61 +63,128 @@ class ProjectTask {
 
   async getAllActiveTaskProject() {
     const now = new Date();
-    
+
     // 1. Получаем все невыполненные задачи с проектами
     const tasks = await ProjectTaskMapping.findAll({
         where: { done: 'false' },
         include: [{
             model: ProjectMapping,
-            attributes: ['name', 'number', 'finish']
+            attributes: ['name', 'number', 'finish', 'date_inspection']
         }],
         order: [['projectId', 'DESC'], ['number', 'ASC']]
     });
 
-    // 2. Собираем все номера задач, от которых есть зависимости
+    const projectIds = [...new Set(tasks.map(t => t.projectId))];
+
+    // 1.1. Для задач №7: готовые даты материалов
+    const materialReadyDates = await ProjectMaterialsMapping.findAll({
+        where: {
+            projectId: projectIds,
+            ready_date: { [Op.ne]: null }
+        },
+        attributes: ['projectId', 'ready_date']
+    });
+
+    const minReadyDateMap = {};
+    materialReadyDates.forEach(item => {
+        const pid = item.projectId;
+        const date = new Date(item.ready_date);
+        if (!minReadyDateMap[pid] || date < minReadyDateMap[pid]) {
+            minReadyDateMap[pid] = date;
+        }
+    });
+
+    // 1.2. Для задач №8 и №9: даты бригад (через BrigadesDateMapping → DateMapping)
+    const brigadeLinks = await BrigadesDateMapping.findAll({
+        where: { projectId: projectIds },
+        include: [{
+            model: DateMapping,
+            attributes: ['date']
+        }]
+    });
+
+    const firstBrigadeDateMap = {};
+    brigadeLinks.forEach(link => {
+        if (!link.date?.date) return;
+        const pid = link.projectId;
+        const date = new Date(link.date.date);
+        if (!firstBrigadeDateMap[pid] || date < firstBrigadeDateMap[pid]) {
+            firstBrigadeDateMap[pid] = date;
+        }
+    });
+
+    // 2. Зависимости (исключаем задачи 6,7,8,9 – у них особые даты)
     const dependentTaskNumbers = tasks
-        .filter(t => t.previous_task)
+        .filter(t => t.previous_task && ![6, 7, 8, 9].includes(t.number))
         .map(t => t.previous_task);
-    
-    // 3. Получаем информацию о предыдущих задачах (включая выполненные)
+
+    // 3. Предыдущие задачи
     const prevTasks = await ProjectTaskMapping.findAll({
         where: {
             number: dependentTaskNumbers,
-            projectId: tasks.map(t => t.projectId)
+            projectId: projectIds
         },
         attributes: ['number', 'done', 'done_date', 'projectId']
     });
 
-    // 4. Создаем карту для быстрого доступа к предыдущим задачам
     const prevTasksMap = {};
     prevTasks.forEach(t => {
         if (!prevTasksMap[t.projectId]) prevTasksMap[t.projectId] = {};
         prevTasksMap[t.projectId][t.number] = t;
     });
 
-    // 5. Фильтруем задачи
+    // 4. Фильтрация активных задач
     const activeTasks = tasks.filter(task => {
-        // Если нет зависимости - показываем сразу
+        // Задача №6 (инспекция)
+        if (task.number === 6) {
+            const inspectionDate = task.project?.date_inspection;
+            if (!inspectionDate) return false;
+            const startDate = new Date(inspectionDate);
+            if (task.term_integer) startDate.setDate(startDate.getDate() + task.term_integer);
+            return now >= startDate;
+        }
+
+        // Задача №7 (материалы)
+        if (task.number === 7) {
+            const minReady = minReadyDateMap[task.projectId];
+            if (!minReady) return false;
+            const startDate = new Date(minReady);
+            if (task.term_integer) startDate.setDate(startDate.getDate() + task.term_integer);
+            return now >= startDate;
+        }
+
+        // Задача №8 (после бригад, +2 дня)
+        if (task.number === 8) {
+            const firstDate = firstBrigadeDateMap[task.projectId];
+            if (!firstDate) return false;
+            const startDate = new Date(firstDate);
+            startDate.setDate(startDate.getDate() + (task.term_integer || 2)); // если term_integer не задан, +2
+            return now >= startDate;
+        }
+
+        // Задача №9 (до бригад, -1 день)
+        if (task.number === 9) {
+            const firstDate = firstBrigadeDateMap[task.projectId];
+            if (!firstDate) return false;
+            const startDate = new Date(firstDate);
+            startDate.setDate(startDate.getDate() - (task.term_integer || 1)); // если term_integer не задан, -1
+            return now >= startDate;
+        }
+
+        // Обычная логика для остальных задач
         if (!task.previous_task) return true;
-        
-        // Ищем предыдущую задачу
+
         const prevTask = prevTasksMap[task.projectId]?.[task.previous_task];
-        
-        // Если предыдущей задачи нет в БД - возможно, ошибка, но показываем
         if (!prevTask) return true;
-        
-        // Если предыдущая не выполнена - текущую не показываем
+
         if (!prevTask.done || !prevTask.done_date) return false;
-        
-        // Вычисляем дату старта текущей задачи
+
         const startDate = new Date(prevTask.done_date);
         startDate.setDate(startDate.getDate() + (task.term_integer || 0));
-        
-        // Показываем только если дата старта наступила
         return now >= startDate;
     });
 
-    // 6. Группировка по проектам
+    // 5. Группировка по проектам
     const formattedData = activeTasks.reduce((acc, item) => {
         const projectId = item.projectId;
         const existingProject = acc.find(p => p.projectId === projectId);
@@ -135,11 +207,12 @@ class ProjectTask {
             existingProject.props.push(taskProps);
         } else {
             acc.push({
-                projectId: projectId,
+                projectId,
                 project: {
                     name: item.project.name,
                     number: item.project.number,
-                    finish: item.project.finish
+                    finish: item.project.finish,
+                    date_inspection: item.project.date_inspection
                 },
                 props: [taskProps]
             });
