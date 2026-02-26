@@ -55,9 +55,9 @@ const start = async () => {
         await sequelize.sync()
         
         // Запуск бота
-        // bot.launch().then(() => {
-        //   console.log('Telegram bot запущен');
-        // });
+        bot.launch().then(() => {
+          console.log('Telegram bot запущен');
+        });
         
         app.listen(PORT, () => console.log('Сервер запущен на порту', PORT))
     } catch(e) {
