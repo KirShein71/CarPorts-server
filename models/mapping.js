@@ -370,6 +370,15 @@ const ProjectTask = sequelize.define('project_task', {
     done_date: {type: DataTypes.DATE, allowNull: true}
 })
 
+const ShipmentOrder = sequelize.define('shipment_order', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    shipment_quantity: {type: DataTypes.INTEGER, allowNull: true},
+    shipment_date: {type: DataTypes.DATE, allowNull: true},
+    color: {type: DataTypes.STRING, allowNull: true},
+    image: {type: DataTypes.STRING, allowNull: true},
+    antypical_name: {type: DataTypes.STRING, allowNull: true}
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -539,6 +548,12 @@ ShipmentWarehouse.belongsTo(WarehouseAssortment)
 Project.hasMany(ProjectTask, {onDelete: 'CASCADE', hooks: true})
 ProjectTask.belongsTo(Project)
 
+Detail.hasMany(ShipmentOrder, { onDelete: 'CASCADE', hooks: true })
+ShipmentOrder.belongsTo(Detail)
+
+Project.hasMany(ShipmentOrder, {onDelete: 'CASCADE', hooks: true})
+ShipmentOrder.belongsTo(Project)
+
 
 export {
     User,
@@ -586,5 +601,6 @@ export {
     ProjectWarehouse,
     ShipmentWarehouse,
     TemplatesTask,
-    ProjectTask
+    ProjectTask,
+    ShipmentOrder
 }

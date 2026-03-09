@@ -47,7 +47,7 @@ import projectwarehouse from './projectwarehouse.js'
 import shipmentwarehouse from './shipmentwarehouse.js'
 import templatestask from './templatestask.js'
 import projecttask from './projecttask.js'
-
+import shipmentorder from './shipmentorder.js'
 
 
 
@@ -100,6 +100,7 @@ router.use('/projectwarehouse', projectwarehouse)
 router.use('/shipmentwarehouse', shipmentwarehouse)
 router.use('/templatestask', templatestask)
 router.use('/projecttask', projecttask)
+router.use('/shipmentorder', shipmentorder)
 
 
 

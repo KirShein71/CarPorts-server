@@ -35,7 +35,7 @@ class ShipmentDetails {
         }, []);
       
         return formattedData;
-      }
+    }
       
       
     async getOne(id) {
