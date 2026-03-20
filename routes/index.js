@@ -48,6 +48,8 @@ import shipmentwarehouse from './shipmentwarehouse.js'
 import templatestask from './templatestask.js'
 import projecttask from './projecttask.js'
 import shipmentorder from './shipmentorder.js'
+import set from './set.js'
+import controltour from './controltour.js'
 
 
 
@@ -101,6 +103,8 @@ router.use('/shipmentwarehouse', shipmentwarehouse)
 router.use('/templatestask', templatestask)
 router.use('/projecttask', projecttask)
 router.use('/shipmentorder', shipmentorder)
+router.use('/set', set)
+router.use('/controltour', controltour)
 
 
 

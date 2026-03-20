@@ -140,6 +140,15 @@ class ProjectController {
         }
     }
 
+    async getAllProjectsWithNoInControlTour(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllProjectsWithNoInControlTour()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {

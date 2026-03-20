@@ -459,6 +459,25 @@ class Project {
         }
     }
 
+    async getAllProjectsWithNoInControlTour() {
+        try {
+          const getAllProjectsWithNoInControlTour = await sequelize.query(
+            `SELECT *
+             FROM projects
+             WHERE id NOT IN (
+               SELECT project_id
+               FROM control_tuors
+             ) AND finish IS NULL`,
+            { model: ProjectMapping }
+          );
+      
+          return getAllProjectsWithNoInControlTour;
+        } catch (error) {
+          console.error('Error executing query:', error);
+          throw error;
+        }
+    }
+
     async getAllWithNoWarehouseOrder() {
         try {
           const projectsWithoutDetails = await sequelize.query(

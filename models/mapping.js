@@ -379,6 +379,19 @@ const ShipmentOrder = sequelize.define('shipment_order', {
     antypical_name: {type: DataTypes.STRING, allowNull: true}
 })
 
+const Set = sequelize.define('set', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    number: {type: DataTypes.REAL, allowNull: true},
+    name: {type: DataTypes.STRING, allowNull: true},
+    active: { type: DataTypes.STRING, allowNull: false},
+  
+})
+
+const ControlTour = sequelize.define('control_tour', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    warehouse: {type: DataTypes.STRING, allowNull: true},
+})
+
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
 
@@ -554,6 +567,24 @@ ShipmentOrder.belongsTo(Detail)
 Project.hasMany(ShipmentOrder, {onDelete: 'CASCADE', hooks: true})
 ShipmentOrder.belongsTo(Project)
 
+Region.hasMany(Set)
+Set.belongsTo(Region)
+
+Project.hasMany(ControlTour, {onDelete: 'CASCADE', hooks: true})
+ControlTour.belongsTo(Project)
+
+Complaint.hasMany(ControlTour, {onDelete: 'CASCADE', hooks: true})
+ControlTour.belongsTo(Complaint)
+
+Set.hasMany(ControlTour)
+ControlTour.belongsTo(Set)
+
+Date.hasMany(ControlTour)
+ControlTour.belongsTo(Date)
+
+Region.hasMany(ControlTour)
+ControlTour.belongsTo(Region)
+
 
 export {
     User,
@@ -602,5 +633,7 @@ export {
     ShipmentWarehouse,
     TemplatesTask,
     ProjectTask,
-    ShipmentOrder
+    ShipmentOrder,
+    Set, 
+    ControlTour
 }
