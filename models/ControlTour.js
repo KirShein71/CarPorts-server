@@ -105,10 +105,7 @@ class ControlTour {
                     model: ProjectMapping,
                     attributes: ['name'],
                 },
-                {
-                    model: SetMapping,
-                    attributes: ['name']
-                },
+                
                 {
                     model: DateMapping,
                     attributes: ['date'],
@@ -126,7 +123,11 @@ class ControlTour {
                             attributes: ['name']
                         }
                     ]
-                }
+                },
+                {
+                    model: SetMapping,
+                    attributes: ['name']
+                },
             ],
         });
     
