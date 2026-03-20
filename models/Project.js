@@ -466,7 +466,7 @@ class Project {
              FROM projects
              WHERE id NOT IN (
                SELECT project_id
-               FROM control_tuors
+               FROM control_tours
              ) AND finish IS NULL`,
             { model: ProjectMapping }
           );
