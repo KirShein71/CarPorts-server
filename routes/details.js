@@ -12,6 +12,7 @@ router.patch('/createWeight/:id([0-9]+)', DetailsController.createWeight)
 router.put('/createNumber/:id([0-9]+)', DetailsController.createNumber)
 router.put('/update/:id([0-9]+)',  DetailsController.update)
 router.delete('/delete/:id([0-9]+)',  DetailsController.delete)
+router.delete('/deleteImage/:id([0-9]+)',  DetailsController.deleteImage)
 
 
 export default router

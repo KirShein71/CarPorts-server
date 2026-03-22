@@ -26,12 +26,16 @@ class DetailsController {
     async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для отправки')
+                throw new Error('Нет данных для отправки');
             }
-            const detail = await DetailModel.create(req.body)
-            res.json(detail)
+            
+            // Проверяем, есть ли файл изображения
+            const imageFile = req.files?.image || null;
+            
+            const detail = await DetailModel.create(req.body, imageFile);
+            res.json(detail);
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 
@@ -83,15 +87,19 @@ class DetailsController {
     async update(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id детали')
+                throw new Error('Не указан id детали');
             }
             if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для обновления')
+                throw new Error('Нет данных для обновления');
             }
-            const detail = await DetailModel.update(req.params.id, req.body,)
-            res.json(detail)
+            
+            // Проверяем, есть ли файл изображения
+            const imageFile = req.files?.image || null;
+            
+            const detail = await DetailModel.update(req.params.id, req.body, imageFile);
+            res.json(detail);
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 
@@ -101,6 +109,18 @@ class DetailsController {
                 throw new Error('Не указан id детали')
             }
             const detail = await DetailModel.delete(req.params.id)
+            res.json(detail)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deleteImage(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id детали')
+            }
+            const detail = await DetailModel.deleteImage(req.params.id)
             res.json(detail)
         } catch(e) {
             next(AppError.badRequest(e.message))

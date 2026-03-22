@@ -129,6 +129,7 @@ const Detail = sequelize.define('detail', {
     number: {type: DataTypes.STRING, allowNull: true},
     price: {type: DataTypes.INTEGER, allowNull: false},
     weight: {type: DataTypes.REAL, allowNull: true},
+    image: {type: DataTypes.STRING, allowNull: true}
 })
 
 const ProjectDetails = sequelize.define('project_details', {
