@@ -26,7 +26,7 @@ class ControlTour {
                 },
                 {
                     model: SetMapping,
-                    attributes: ['name'],
+                    attributes: ['name', 'number'],
                 }
               ],
         })

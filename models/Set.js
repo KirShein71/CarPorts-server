@@ -14,7 +14,7 @@ class Set {
             where: {
                 active: 'true'
             },
-            attributes: ['id', 'name', 'regionId'],
+            attributes: ['id', 'name', 'regionId', 'number'],
                 
         })
         return sets
