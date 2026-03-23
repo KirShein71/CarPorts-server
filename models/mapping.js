@@ -580,9 +580,6 @@ ControlTour.belongsTo(Complaint)
 Set.hasMany(ControlTour)
 ControlTour.belongsTo(Set)
 
-Date.hasMany(ControlTour)
-ControlTour.belongsTo(Date)
-
 Region.hasMany(ControlTour)
 ControlTour.belongsTo(Region)
 
