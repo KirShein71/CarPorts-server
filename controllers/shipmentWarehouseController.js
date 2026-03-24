@@ -23,6 +23,15 @@ class ShipmentWarehouseController {
             next(AppError.badRequest(e.message))
         }
     }
+
+    async getShipmentWarehouseForProject(req, res, next) {
+            try {
+                const shipment_warehouse = await ShipmentWarehouseModel.getShipmentWarehouseForProject(req.params.projectId)
+                res.json(shipment_warehouse)
+            } catch(e) {
+                next(AppError.badRequest(e.message))
+            }
+    }
    
 
     async create(req, res, next) {

@@ -173,6 +173,149 @@ class ShipmentWarehouse {
         return shipment_warehouse
     } 
 
+    async getShipmentWarehouseForProject(projectId) {
+        // Получаем данные для одного проекта
+        const shipment_warehouse = await ShipmentWarehouseMapping.findAll({
+            where: { projectId: projectId },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number', 'finish'],
+                },
+            ],
+        });
+
+        const project_warehouse = await ProjectWarehouseMapping.findAll({
+            where: { project_id: projectId },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['name', 'number', 'finish'],
+                },
+            ],
+        });
+
+        const warehouse_assortement = await WarehouseAssortmentMapping.findAll();
+
+        // Создаем Map для быстрого доступа к весу и цене ассортимента по ID
+        const assortmentMap = new Map();
+        warehouse_assortement.forEach(item => {
+            assortmentMap.set(item.id, {
+                weight: item.weight || 0,
+                cost_price: item.cost_price || 0
+            });
+        });
+
+        // Создаем объект для одного проекта
+        let projectData = null;
+
+        // Если нет данных ни в shipment_warehouse, ни в project_warehouse
+        if (shipment_warehouse.length === 0 && project_warehouse.length === 0) {
+            // Получаем информацию о проекте
+            const project = await ProjectMapping.findByPk(projectId, {
+                attributes: ['name', 'number', 'finish']
+            });
+            
+            if (project) {
+                projectData = {
+                    projectId: projectId,
+                    project: {
+                        name: project.name,
+                        number: project.number,
+                        finish: project.finish
+                    },
+                    shipments: [],
+                    orders: [],
+                    exceeded: [],
+                    totalWeight: 0,
+                    totalCost: 0
+                };
+            }
+            return projectData;
+        }
+
+        // Получаем информацию о проекте из первого найденного элемента
+        const projectInfo = shipment_warehouse[0]?.project || project_warehouse[0]?.project;
+
+        // Инициализируем данные проекта
+        projectData = {
+            projectId: projectId,
+            project: projectInfo ? {
+                name: projectInfo.name,
+                number: projectInfo.number,
+                finish: projectInfo.finish
+            } : null,
+            shipments: [],
+            orders: [],
+            exceeded: [],
+            totalWeight: 0,
+            totalCost: 0
+        };
+
+        // Обрабатываем shipment_warehouse данные
+        shipment_warehouse.forEach((item) => {
+            projectData.shipments.push({
+                id: item.id,
+                warehouse_assortement_id: item.warehouse_assortement_id,
+                done: item.done,
+            });
+        });
+
+        // Обрабатываем project_warehouse данные
+        project_warehouse.forEach((item) => {
+            const { id, warehouse_assortement_id, quantity, quantity_stat, note } = item;
+            
+            // Добавляем order
+            projectData.orders.push({
+                id: id,
+                warehouse_assortement_id: warehouse_assortement_id,
+                quantity: quantity,
+                quantity_stat: quantity_stat,
+                note: note
+            });
+            
+            // Получаем вес и стоимость ассортимента из Map
+            const assortmentInfo = assortmentMap.get(warehouse_assortement_id);
+            const weightPerUnit = assortmentInfo ? assortmentInfo.weight : 0;
+            const costPerUnit = assortmentInfo ? assortmentInfo.cost_price : 0;
+            
+            // Преобразуем quantity в число
+            const qty = parseFloat(quantity) || 0;
+            
+            // Рассчитываем и добавляем к общему весу и стоимости
+            projectData.totalWeight += qty * weightPerUnit;
+            projectData.totalCost += qty * costPerUnit;
+            
+            // Проверяем превышение quantity_stat над quantity
+            if (quantity_stat > quantity) {
+                // Ищем, есть ли уже это превышение
+                const existingExceeded = projectData.exceeded.find(
+                    e => e.warehouse_assortement_id === warehouse_assortement_id
+                );
+                
+                if (existingExceeded) {
+                    existingExceeded.exceeded_quantity = quantity_stat - quantity;
+                } else {
+                    projectData.exceeded.push({
+                        warehouse_assortement_id: warehouse_assortement_id,
+                        exceeded_quantity: quantity_stat - quantity
+                    });
+                }
+            } else {
+                // Если превышения нет, удаляем запись из exceeded
+                projectData.exceeded = projectData.exceeded.filter(
+                    e => e.warehouse_assortement_id !== warehouse_assortement_id
+                );
+            }
+        });
+
+        // Округляем значения
+        projectData.totalWeight = Math.round(projectData.totalWeight * 100) / 100;
+        projectData.totalCost = Math.round(projectData.totalCost * 100) / 100;
+
+        return projectData;
+    }
+
 
 
     async create(data) {
