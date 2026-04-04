@@ -11,6 +11,7 @@ router.delete('/deleteOneShipmentOrderDetail/:id([0-9]+)',  shipmentOrderControl
 router.put('/update/:id([0-9]+)', shipmentOrderController.update)
 router.post('/create',  shipmentOrderController.create)
 router.get('/getone/:id([0-9]+)', shipmentOrderController.getOne)
+router.get('/getAllShipmentOrderForProject/:projectId([0-9]+)', shipmentOrderController.getAllShipmentOrderForProject)
 router.post('/createAntypical',  shipmentOrderController.createAntypical)
 
 

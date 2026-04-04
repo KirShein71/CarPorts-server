@@ -12,12 +12,22 @@ class ShipmentDetailsController {
         }
     }
 
+
     async getOne(req, res, next) {
         try {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
             }
             const shipmentdetails = await ShipmentDetailsModel.getOne(req.params.id)
+            res.json(shipmentdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllShipmentDetailForProject(req, res, next) {
+        try {
+            const shipmentdetails = await ShipmentDetailsModel.getAllShipmentDetailForProject(req.params.projectId)
             res.json(shipmentdetails)
         } catch(e) {
             next(AppError.badRequest(e.message))

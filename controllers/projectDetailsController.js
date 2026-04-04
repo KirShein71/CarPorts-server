@@ -23,8 +23,25 @@ class ProjectDetailsController {
             next(AppError.badRequest(e.message))
         }
     }
-   
 
+    async getAllProjectDetailForProject(req, res, next) {
+        try {
+            const projectdetails = await ProjectDetailsModel.getAllProjectDetailForProject(req.params.projectId)
+            res.json(projectdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllWeightAndPrice(req, res, next) {
+        try {
+            const projectdetails = await ProjectDetailsModel.getAllWeightAndPrice()
+            res.json(projectdetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+   
     async create(req, res, next) {
         try {
           

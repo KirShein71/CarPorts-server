@@ -49,6 +49,50 @@ class ShipmentOrder {
         return formattedData;
     }
 
+    async getAllShipmentOrderForProject(projectId) {
+        const shipment_orders = await ShipmentOrderMapping.findAll({
+            where: { projectId: projectId },
+            include: [
+                {
+                    model: ProjectMapping,
+                    attributes: ['number', 'name', 'finish'],
+                },
+            ],
+        });
+
+        // Группируем по ключу "projectId_shipment_date"
+        const grouped = {};
+        shipment_orders.forEach(item => {
+            const { projectId, detailId, shipment_quantity, antypical_name, shipment_date, id, project } = item;
+            // Если shipment_date нет, используем 'null' для группировки
+            const key = `${projectId}_${shipment_date || 'null'}`;
+
+            if (!grouped[key]) {
+                grouped[key] = {
+                    shipment_date,
+                    projectId,
+                    project: project ? {
+                        number: project.number,
+                        name: project.name,
+                        finish: project.finish,
+                    } : null,
+                    props: [],
+                };
+            }
+
+            grouped[key].props.push({
+                id,
+                detailId,
+                shipment_quantity,
+                antypical_name
+            });
+        });
+
+        // Преобразуем объект в массив
+        const formattedData = Object.values(grouped);
+        return formattedData;
+    }
+
     async getAllForShipmentOrderProject(projectId, date) {
         const shipment_orders = await ShipmentOrderMapping.findAll({
             where: { 

@@ -12,6 +12,15 @@ class ShipmentOrderController {
         }
     }
 
+    async getAllShipmentOrderForProject(req, res, next) {
+        try {
+            const shipment_orders = await ShipmentOrderModel.getAllShipmentOrderForProject(req.params.projectId)
+            res.json(shipment_orders)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllForShipmentOrderProject(req, res, next) {
         try {
             const { projectId, date } = req.params; 

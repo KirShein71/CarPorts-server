@@ -24,6 +24,15 @@ class DeliveryDetailsController {
         }
     }
 
+    async getAllDeliveryDetailsForProject(req, res, next) {
+        try {
+            const deliverydetails = await DeliveryDetailsModel.getAllDeliveryDetailsForProject(req.params.projectId)
+            res.json(deliverydetails)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
 
 
     async create(req, res, next) {

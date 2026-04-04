@@ -1,11 +1,60 @@
 import { ShipmentDetails as ShipmentDetailsMapping } from './mapping.js'
 import { Project as ProjectMapping } from './mapping.js'
+import { Detail as DetailMapping} from './mapping.js'
 
 
 
 class ShipmentDetails {
     async getAll() {
         const shipmentdetails = await ShipmentDetailsMapping.findAll({
+          include: [
+            {
+              model: ProjectMapping,
+              attributes: ['number', 'name', 'finish'],
+            },
+            {
+                model: DetailMapping,
+                attributes: ['id', 'weight', 'price']
+
+            }
+          ],
+        });
+      
+        const formattedData = shipmentdetails.reduce((acc, item) => {
+          const { projectId, detailId, shipment_quantity, shipment_date, project, id } = item;
+          const existingProject = acc.find((project) => project.projectId === projectId);
+          if (existingProject) {
+            existingProject.props.push({id: id, detailId: detailId, shipment_quantity: shipment_quantity });
+          } else {
+            acc.push({
+              project: {
+                number: project.number,
+                name: project.name,
+                finish: project.finish,
+              },
+              shipment_date: shipment_date,
+              projectId: projectId,
+              props: [{ id:id, detailId: detailId, shipment_quantity: shipment_quantity }]
+            });
+          }
+          return acc;
+        }, []);
+      
+        return formattedData;
+    }
+
+      
+    async getOne(id) {
+        const shipmentdetails = await ShipmentDetailsMapping.findByPk(id)
+        if (!shipmentdetails) { 
+            throw new Error('Товар не найден в БД')
+        }
+        return shipmentdetails
+    } 
+
+    async getAllShipmentDetailForProject(projectId) {
+        const shipmentdetails = await ShipmentDetailsMapping.findAll({
+          where: { projectId: projectId },
           include: [
             {
               model: ProjectMapping,
@@ -36,15 +85,6 @@ class ShipmentDetails {
       
         return formattedData;
     }
-      
-      
-    async getOne(id) {
-        const shipmentdetails = await ShipmentDetailsMapping.findByPk(id)
-        if (!shipmentdetails) { 
-            throw new Error('Товар не найден в БД')
-        }
-        return shipmentdetails
-    } 
 
     // получние суммы количества отгруженной отдельной детали
     async getSumOneShipmentDetail() {

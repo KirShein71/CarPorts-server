@@ -34,7 +34,7 @@ class DeliveryDetails {
         }, []);
       
         return formattedData;
-      }
+    }
       
       
     async getOne(id) {
@@ -44,6 +44,39 @@ class DeliveryDetails {
         }
         return deliverydetails
     } 
+
+    async getAllDeliveryDetailsForProject(projectId) {
+        const deliverydetails = await DeliverytDetailsMapping.findAll({
+          where: { projectId: projectId },
+          include: [
+            {
+              model: ProjectMapping,
+              attributes: ['number', 'name', 'finish'],
+            },
+          ],
+        });
+      
+        const formattedData = deliverydetails.reduce((acc, item) => {
+          const { projectId, detailId, delivery_quantity, project, id } = item;
+          const existingProject = acc.find((project) => project.projectId === projectId);
+          if (existingProject) {
+            existingProject.props.push({id: id, detailId: detailId, delivery_quantity: delivery_quantity });
+          } else {
+            acc.push({
+              project: {
+                number: project.number,
+                name: project.name,
+                finish: project.finish,
+              },
+              projectId: projectId,
+              props: [{ id:id, detailId: detailId, delivery_quantity: delivery_quantity }]
+            });
+          }
+          return acc;
+        }, []);
+      
+        return formattedData;
+    }
 
     // получние суммы количества отгруженной отдельной детали
     async getSumOneDeliveryDetail() {
