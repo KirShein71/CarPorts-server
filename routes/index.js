@@ -50,6 +50,7 @@ import projecttask from './projecttask.js'
 import shipmentorder from './shipmentorder.js'
 import set from './set.js'
 import controltour from './controltour.js'
+import deviation from './deviation.js'
 
 
 
@@ -105,7 +106,7 @@ router.use('/projecttask', projecttask)
 router.use('/shipmentorder', shipmentorder)
 router.use('/set', set)
 router.use('/controltour', controltour)
-
+router.use('/deviation', deviation)
 
 
 

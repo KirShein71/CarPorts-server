@@ -391,6 +391,22 @@ const Set = sequelize.define('set', {
 const ControlTour = sequelize.define('control_tour', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
     warehouse: {type: DataTypes.STRING, allowNull: true},
+    
+})
+
+const Deviation = sequelize.define('deviation', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, 
+    device_id: {type: DataTypes.STRING, allowNull: true},
+    deviation_x_mm: {type: DataTypes.REAL, allowNull: true},
+    deviation_y_mm: {type: DataTypes.REAL, allowNull: true},
+    internal_temperature_celsius: {type: DataTypes.REAL, allowNull: true},
+    wifi_signal_strength_dbm: {type: DataTypes.REAL, allowNull: true},
+    firmware_version: {type: DataTypes.STRING, allowNull: true},
+    uptime_seconds: {type: DataTypes.BIGINT, allowNull: true},
+    error_code: {type: DataTypes.INTEGER, allowNull: true},
+    error_message: {type: DataTypes.STRING, allowNull: true},
+    time: {type: DataTypes.TIME, allowNull: true},
+    measurement_timestamp: {type: DataTypes.BIGINT, allowNull: true},
 })
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
@@ -633,5 +649,6 @@ export {
     ProjectTask,
     ShipmentOrder,
     Set, 
-    ControlTour
+    ControlTour,
+    Deviation
 }
