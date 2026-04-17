@@ -23,6 +23,7 @@ import {Op}  from 'sequelize'
 import FileService from '../services/File.js'
 import bcrypt from 'bcrypt'
 import bot from '../TelegramBot.js'
+import { Payment as PaymentMapping } from "./mapping.js";
 
 
 
@@ -51,6 +52,10 @@ class Project {
                 {
                     model: ProjectExaminationMapping,
                     attributes: ['id', 'result']
+                },
+                {
+                    model: EstimateMapping,
+                    attributes: ['price']
                 }
             ]
         });
@@ -81,6 +86,44 @@ class Project {
 
         // Создаем Set для быстрой проверки наличия project_id в таблице Estimate
         const estimateProjectIds = new Set(estimates.map(est => est.project_id));
+
+        // Получаем суммы price из EstimateMapping по каждому проекту (СМЕТА)
+        const estimateSums = await EstimateMapping.findAll({
+            where: {
+                project_id: projectIds
+            },
+            attributes: [
+                'project_id',
+                [sequelize.fn('SUM', sequelize.col('price')), 'totalEstimatePrice']
+            ],
+            group: ['project_id'],
+            raw: true
+        });
+
+        // Создаем Map для быстрого доступа к сумме сметы по проекту
+        const estimatePriceMap = new Map();
+        estimateSums.forEach(item => {
+            estimatePriceMap.set(item.project_id, parseFloat(item.totalEstimatePrice) || 0);
+        });
+
+        // Получаем суммы sum из PaymentMapping по каждому проекту (ВЫПЛАТЫ)
+        const paymentSums = await PaymentMapping.findAll({
+            where: {
+                project_id: projectIds
+            },
+            attributes: [
+                'project_id',
+                [sequelize.fn('SUM', sequelize.col('sum')), 'totalPayments']
+            ],
+            group: ['project_id'],
+            raw: true
+        });
+
+        // Создаем Map для быстрого доступа к сумме выплат по проекту
+        const paymentSumMap = new Map();
+        paymentSums.forEach(item => {
+            paymentSumMap.set(item.project_id, parseFloat(item.totalPayments) || 0);
+        });
 
         const npsScores = await NpsProjectMapping.findAll({
             where: {
@@ -122,6 +165,24 @@ class Project {
             
             // Добавляем поле estimate
             projectData.estimate = estimateProjectIds.has(project.id);
+            
+            // Сумма сметы (totalEstimatePrice)
+            const totalEstimatePrice = estimatePriceMap.get(project.id) || 0;
+            projectData.totalEstimatePrice = totalEstimatePrice;
+
+            // Сумма выплат (totalPayments)
+            const totalPayments = paymentSumMap.get(project.id) || 0;
+            projectData.totalPayments = totalPayments;
+
+            // Вычисляем процент выплат от сметы (округленный до целых)
+            let paymentPercentage = 0;
+            if (totalEstimatePrice > 0) {
+                paymentPercentage = Math.round((totalPayments / totalEstimatePrice) * 100);
+            } else if (totalPayments > 0 && totalEstimatePrice === 0) {
+                paymentPercentage = 100;
+            }
+
+            projectData.paymentPercentage = paymentPercentage;
             
             return projectData;
         });
@@ -683,8 +744,7 @@ class Project {
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
             design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price,
-            // Данные аккаунта
-            phone, password,
+           
         } = data;
 
         const transaction = await sequelize.transaction();
@@ -701,13 +761,11 @@ class Project {
                 date_inspection, inspection_designer, regionId: regionIdValue, contact, address, navigator, coordinates, price
             }, { transaction });
 
-            // Хешируем пароль перед сохранением
-            const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
+          
 
-            // Создаем аккаунт с хешированным паролем
+            // Создаем аккаунт 
             const account = await UserMapping.create({
-                phone: phone.trim(),
-                password: hashedPassword, // Используем хешированный пароль
+              
                 projectId: project.id,
                 image: image
             }, { transaction });
@@ -744,7 +802,7 @@ class Project {
                 project,
                 account: {
                     ...account.get({ plain: true }),
-                    password: undefined // Не возвращаем пароль в ответе
+               
                 }
             };
         } catch (error) {

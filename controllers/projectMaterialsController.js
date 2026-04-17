@@ -233,6 +233,58 @@ class ProjectMaterialsController {
         }
     }
 
+    async createBudgetProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id материала')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createBudgetProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deleteBudgetProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.budget;
+            
+            const projectmaterials = await ProjectMaterialsModel.deleteBudgetProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
+    async createFactProjectMaterials(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id материала')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const projectmaterials = await ProjectMaterialsModel.createFactProjectMaterials(req.params.id, req.body,)
+            res.json(projectmaterials)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async deleteFactProjectMaterials(req, res, next) {
+        try {
+            const id = req.params.fact;
+            
+            const projectmaterials = await ProjectMaterialsModel.deleteFactProjectMaterials(id);
+            res.json(projectmaterials);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
     async createColorProjectMaterials(req, res, next) {
         try {
             if (!req.params.id) {

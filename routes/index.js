@@ -51,7 +51,8 @@ import shipmentorder from './shipmentorder.js'
 import set from './set.js'
 import controltour from './controltour.js'
 import deviation from './deviation.js'
-
+import addwarehouse from './addwarehouse.js'
+import totalwarehouse from './totalwarehouse.js'
 
 
 const router = new express.Router()
@@ -107,6 +108,8 @@ router.use('/shipmentorder', shipmentorder)
 router.use('/set', set)
 router.use('/controltour', controltour)
 router.use('/deviation', deviation)
+router.use('/addwarehouse', addwarehouse)
+router.use('/totalwarehouse', totalwarehouse)
 
 
 

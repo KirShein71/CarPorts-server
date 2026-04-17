@@ -191,11 +191,6 @@ class ProjectController {
                 throw new Error('Нет данных для отправки');
             }
 
-            // Проверяем обязательные поля для аккаунта
-            if (!req.body.phone || !req.body.password) {
-                throw new Error('Телефон и пароль обязательны для создания аккаунта');
-            }
-
             // Преобразуем пустые строки в null для числовых полей
             const processedData = { ...req.body };
             

@@ -8,7 +8,7 @@ const User = sequelize.define('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     phone: { type: DataTypes.STRING, unique: true },
     role: { type: DataTypes.STRING, defaultValue: "USER" },
-    password: { type: DataTypes.STRING, allowNull: false },
+    password: { type: DataTypes.STRING, allowNull: true },
     projectId: {type: DataTypes.INTEGER, allowNull: false},
     manager: {type: DataTypes.STRING, allowNull: true},
     manager_phone: { type: DataTypes.STRING, allowNull: true },
@@ -121,6 +121,8 @@ const ProjectMaterials = sequelize.define('project_materials', {
     weight: { type: DataTypes.INTEGER, allowNull: true},
     dimensions: { type: DataTypes.INTEGER, allowNull: true},
     notification_sent: {type: DataTypes.BOOLEAN, allowNull: true},
+    budget: { type: DataTypes.INTEGER, allowNull: true},
+    fact: { type: DataTypes.INTEGER, allowNull: true},
 })
 
 const Detail = sequelize.define('detail', {
@@ -342,6 +344,13 @@ const ShipmentWarehouse = sequelize.define('shipment_warehouse', {
     done: { type: DataTypes.STRING, allowNull: false},
     warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true},
     
+})
+
+const AddWarehouse = sequelize.define('add_warehouse', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    quantity: {type: DataTypes.INTEGER, allowNull: false},
+    date: {type: DataTypes.DATE, allowNull: false},
+    warehouse_assortement_id: {type: DataTypes.INTEGER, allowNull: true} 
 })
 
 const TemplatesTask = sequelize.define('templates_task', {
@@ -575,6 +584,9 @@ ShipmentWarehouse.belongsTo(Project)
 WarehouseAssortment.hasMany(ShipmentWarehouse, { onDelete: 'CASCADE', hooks: true })
 ShipmentWarehouse.belongsTo(WarehouseAssortment)
 
+WarehouseAssortment.hasMany(AddWarehouse, { onDelete: 'CASCADE', hooks: true })
+AddWarehouse.belongsTo(WarehouseAssortment)
+
 Project.hasMany(ProjectTask, {onDelete: 'CASCADE', hooks: true})
 ProjectTask.belongsTo(Project)
 
@@ -650,5 +662,6 @@ export {
     ShipmentOrder,
     Set, 
     ControlTour,
-    Deviation
+    Deviation,
+    AddWarehouse
 }

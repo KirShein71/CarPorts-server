@@ -639,5 +639,5 @@ process.once('SIGTERM', () => {
   bot.stop();
 });
 
-// Экспортируем бота
+
 export default bot;
