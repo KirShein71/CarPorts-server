@@ -24,6 +24,7 @@ import FileService from '../services/File.js'
 import bcrypt from 'bcrypt'
 import bot from '../TelegramBot.js'
 import { Payment as PaymentMapping } from "./mapping.js";
+import {Сoefficient as CoefficientMapping} from './mapping.js'
 
 
 
@@ -902,28 +903,51 @@ class Project {
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
             design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price,
-           
         } = data;
 
         const transaction = await sequelize.transaction();
 
         try {
-            // Создаем проект
+            // Получаем коэффициент с id = 4
+            const coefficient = await CoefficientMapping.findByPk(4, { transaction });
+            
+            if (!coefficient) {
+                throw new Error('Коэффициент с id=4 не найден');
+            }
+
+            // Вычисляем произведение и приводим к целому числу
+            // price и coefficient.number преобразуем в числа, умножаем, затем округляем
+            const priceValue = parseFloat(price) || 0;
+            const coefficientValue = parseFloat(coefficient.number) || 0;
+            const calculatedInstallationPeriod = Math.round(priceValue * coefficientValue);
+
             const installationBillingValue = installation_billing ? parseInt(installation_billing) : null;
             const regionIdValue = regionId ? parseInt(regionId) : null;
 
             const project = await ProjectMapping.create({
-                name, number, agreement_date, design_period, expiration_date, 
-                installation_period, installation_billing: installationBillingValue, 
-                note, designer, design_start, project_delivery, 
-                date_inspection, inspection_designer, regionId: regionIdValue, contact, address, navigator, coordinates, price
+                name, 
+                number, 
+                agreement_date, 
+                design_period, 
+                expiration_date, 
+                installation_period: calculatedInstallationPeriod,
+                installation_billing: installationBillingValue, 
+                note, 
+                designer, 
+                design_start, 
+                project_delivery, 
+                date_inspection, 
+                inspection_designer, 
+                regionId: regionIdValue, 
+                contact, 
+                address, 
+                navigator, 
+                coordinates, 
+                price
             }, { transaction });
 
-          
-
-            // Создаем аккаунт 
+            // Создаем аккаунт
             const account = await UserMapping.create({
-              
                 projectId: project.id,
                 image: image
             }, { transaction });
@@ -948,7 +972,6 @@ class Project {
                     previous_task: template.previous_task,
                     term_integer: template.term_integer,
                     date_done: null
-            
                 }));
 
                 await ProjectTaskMapping.bulkCreate(projectTasks, { transaction });
@@ -960,7 +983,6 @@ class Project {
                 project,
                 account: {
                     ...account.get({ plain: true }),
-               
                 }
             };
         } catch (error) {
@@ -1045,16 +1067,34 @@ class Project {
     }
 
     async createPriceProject(id, data) {
-        const project = await ProjectMapping.findByPk(id)
+        const project = await ProjectMapping.findByPk(id);
         if (!project) {
-            throw new Error('Проект не найден в БД')
+            throw new Error('Проект не найден в БД');
         }
+
         const {
             price = project.price,
-        } = data
-        await project.update({price})
-        await project.reload()
-        return project
+        } = data;
+
+        // Получаем коэффициент с id = 4
+        const coefficient = await CoefficientMapping.findByPk(4);
+        if (!coefficient) {
+            throw new Error('Коэффициент с id=4 не найден');
+        }
+
+        // Вычисляем новое значение installation_period
+        const priceValue = parseFloat(price) || 0;
+        const coefficientValue = parseFloat(coefficient.number) || 0;
+        const calculatedInstallationPeriod = Math.round(priceValue * coefficientValue);
+
+        // Обновляем оба поля
+        await project.update({
+            price: price,
+            installation_period: calculatedInstallationPeriod
+        });
+
+        await project.reload();
+        return project;
     }
 
     
