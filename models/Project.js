@@ -32,6 +32,7 @@ const saltRounds = 10;
 
 class Project {
     async getAll() {
+        // ОДИН запрос с правильными include
         const projects = await ProjectMapping.findAll({
             include: [
                 {
@@ -57,131 +58,103 @@ class Project {
                     model: EstimateMapping,
                     attributes: ['price']
                 }
-            ]
+            ],
+            // Добавляем лимит и пагинацию на фронтенде
+            // Или используем offset/limit
         });
 
-        // Получаем все главы
-        const chapters = await NpsChapterMapping.findAll({
-            attributes: ['id', 'number'],
-            raw: true
-        });
-
-        // Создаем карту chapter_id -> number
-        const chapterMap = {};
-        chapters.forEach(chapter => {
-            chapterMap[chapter.id] = chapter.number;
-        });
-
-        // Получаем NPS оценки сгруппированные по проекту и главе
         const projectIds = projects.map(p => p.id);
+        if (projectIds.length === 0) return [];
+
+        // Параллельные запросы вместо последовательных
+        const [
+            chapters,
+            npsScores,
+            estimateSums,
+            paymentSums
+        ] = await Promise.all([
+            NpsChapterMapping.findAll({
+                attributes: ['id', 'number'],
+                raw: true
+            }),
+            NpsProjectMapping.findAll({
+                where: { project_id: projectIds },
+                attributes: [
+                    'project_id',
+                    'nps_chapter_id',
+                    [sequelize.fn('AVG', sequelize.col('score')), 'averageScore']
+                ],
+                group: ['project_id', 'nps_chapter_id'],
+                raw: true
+            }),
+            EstimateMapping.findAll({
+                where: { project_id: projectIds },
+                attributes: [
+                    'project_id',
+                    [sequelize.fn('SUM', sequelize.col('price')), 'totalEstimatePrice']
+                ],
+                group: ['project_id'],
+                raw: true
+            }),
+            PaymentMapping.findAll({
+                where: { project_id: projectIds },
+                attributes: [
+                    'project_id',
+                    [sequelize.fn('SUM', sequelize.col('sum')), 'totalPayments']
+                ],
+                group: ['project_id'],
+                raw: true
+            })
+        ]);
+
+        // Используем Map для O(1) доступа
+        const estimatePriceMap = new Map(
+            estimateSums.map(item => [item.project_id, parseFloat(item.totalEstimatePrice) || 0])
+        );
+        const paymentSumMap = new Map(
+            paymentSums.map(item => [item.project_id, parseFloat(item.totalPayments) || 0])
+        );
+
+        // NPS группировка
+        const chapterMap = Object.fromEntries(
+            chapters.map(ch => [ch.id, ch.number])
+        );
         
-        // Получаем все project_id, которые есть в таблице Estimate
-        const estimates = await EstimateMapping.findAll({
-            where: {
-                project_id: projectIds
-            },
-            attributes: ['project_id'],
-            raw: true
-        });
-
-        // Создаем Set для быстрой проверки наличия project_id в таблице Estimate
-        const estimateProjectIds = new Set(estimates.map(est => est.project_id));
-
-        // Получаем суммы price из EstimateMapping по каждому проекту (СМЕТА)
-        const estimateSums = await EstimateMapping.findAll({
-            where: {
-                project_id: projectIds
-            },
-            attributes: [
-                'project_id',
-                [sequelize.fn('SUM', sequelize.col('price')), 'totalEstimatePrice']
-            ],
-            group: ['project_id'],
-            raw: true
-        });
-
-        // Создаем Map для быстрого доступа к сумме сметы по проекту
-        const estimatePriceMap = new Map();
-        estimateSums.forEach(item => {
-            estimatePriceMap.set(item.project_id, parseFloat(item.totalEstimatePrice) || 0);
-        });
-
-        // Получаем суммы sum из PaymentMapping по каждому проекту (ВЫПЛАТЫ)
-        const paymentSums = await PaymentMapping.findAll({
-            where: {
-                project_id: projectIds
-            },
-            attributes: [
-                'project_id',
-                [sequelize.fn('SUM', sequelize.col('sum')), 'totalPayments']
-            ],
-            group: ['project_id'],
-            raw: true
-        });
-
-        // Создаем Map для быстрого доступа к сумме выплат по проекту
-        const paymentSumMap = new Map();
-        paymentSums.forEach(item => {
-            paymentSumMap.set(item.project_id, parseFloat(item.totalPayments) || 0);
-        });
-
-        const npsScores = await NpsProjectMapping.findAll({
-            where: {
-                project_id: projectIds
-            },
-            attributes: [
-                'project_id',
-                'nps_chapter_id',
-                [sequelize.fn('AVG', sequelize.col('score')), 'averageScore']
-            ],
-            group: ['project_id', 'nps_chapter_id'],
-            raw: true
-        });
-
-        // Группируем результаты по проекту
         const npsByProject = {};
-        npsScores.forEach(item => {
+        for (const item of npsScores) {
             if (!npsByProject[item.project_id]) {
                 npsByProject[item.project_id] = {};
             }
-            
             const chapterNumber = chapterMap[item.nps_chapter_id];
             if (chapterNumber) {
                 const average = parseFloat(item.averageScore) || 0;
                 npsByProject[item.project_id][`npsChapter${chapterNumber}`] = 
                     Math.round((average / 5) * 100 * 100) / 100;
             }
-        });
+        }
 
-        // Добавляем NPS к проектам как отдельные поля и поле estimate
+        // Формируем результат за один проход
+        const estimateProjectIds = new Set(estimatePriceMap.keys());
+        
         return projects.map(project => {
             const projectData = project.toJSON();
             const projectNps = npsByProject[project.id] || {};
             
-            // Добавляем каждую главу как отдельное поле
-            Object.keys(projectNps).forEach(key => {
-                projectData[key] = projectNps[key];
-            });
-            
-            // Добавляем поле estimate
+            Object.assign(projectData, projectNps);
             projectData.estimate = estimateProjectIds.has(project.id);
             
-            // Сумма сметы (totalEstimatePrice)
             const totalEstimatePrice = estimatePriceMap.get(project.id) || 0;
-            projectData.totalEstimatePrice = totalEstimatePrice;
-
-            // Сумма выплат (totalPayments)
             const totalPayments = paymentSumMap.get(project.id) || 0;
+            
+            projectData.totalEstimatePrice = totalEstimatePrice;
             projectData.totalPayments = totalPayments;
-
-            // Вычисляем процент выплат от сметы (округленный до целых)
+            
             let paymentPercentage = 0;
             if (totalEstimatePrice > 0) {
                 paymentPercentage = Math.round((totalPayments / totalEstimatePrice) * 100);
             } else if (totalPayments > 0 && totalEstimatePrice === 0) {
                 paymentPercentage = 100;
             }
-
             projectData.paymentPercentage = paymentPercentage;
             
             return projectData;
