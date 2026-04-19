@@ -12,9 +12,45 @@ class ProjectController {
         }
     }
 
+    async getAllForProjectPage(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllForProjectPage()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllForPlanningPage(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllForPlanningPage()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllProjectForComplaint(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllProjectForComplaint()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllActiveProject(req, res, next) {
         try {
             const project = await ProjectModel.getAllActiveProject()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getAllActiveProjectForCreatedAndUpdated(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllActiveProjectForCreatedAndUpdated()
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))

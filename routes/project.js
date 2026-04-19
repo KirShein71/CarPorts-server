@@ -7,7 +7,11 @@ import ProjectController from '../controllers/projectController.js'
 const router = new express.Router()
 
 router.get('/getall', ProjectController.getAll)
+router.get('/getAllForProjectPage', ProjectController.getAllForProjectPage)
+router.get('/getAllForPlanningPage', ProjectController.getAllForPlanningPage)
+router.get('/getAllProjectForComplaint', ProjectController.getAllProjectForComplaint)
 router.get('/getAllActiveProject', ProjectController.getAllActiveProject)
+router.get('/getAllActiveProjectForCreatedAndUpdated', ProjectController.getAllActiveProjectForCreatedAndUpdated)
 router.get('/getAllActiveWithDateFinishProject', ProjectController.getAllActiveWithDateFinishProject)
 router.get('/getAllStatProject', ProjectController.getAllStatProject)
 router.get('/getAllYearStatProject', ProjectController.getAllYearStatProject)
