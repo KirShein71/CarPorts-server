@@ -32,46 +32,37 @@ const saltRounds = 10;
 
 class Project {
     async getAll() {
-        // ОДИН запрос с правильными include
+        // Убираем тяжёлые include, которые не используются
         const projects = await ProjectMapping.findAll({
+            attributes: [
+                'id', 'name', 'number', 'agreement_date', 'date_finish',
+                'finish', 'regionId', 'installation_billing', 'price',
+                'design_period', 'expiration_date', 'installation_period',
+                'totalEstimatePrice', 'totalPayments', 'paymentPercentage'
+            ],
             include: [
                 {
                     model: RegionMapping,
                     attributes: ['region']
                 },
                 {
-                    model: BrigadesDateMapping,
-                    attributes: ['date_id'],
-                    include: [
-                        {
-                            model: DateMapping,
-                            attributes: ['date'],
-                            required: true
-                        }
-                    ]
-                },
-                {
-                    model: ProjectExaminationMapping,
-                    attributes: ['id', 'result']
-                },
-                {
                     model: EstimateMapping,
-                    attributes: ['price']
+                    attributes: [], // не нужны атрибуты, только для проверки наличия
+                    required: false
                 }
-            ],
-            // Добавляем лимит и пагинацию на фронтенде
-            // Или используем offset/limit
+            ]
         });
 
         const projectIds = projects.map(p => p.id);
         if (projectIds.length === 0) return [];
 
-        // Параллельные запросы вместо последовательных
+        // Параллельные запросы только для нужных данных
         const [
             chapters,
             npsScores,
             estimateSums,
-            paymentSums
+            paymentSums,
+            projectExaminations  // отдельно для проверки наличия экспертиз
         ] = await Promise.all([
             NpsChapterMapping.findAll({
                 attributes: ['id', 'number'],
@@ -104,51 +95,47 @@ class Project {
                 ],
                 group: ['project_id'],
                 raw: true
+            }),
+            ProjectExaminationMapping.findAll({
+                where: { project_id: projectIds },
+                attributes: ['project_id', 'id'],
+                raw: true
             })
         ]);
 
-        // Используем Map для O(1) доступа
-        const estimatePriceMap = new Map(
-            estimateSums.map(item => [item.project_id, parseFloat(item.totalEstimatePrice) || 0])
-        );
-        const paymentSumMap = new Map(
-            paymentSums.map(item => [item.project_id, parseFloat(item.totalPayments) || 0])
-        );
+        // Создаём Set для быстрой проверки наличия экспертиз
+        const examinationMap = new Set();
+        projectExaminations.forEach(ex => examinationMap.add(ex.project_id));
 
-        // NPS группировка
-        const chapterMap = Object.fromEntries(
-            chapters.map(ch => [ch.id, ch.number])
-        );
-        
+        // Маппинг
+        const estimatePriceMap = new Map(estimateSums.map(item => [item.project_id, parseFloat(item.totalEstimatePrice) || 0]));
+        const paymentSumMap = new Map(paymentSums.map(item => [item.project_id, parseFloat(item.totalPayments) || 0]));
+
+        const chapterMap = Object.fromEntries(chapters.map(ch => [ch.id, ch.number]));
+
         const npsByProject = {};
         for (const item of npsScores) {
-            if (!npsByProject[item.project_id]) {
-                npsByProject[item.project_id] = {};
-            }
+            if (!npsByProject[item.project_id]) npsByProject[item.project_id] = {};
             const chapterNumber = chapterMap[item.nps_chapter_id];
             if (chapterNumber) {
                 const average = parseFloat(item.averageScore) || 0;
-                npsByProject[item.project_id][`npsChapter${chapterNumber}`] = 
-                    Math.round((average / 5) * 100 * 100) / 100;
+                npsByProject[item.project_id][`npsChapter${chapterNumber}`] = Math.round((average / 5) * 100 * 100) / 100;
             }
         }
 
-        // Формируем результат за один проход
         const estimateProjectIds = new Set(estimatePriceMap.keys());
-        
+
         return projects.map(project => {
             const projectData = project.toJSON();
             const projectNps = npsByProject[project.id] || {};
-            
+
             Object.assign(projectData, projectNps);
             projectData.estimate = estimateProjectIds.has(project.id);
-            
+            projectData.hasExamination = examinationMap.has(project.id); // вместо project_examinations.length
+
             const totalEstimatePrice = estimatePriceMap.get(project.id) || 0;
             const totalPayments = paymentSumMap.get(project.id) || 0;
-            
-            projectData.totalEstimatePrice = totalEstimatePrice;
-            projectData.totalPayments = totalPayments;
-            
+
             let paymentPercentage = 0;
             if (totalEstimatePrice > 0) {
                 paymentPercentage = Math.round((totalPayments / totalEstimatePrice) * 100);
@@ -156,10 +143,145 @@ class Project {
                 paymentPercentage = 100;
             }
             projectData.paymentPercentage = paymentPercentage;
-            
+
+            // Убираем лишние поля
+            delete projectData.brigades_dates;
+            delete projectData.estimates;
+            delete projectData.createdAt;
+            delete projectData.updatedAt;
+
             return projectData;
         });
     }
+    // async getAll() {
+    //     // ОДИН запрос с правильными include
+    //     const projects = await ProjectMapping.findAll({
+    //         include: [
+    //             {
+    //                 model: RegionMapping,
+    //                 attributes: ['region']
+    //             },
+    //             {
+    //                 model: BrigadesDateMapping,
+    //                 attributes: ['date_id'],
+    //                 include: [
+    //                     {
+    //                         model: DateMapping,
+    //                         attributes: ['date'],
+    //                         required: true
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 model: ProjectExaminationMapping,
+    //                 attributes: ['id', 'result']
+    //             },
+    //             {
+    //                 model: EstimateMapping,
+    //                 attributes: ['price']
+    //             }
+    //         ],
+    //         // Добавляем лимит и пагинацию на фронтенде
+    //         // Или используем offset/limit
+    //     });
+
+    //     const projectIds = projects.map(p => p.id);
+    //     if (projectIds.length === 0) return [];
+
+    //     // Параллельные запросы вместо последовательных
+    //     const [
+    //         chapters,
+    //         npsScores,
+    //         estimateSums,
+    //         paymentSums
+    //     ] = await Promise.all([
+    //         NpsChapterMapping.findAll({
+    //             attributes: ['id', 'number'],
+    //             raw: true
+    //         }),
+    //         NpsProjectMapping.findAll({
+    //             where: { project_id: projectIds },
+    //             attributes: [
+    //                 'project_id',
+    //                 'nps_chapter_id',
+    //                 [sequelize.fn('AVG', sequelize.col('score')), 'averageScore']
+    //             ],
+    //             group: ['project_id', 'nps_chapter_id'],
+    //             raw: true
+    //         }),
+    //         EstimateMapping.findAll({
+    //             where: { project_id: projectIds },
+    //             attributes: [
+    //                 'project_id',
+    //                 [sequelize.fn('SUM', sequelize.col('price')), 'totalEstimatePrice']
+    //             ],
+    //             group: ['project_id'],
+    //             raw: true
+    //         }),
+    //         PaymentMapping.findAll({
+    //             where: { project_id: projectIds },
+    //             attributes: [
+    //                 'project_id',
+    //                 [sequelize.fn('SUM', sequelize.col('sum')), 'totalPayments']
+    //             ],
+    //             group: ['project_id'],
+    //             raw: true
+    //         })
+    //     ]);
+
+    //     // Используем Map для O(1) доступа
+    //     const estimatePriceMap = new Map(
+    //         estimateSums.map(item => [item.project_id, parseFloat(item.totalEstimatePrice) || 0])
+    //     );
+    //     const paymentSumMap = new Map(
+    //         paymentSums.map(item => [item.project_id, parseFloat(item.totalPayments) || 0])
+    //     );
+
+    //     // NPS группировка
+    //     const chapterMap = Object.fromEntries(
+    //         chapters.map(ch => [ch.id, ch.number])
+    //     );
+        
+    //     const npsByProject = {};
+    //     for (const item of npsScores) {
+    //         if (!npsByProject[item.project_id]) {
+    //             npsByProject[item.project_id] = {};
+    //         }
+    //         const chapterNumber = chapterMap[item.nps_chapter_id];
+    //         if (chapterNumber) {
+    //             const average = parseFloat(item.averageScore) || 0;
+    //             npsByProject[item.project_id][`npsChapter${chapterNumber}`] = 
+    //                 Math.round((average / 5) * 100 * 100) / 100;
+    //         }
+    //     }
+
+    //     // Формируем результат за один проход
+    //     const estimateProjectIds = new Set(estimatePriceMap.keys());
+        
+    //     return projects.map(project => {
+    //         const projectData = project.toJSON();
+    //         const projectNps = npsByProject[project.id] || {};
+            
+    //         Object.assign(projectData, projectNps);
+    //         projectData.estimate = estimateProjectIds.has(project.id);
+            
+    //         const totalEstimatePrice = estimatePriceMap.get(project.id) || 0;
+    //         const totalPayments = paymentSumMap.get(project.id) || 0;
+            
+    //         projectData.totalEstimatePrice = totalEstimatePrice;
+    //         projectData.totalPayments = totalPayments;
+            
+    //         let paymentPercentage = 0;
+    //         if (totalEstimatePrice > 0) {
+    //             paymentPercentage = Math.round((totalPayments / totalEstimatePrice) * 100);
+    //         } else if (totalPayments > 0 && totalEstimatePrice === 0) {
+    //             paymentPercentage = 100;
+    //         }
+    //         projectData.paymentPercentage = paymentPercentage;
+            
+    //         return projectData;
+    //     });
+    // }
 
     async getAllActiveProject() {
         const projects = await ProjectMapping.findAll({
