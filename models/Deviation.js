@@ -14,7 +14,7 @@ class Deviation {
             uptime_seconds, 
             error_code, 
             error_message, 
-            measurement_timestamp  // ← убрал 'time'
+            measurement_timestamp 
         } = data;
           
         const deviation = await DeviationMapping.create({

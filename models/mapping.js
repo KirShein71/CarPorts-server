@@ -414,7 +414,6 @@ const Deviation = sequelize.define('deviation', {
     uptime_seconds: {type: DataTypes.BIGINT, allowNull: true},
     error_code: {type: DataTypes.INTEGER, allowNull: true},
     error_message: {type: DataTypes.STRING, allowNull: true},
-    time: {type: DataTypes.TIME, allowNull: true},
     measurement_timestamp: {type: DataTypes.BIGINT, allowNull: true},
 })
 
