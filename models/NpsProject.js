@@ -28,8 +28,8 @@ class NpsProject {
     }
 
     async create(data) {
-        const {score, nps_chapter_id, nps_question_id, projectId} = data
-        const nps_project = await NpsProjectMapping.create({score, nps_chapter_id, nps_question_id, projectId})
+        const {score, nps_chapter_id, nps_question_id, projectId, approved} = data
+        const nps_project = await NpsProjectMapping.create({score, nps_chapter_id, nps_question_id, projectId, approved})
         
         const created = await NpsProjectMapping.findByPk(nps_project.id) 
         return created
@@ -47,6 +47,21 @@ class NpsProject {
             
         } = data
         await nps_project.update({score})
+        await nps_project.reload()
+        return nps_project
+    }
+
+    async updateApproved(id, data) {
+        const nps_project = await NpsProjectMapping.findByPk(id)
+        if (!nps_project) {
+            throw new Error('Строка не найдена в БД')
+        }
+        const {
+            approved = nps_project.approved,
+          
+            
+        } = data
+        await nps_project.update({approved})
         await nps_project.reload()
         return nps_project
     }

@@ -61,6 +61,22 @@ class NpsProjectController {
         }
     }
 
+    async updateApproved(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id строки')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const nps_project = await NpsProjectModel.updateApproved(req.params.id, req.body,)
+            res.json(nps_project)
+            
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async delete(req, res, next) {
         try {
             if (!req.params.id) {

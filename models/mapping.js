@@ -313,7 +313,8 @@ const NpsProject = sequelize.define('nps_project', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     score: {type: DataTypes.INTEGER},
     nps_chapter_id: {type: DataTypes.INTEGER, allowNull: true},
-    nps_question_id: {type: DataTypes.INTEGER, allowNull: true}
+    nps_question_id: {type: DataTypes.INTEGER, allowNull: true},
+    approved: {type: DataTypes.STRING, allowNull: true},
 })
 
 const NpsNote = sequelize.define('nps_note', {
