@@ -221,7 +221,7 @@ class ProjectController {
         }
     }
     
-   async create(req, res, next) {
+    async create(req, res, next) {
         try {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для отправки');
@@ -246,11 +246,27 @@ class ProjectController {
                 if (processedData[field] === '') {
                     processedData[field] = null;
                 }
-                // Также можно преобразовать строковые числа в числа
                 else if (processedData[field] && !isNaN(processedData[field])) {
                     processedData[field] = Number(processedData[field]);
                 }
             });
+
+            // Проверяем обязательные поля для пользователя
+            if (!processedData.phone) {
+                throw new Error('Номер телефона обязателен для заполнения');
+            }
+            
+            if (!processedData.password && processedData.number) {
+                processedData.password = processedData.number;
+            }
+            
+            if (!processedData.password) {
+                throw new Error('Пароль не может быть пустым');
+            }
+
+            // Хэшируем пароль
+            const hash = await bcrypt.hash(processedData.password, 10);
+            processedData.password = hash;
 
             const result = await ProjectModel.create(processedData, req.files?.image);
             
@@ -279,6 +295,7 @@ class ProjectController {
         }
     }
 
+    
      async updateDateFinish(req, res, next) {
         try {
             if (!req.params.id) {
@@ -519,7 +536,7 @@ class ProjectController {
         }
     }
 
-    async reviseProjectNameAndNumberAndInstallationBilling(req, res, next) {
+    async reviseProjectNameAndNumber(req, res, next) {
         try {
             if (!req.params.id) {
                 throw new Error('Не указан id товара')
@@ -527,7 +544,7 @@ class ProjectController {
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
-            const project = await ProjectModel.reviseProjectNameAndNumberAndInstallationBilling(req.params.id, req.body,)
+            const project = await ProjectModel.reviseProjectNameAndNumber(req.params.id, req.body,)
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))

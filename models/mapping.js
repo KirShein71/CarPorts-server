@@ -6,7 +6,7 @@ const { DataTypes } = database
 
 const User = sequelize.define('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    phone: { type: DataTypes.STRING, unique: true },
+    phone: { type: DataTypes.STRING},
     role: { type: DataTypes.STRING, defaultValue: "USER" },
     password: { type: DataTypes.STRING, allowNull: true },
     projectId: {type: DataTypes.INTEGER, allowNull: false},

@@ -34,26 +34,53 @@ class UserController {
 
     async login(req, res, next) {
         try {
-            const {phone, password} = req.body
-            const user = await UserModel.getByPhone(phone)
+            const { phone, password } = req.body;
             
-            let compare = bcrypt.compareSync(password, user.password)
-            if (!compare) {
-                throw new Error('Указан неверный пароль')
+            if (!phone || !password) {
+                throw new Error('Телефон и пароль обязательны для заполнения');
             }
             
-            // Определяем имя только для менеджеров по продажам и проектов
+            // Получаем всех пользователей с таким телефоном
+            const users = await UserModel.getByPhone(phone);
+            
+            if (!users || users.length === 0) {
+                throw new Error('Пользователь не найден');
+            }
+            
+            // Ищем пользователя с правильным паролем
+            let validUser = null;
+            
+            for (const user of users) {
+                const isPasswordValid = bcrypt.compareSync(password, user.password);
+                if (isPasswordValid) {
+                    validUser = user;
+                    break;
+                }
+            }
+            
+            if (!validUser) {
+                throw new Error('Указан неверный пароль');
+            }
+            
+            // Определяем имя только для менеджеров
             let userName = null;
-            
-            if (user.role === 'ManagerSale' || user.role === 'ManagerProject') {
-                // Для менеджеров формируем имя
-                userName = user.name;
+            if (validUser.role === 'ManagerSale' || validUser.role === 'ManagerProject') {
+                userName = validUser.name;
             }
             
-            const token = makeJwt(user.id, userName, user.phone, user.role, user.projectId)
-            return res.json({token})
+            // Создаем токен с правильной ролью и projectId
+            const token = makeJwt(
+                validUser.id, 
+                userName, 
+                validUser.phone, 
+                validUser.role, 
+                validUser.projectId || null
+            );
+            
+            return res.json({ token });
+            
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 

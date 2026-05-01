@@ -86,65 +86,38 @@ class User {
 
 
     async getByPhone(phone) {
-        let user = null;
-        let userType = null;
+        let users = [];
         
-        // Проверяем все таблицы по порядку
-        user = await UserMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'user';
-            return user; // Обычный пользователь без name
+        // Собираем ВСЕХ пользователей с таким телефоном из всех таблиц
+        const userMappingUsers = await UserMapping.findAll({ where: { phone } });
+        users.push(...userMappingUsers.map(u => ({ ...u.toJSON(), tableName: 'UserMapping', role: 'User' })));
+        
+        const employeeUsers = await EmployeeMapping.findAll({ where: { phone } });
+        users.push(...employeeUsers.map(e => ({ ...e.toJSON(), tableName: 'EmployeeMapping', role: 'Employee' })));
+        
+        const adminUsers = await AdminMapping.findAll({ where: { phone } });
+        users.push(...adminUsers.map(a => ({ ...a.toJSON(), tableName: 'AdminMapping', role: 'Admin' })));
+        
+        const brigadeUsers = await BrigadeMapping.findAll({ where: { phone } });
+        users.push(...brigadeUsers.map(b => ({ ...b.toJSON(), tableName: 'BrigadeMapping', role: 'Installer' })));
+        
+        const managerSaleUsers = await ManagerSaleMapping.findAll({ where: { phone } });
+        users.push(...managerSaleUsers.map(m => ({ ...m.toJSON(), tableName: 'ManagerSaleMapping', role: 'ManagerSale' })));
+        
+        const managerProjectUsers = await ManagerProjectMapping.findAll({ where: { phone } });
+        users.push(...managerProjectUsers.map(m => ({ ...m.toJSON(), tableName: 'ManagerProjectMapping', role: 'ManagerProject' })));
+        
+        const constructorUsers = await ConstructorMapping.findAll({ where: { phone } });
+        users.push(...constructorUsers.map(c => ({ ...c.toJSON(), tableName: 'ConstructorMapping', role: 'Constructor' })));
+        
+        const managerProductionUsers = await ManagerProductionMapping.findAll({ where: { phone } });
+        users.push(...managerProductionUsers.map(m => ({ ...m.toJSON(), tableName: 'ManagerProductionMapping', role: 'ManagerProduction' })));
+        
+        if (users.length === 0) {
+            throw new Error('Личный кабинет еще не создан');
         }
         
-        user = await EmployeeMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'employee';
-            return user; // Сотрудник без name
-        }
-        
-        user = await AdminMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'admin';
-            return user; // Админ без name
-        }
-        
-        user = await BrigadeMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'brigade';
-            return user; // Бригада без name
-        }
-        
-        user = await ManagerSaleMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'managerSale';
-            // Для менеджера по продажам формируем name
-            const userData = user.toJSON();
-            userData.name = userData.name;
-            return userData;
-        }
-        
-        user = await ManagerProjectMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'managerProject';
-            // Для менеджера проектов формируем name
-            const userData = user.toJSON();
-            userData.name = userData.name;
-            return userData;
-        }
-        
-        user = await ConstructorMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'constructor';
-            return user; // Конструктор без name
-        }
-        
-        user = await ManagerProductionMapping.findOne({ where: { phone } });
-        if (user) {
-            userType = 'managerProduction';
-            return user; // Менеджер производства без name
-        }
-        
-        throw new Error('Личный кабинет еще не создан');
+        return users;
     }
 
     async getOneAccount(id) {

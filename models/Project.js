@@ -903,6 +903,8 @@ class Project {
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
             design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price,
+             // Данные пользователя
+            phone, password
         } = data;
 
         const transaction = await sequelize.transaction();
@@ -919,7 +921,7 @@ class Project {
             // price и coefficient.number преобразуем в числа, умножаем, затем округляем
             const priceValue = parseFloat(price) || 0;
             const coefficientValue = parseFloat(coefficient.number) || 0;
-            const calculatedInstallationPeriod = Math.round(priceValue * coefficientValue);
+            const calculatedInstallationBilling = Math.round(priceValue * coefficientValue);
 
             const installationBillingValue = installation_billing ? parseInt(installation_billing) : null;
             const regionIdValue = regionId ? parseInt(regionId) : null;
@@ -930,8 +932,8 @@ class Project {
                 agreement_date, 
                 design_period, 
                 expiration_date, 
-                installation_period: calculatedInstallationPeriod,
-                installation_billing: installationBillingValue, 
+                installation_period,
+                installation_billing: calculatedInstallationBilling, 
                 note, 
                 designer, 
                 design_start, 
@@ -949,6 +951,8 @@ class Project {
             // Создаем аккаунт
             const account = await UserMapping.create({
                 projectId: project.id,
+                phone: phone,
+                password: password,
                 image: image
             }, { transaction });
 
@@ -1003,6 +1007,8 @@ class Project {
         await project.reload()
         return project
     }
+
+    
 
     async updateDateFinish(id, data) {
         const project = await ProjectMapping.findByPk(id)
@@ -1082,15 +1088,15 @@ class Project {
             throw new Error('Коэффициент с id=4 не найден');
         }
 
-        // Вычисляем новое значение installation_period
+        // Вычисляем новое значение installation_billing
         const priceValue = parseFloat(price) || 0;
         const coefficientValue = parseFloat(coefficient.number) || 0;
-        const calculatedInstallationPeriod = Math.round(priceValue * coefficientValue);
+        const calculatedInstallationBilling = Math.round(priceValue * coefficientValue);
 
         // Обновляем оба поля
         await project.update({
             price: price,
-            installation_period: calculatedInstallationPeriod
+            installation_billing: calculatedInstallationBilling
         });
 
         await project.reload();
@@ -1370,7 +1376,7 @@ class Project {
         return project
     }
 
-    async reviseProjectNameAndNumberAndInstallationBilling(id, data) {
+    async reviseProjectNameAndNumber(id, data) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) {
             throw new Error('Проект не найден в БД')
@@ -1378,9 +1384,9 @@ class Project {
         const {
             name = project.name,
             number = project.number,
-            installation_billing = project.installation_billing,  
+             
         } = data
-        await project.update({name, number, installation_billing})
+        await project.update({name, number})
         await project.reload()
         return project
     }
