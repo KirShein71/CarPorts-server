@@ -48,6 +48,15 @@ class ProjectController {
         }
     }
 
+    async getAllPortfolioProjects(req, res, next) {
+        try {
+            const project = await ProjectModel.getAllPortfolioProjects()
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
     async getAllActiveProjectForCreatedAndUpdated(req, res, next) {
         try {
             const project = await ProjectModel.getAllActiveProjectForCreatedAndUpdated()
@@ -191,6 +200,18 @@ class ProjectController {
                 throw new Error('Не указан id товара')
             }
             const project = await ProjectModel.getOne(req.params.id)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async getOnePortfolioProject(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id товара')
+            }
+            const project = await ProjectModel.getOnePortfolioProject(req.params.id)
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))
@@ -524,12 +545,42 @@ class ProjectController {
     async createLogisticProject(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id проекта')
             }
             if (Object.keys(req.body).length === 0) {
                 throw new Error('Нет данных для обновления')
             }
             const project = await ProjectModel.createLogisticProject(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createPortfolioProject(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.createPortfolioProject(req.params.id, req.body,)
+            res.json(project)
+        } catch(e) {
+            next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createPortfolioNote(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта')
+            }
+            if (Object.keys(req.body).length === 0) {
+                throw new Error('Нет данных для обновления')
+            }
+            const project = await ProjectModel.createPortfolioNote(req.params.id, req.body,)
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))

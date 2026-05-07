@@ -100,7 +100,14 @@ const Project = sequelize.define('project', {
     navigator: {type: DataTypes.STRING, allowNull: true},
     coordinates: {type: DataTypes.STRING, allowNull: true},
     price: {type: DataTypes.INTEGER, allowNull: true},
-    designerId: {type: DataTypes.INTEGER, allowNull: true}
+    designerId: {type: DataTypes.INTEGER, allowNull: true},
+    portfolio: {type: DataTypes.STRING, allowNull: true},
+    note_portfolio: {type: DataTypes.STRING, allowNull: true},
+})
+
+const PortfolioImage = sequelize.define('portfolio_image', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    image: {type: DataTypes.STRING, allowNull: false }
 })
 
 const Material = sequelize.define('material', {
@@ -180,10 +187,17 @@ const Brigade= sequelize.define('brigade', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true },
     phone: { type: DataTypes.STRING, unique: true },
-    image: {type: DataTypes.STRING, allowNull: false },
+    image: {type: DataTypes.STRING, allowNull: true },
     role: { type: DataTypes.STRING, defaultValue: "INSTALLER" },
     password: { type: DataTypes.STRING, allowNull: false },
-    active: { type: DataTypes.STRING, allowNull: false}
+    active: { type: DataTypes.STRING, allowNull: false},
+    full_name: {type: DataTypes.STRING, allowNull: true},
+    seria_number: {type: DataTypes.STRING, allowNull: true},
+    issue_date:{ type: DataTypes.DATE, allowNull: true },  
+    issued_by: { type: DataTypes.STRING, allowNull: true},
+    car_brand: { type: DataTypes.STRING, allowNull: true},
+    car_color: { type: DataTypes.STRING, allowNull: true},
+    license_plate: {type: DataTypes.STRING, allowNull: true},
 })
 
 const BrigadeWork= sequelize.define('brigade_work', {
@@ -417,6 +431,9 @@ const Deviation = sequelize.define('deviation', {
     error_message: {type: DataTypes.STRING, allowNull: true},
     measurement_timestamp: {type: DataTypes.BIGINT, allowNull: true},
 })
+
+Project.hasMany(PortfolioImage, { onDelete: 'CASCADE', hooks: true })
+PortfolioImage.belongsTo(Project)
 
 Project.hasMany(ProjectMaterials, {onDelete: 'CASCADE', hooks: true})
 ProjectMaterials.belongsTo(Project)
@@ -663,5 +680,6 @@ export {
     Set, 
     ControlTour,
     Deviation,
-    AddWarehouse
+    AddWarehouse,
+    PortfolioImage
 }

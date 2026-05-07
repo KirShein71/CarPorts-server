@@ -38,36 +38,110 @@ class Brigade {
     }
 
     async create(data, img) {
-        const {name, phone, regionId, role, password, active} = data
-        const image = FileService.save(img) || ''
-        const check = await BrigadeMapping.findOne({where: {phone}})
-        if (check) {
-            throw new Error('Бригада уже существует')
-        }
-        const brigade = await BrigadeMapping.create({name, phone, image, regionId, role, password, active})
+        const {
+            name, phone, regionId, role, password, active,
+            full_name, seria_number, issue_date, issued_by,
+            car_brand, car_color, license_plate
+        } = data;
         
-        const created = await BrigadeMapping.findByPk(brigade.id) 
-        return created
+        const image = FileService.save(img) || '';
+        
+        // Проверка на существование
+        const check = await BrigadeMapping.findOne({ where: { phone } });
+        if (check) {
+            throw new Error('Бригада уже существует');
+        }
+        
+        // Обработка даты
+        let formattedIssueDate = null;
+        if (issue_date && issue_date !== '' && issue_date !== 'null') {
+            const date = new Date(issue_date);
+            if (!isNaN(date.getTime())) {
+                formattedIssueDate = date;
+            }
+        }
+        
+        const brigade = await BrigadeMapping.create({
+            name,
+            phone,
+            image,
+            regionId: regionId || null,
+            role: role || 'INSTALLER',
+            password, 
+            active: active === 'true',
+            full_name: full_name || null,
+            seria_number: seria_number || null,
+            issue_date: formattedIssueDate,
+            issued_by: issued_by || null,
+            car_brand: car_brand || null,
+            car_color: car_color || null,
+            license_plate: license_plate || null
+        });
+        
+        const created = await BrigadeMapping.findByPk(brigade.id);
+        return created;
     }
 
     async update(id, data, img) {
-        const brigade = await BrigadeMapping.findByPk(id)
+        const brigade = await BrigadeMapping.findByPk(id);
         if (!brigade) {
-            throw new Error('Бригада не найдена в БД')
+            throw new Error('Бригада не найдена в БД');
         }
-        const file = FileService.save(img)
-        if (file && brigade.image) {
-            FileService.delete(brigade.image)
+        
+        // Обработка изображения
+        let imagePath = brigade.image;
+        if (img) {
+            const file = FileService.save(img);
+            if (file) {
+                // Удаляем старое изображение, только если оно существует
+                if (brigade.image) {
+                    FileService.delete(brigade.image);
+                }
+                imagePath = file;
+            }
         }
+        
+        // Деструктуризация с значениями по умолчанию
         const {
             name = brigade.name,
             phone = brigade.phone,
-            image = file ? file : brigade.image
-            
-        } = data
-        await brigade.update({name, phone, image})
-        await brigade.reload()
-        return brigade
+            full_name = brigade.full_name,
+            seria_number = brigade.seria_number,
+            issue_date = brigade.issue_date,
+            issued_by = brigade.issued_by,
+            car_brand = brigade.car_brand,
+            car_color = brigade.car_color,
+            license_plate = brigade.license_plate
+        } = data;
+        
+        // Обработка даты
+        let formattedIssueDate = issue_date;
+        if (issue_date && issue_date !== '' && issue_date !== 'null') {
+            const date = new Date(issue_date);
+            if (!isNaN(date.getTime())) {
+                formattedIssueDate = date;
+            } else {
+                formattedIssueDate = null;
+            }
+        } else {
+            formattedIssueDate = null;
+        }
+        
+        await brigade.update({
+            name,
+            phone,
+            image: imagePath,
+            full_name: full_name || null,
+            seria_number: seria_number || null,
+            issue_date: formattedIssueDate,
+            issued_by: issued_by || null,
+            car_brand: car_brand || null,
+            car_color: car_color || null,
+            license_plate: license_plate || null
+        });
+        
+        await brigade.reload();
+        return brigade;
     }
 
     async updateActiveBrigade(id, data) {

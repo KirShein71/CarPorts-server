@@ -82,19 +82,41 @@ class BrigadeController {
     }
 
     async create(req, res, next) {
-        const {name, phone, regionId, active, role  = 'INSTALLER', password} = req.body
+        const {
+            name, phone, regionId, active, role = 'INSTALLER', password,
+            full_name, seria_number, issue_date, issued_by,
+            car_brand, car_color, license_plate
+        } = req.body;
+        
         try {
             if (!phone || !password) {
-                throw new Error('Пустой номер телефона')
+                throw new Error('Пустой номер телефона или пароль');
             }
-            if ( ! ['INSTALLER'].includes(role)) {
-                throw new Error('Недопустимое значение роли')
+            if (!['INSTALLER'].includes(role)) {
+                throw new Error('Недопустимое значение роли');
             }
-            const hash = await bcrypt.hash(password, 10)
-            const brigade = await BrigadeModel.create({phone, password: hash, role, name, regionId, active})
-            return res.json(brigade)
+            
+            const hash = await bcrypt.hash(password, 10);
+            
+            const brigade = await BrigadeModel.create({
+                phone,
+                password: hash,
+                role,
+                name,
+                regionId: regionId || null,
+                active: active === 'true' || active === true,
+                full_name: full_name || null,
+                seria_number: seria_number || null,
+                issue_date: issue_date && issue_date !== '' ? new Date(issue_date) : null,
+                issued_by: issued_by || null,
+                car_brand: car_brand || null,
+                car_color: car_color || null,
+                license_plate: license_plate || null
+            });
+            
+            return res.json(brigade);
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 
@@ -133,15 +155,19 @@ class BrigadeController {
     async update(req, res, next) {
         try {
             if (!req.params.id) {
-                throw new Error('Не указан id товара')
+                throw new Error('Не указан id товара');
             }
-            if (Object.keys(req.body).length === 0) {
-                throw new Error('Нет данных для обновления')
+            if (Object.keys(req.body).length === 0 && !req.files?.image) {
+                throw new Error('Нет данных для обновления');
             }
-            const bragade = await BrigadeModel.update(req.params.id, req.body, req.files.image)
-            res.json(bragade)
+            
+            // Передаем image только если он есть
+            const image = req.files?.image || null;
+            
+            const brigade = await BrigadeModel.update(req.params.id, req.body, image);
+            res.json(brigade);
         } catch(e) {
-            next(AppError.badRequest(e.message))
+            next(AppError.badRequest(e.message));
         }
     }
 

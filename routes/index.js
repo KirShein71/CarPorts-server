@@ -53,6 +53,7 @@ import controltour from './controltour.js'
 import deviation from './deviation.js'
 import addwarehouse from './addwarehouse.js'
 import totalwarehouse from './totalwarehouse.js'
+import portfolioimage from './portfolioimage.js'
 
 
 const router = new express.Router()
@@ -110,6 +111,7 @@ router.use('/controltour', controltour)
 router.use('/deviation', deviation)
 router.use('/addwarehouse', addwarehouse)
 router.use('/totalwarehouse', totalwarehouse)
+router.use('/portfolioimage', portfolioimage)
 
 
 

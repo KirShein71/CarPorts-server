@@ -25,6 +25,7 @@ import bcrypt from 'bcrypt'
 import bot from '../TelegramBot.js'
 import { Payment as PaymentMapping } from "./mapping.js";
 import {Сoefficient as CoefficientMapping} from './mapping.js'
+import { PortfolioImage as PortfolioImageMapping } from "./mapping.js";
 
 
 
@@ -363,6 +364,17 @@ class Project {
                     ]
                 }
             ],
+        });
+        return projects;
+    }
+
+    async getAllPortfolioProjects() {
+        const projects = await ProjectMapping.findAll({
+            where: {
+                portfolio: 'true',
+                
+            },
+            attributes: ['id', 'name'],
         });
         return projects;
     }
@@ -722,9 +734,26 @@ class Project {
     async getOne(id) {
         const project = await ProjectMapping.findByPk(id)
         if (!project) { 
-            throw new Error('Товар не найден в БД')
+            throw new Error('Проект не найден в БД')
         }
         return project
+    }
+
+    async getOnePortfolioProject(id) {
+        const project = await ProjectMapping.findByPk(id, {
+            attributes: ['id', 'name', 'note_portfolio'],
+            include: [{
+                model: PortfolioImageMapping,
+               
+                attributes: ['id', 'image']
+            }]
+        });
+        
+        if (!project) { 
+            throw new Error('Проект не найден в БД');
+        }
+        
+        return project;
     }
 
     async getProjectInfo(id) {
@@ -902,7 +931,7 @@ class Project {
             // Данные проекта
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
-            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price,
+            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price, portfolio, note_portfolio,
              // Данные пользователя
             phone, password
         } = data;
@@ -945,7 +974,9 @@ class Project {
                 address, 
                 navigator, 
                 coordinates, 
-                price
+                price,
+                portfolio,
+                note_portfolio,
             }, { transaction });
 
             // Создаем аккаунт
@@ -1358,6 +1389,32 @@ class Project {
         } catch (error) {
             console.error('Ошибка при отправке уведомлений:', error);
         }
+    }
+
+    async createPortfolioProject(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            portfolio = project.portfolio,
+        } = data
+        await project.update({portfolio})
+        await project.reload()
+        return project
+    }
+
+    async createPortfolioNote(id, data) {
+        const project = await ProjectMapping.findByPk(id)
+        if (!project) {
+            throw new Error('Проект не найден в БД')
+        }
+        const {
+            note_portfolio = project.note_portfolio,
+        } = data
+        await project.update({note_portfolio})
+        await project.reload()
+        return project
     }
 
     async createLogisticProject(id, data) {
