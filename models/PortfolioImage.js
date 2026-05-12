@@ -6,7 +6,7 @@ class PortfolioImage {
     async getAllByProjectId(projectId) {
         const portfolio_images = await PortfolioImageMapping.findAll({
             where: {
-                userId: projectId
+                project_id: projectId
             },
         })
         return portfolio_images
