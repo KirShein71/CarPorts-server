@@ -289,6 +289,11 @@ class ProjectController {
             const hash = await bcrypt.hash(processedData.password, 10);
             processedData.password = hash;
 
+            // Добавляем файл сметы в данные (если есть)
+            if (req.files?.estimate_file) {
+                processedData.estimate_file = req.files.estimate_file;
+            }
+
             const result = await ProjectModel.create(processedData, req.files?.image);
             
             res.json({
@@ -584,6 +589,43 @@ class ProjectController {
             res.json(project)
         } catch(e) {
             next(AppError.badRequest(e.message))
+        }
+    }
+
+    async createEstimateFile(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта');
+            }
+            
+            // Проверяем наличие файла в разных возможных полях
+            const uploadedFile = req.files?.file || req.files?.estimate_file;
+            
+            if (!uploadedFile) {
+                throw new Error('Файл не загружен. Пожалуйста, выберите файл');
+            }
+            
+            const project = await ProjectModel.createEstimateFile(req.params.id, req.body, uploadedFile);
+            res.json(project);
+        } catch(e) {
+            next(AppError.badRequest(e.message));
+        }
+    }
+
+    async deleteEstimateFile(req, res, next) {
+        try {
+            if (!req.params.id) {
+                throw new Error('Не указан id проекта');
+            }
+            
+            const project = await ProjectModel.deleteEstimateFile(req.params.id);
+            res.json({
+                success: true,
+                message: 'Файл успешно удален',
+                project: project
+            });
+        } catch(e) {
+            next(AppError.badRequest(e.message));
         }
     }
 

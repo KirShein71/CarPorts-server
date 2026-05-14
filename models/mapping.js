@@ -103,6 +103,7 @@ const Project = sequelize.define('project', {
     designerId: {type: DataTypes.INTEGER, allowNull: true},
     portfolio: {type: DataTypes.STRING, allowNull: true},
     note_portfolio: {type: DataTypes.STRING, allowNull: true},
+    estimate_file: {type: DataTypes.BLOB, allowNull: true }
 })
 
 const PortfolioImage = sequelize.define('portfolio_image', {

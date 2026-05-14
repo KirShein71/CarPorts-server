@@ -52,6 +52,8 @@ router.put('/updateProjectDelivery/:id([0-9]+)',  ProjectController.updateProjec
 router.put('/updateDesignStart/:id([0-9]+)',  ProjectController.updateDesignStart)
 router.put('/createPortfolioProject/:id([0-9]+)', ProjectController.createPortfolioProject)
 router.put('/createPortfolioNote/:id([0-9]+)', ProjectController.createPortfolioNote)
+router.put('/createEstimateFile/:id([0-9]+)', ProjectController.createEstimateFile)
+router.put('/deleteEstimateFile/:id([0-9]+)', ProjectController.deleteEstimateFile)
 router.delete('/delete/:id([0-9]+)',  ProjectController.delete)
 
 

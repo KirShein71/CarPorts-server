@@ -927,12 +927,15 @@ class Project {
 
     async create(data, img) {
         const image = FileService.save(img) || '';
+        const estimateFile = data.estimate_file ? FileService.save(data.estimate_file) : null; // Сохраняем файл сметы
+        
         const { 
             // Данные проекта
             name, number, agreement_date, design_period, expiration_date, 
             installation_period, installation_billing, note, designer, 
-            design_start, project_delivery, date_inspection, inspection_designer, regionId, contact, address, navigator, coordinates, price, portfolio, note_portfolio,
-             // Данные пользователя
+            design_start, project_delivery, date_inspection, inspection_designer, regionId, 
+            contact, address, navigator, coordinates, price, portfolio, note_portfolio,
+            // Данные пользователя
             phone, password
         } = data;
 
@@ -946,8 +949,6 @@ class Project {
                 throw new Error('Коэффициент с id=4 не найден');
             }
 
-            // Вычисляем произведение и приводим к целому числу
-            // price и coefficient.number преобразуем в числа, умножаем, затем округляем
             const priceValue = parseFloat(price) || 0;
             const coefficientValue = parseFloat(coefficient.number) || 0;
             const calculatedInstallationBilling = Math.round(priceValue * coefficientValue);
@@ -977,6 +978,7 @@ class Project {
                 price,
                 portfolio,
                 note_portfolio,
+                estimate_file: estimateFile // Сохраняем путь к файлу сметы
             }, { transaction });
 
             // Создаем аккаунт
@@ -1415,6 +1417,46 @@ class Project {
         await project.update({note_portfolio})
         await project.reload()
         return project
+    }
+
+    async createEstimateFile(id, data, newFile) {
+        const project = await ProjectMapping.findByPk(id);
+        if (!project) {
+            throw new Error('Проект не найден в БД');
+        }
+        
+        // Сохраняем новый файл
+        const fileName = FileService.save(newFile);
+        if (!fileName) {
+            throw new Error('Ошибка при сохранении файла');
+        }
+        
+        // Удаляем старый файл, если он существует
+        if (project.estimate_file) {
+            FileService.delete(project.estimate_file);
+        }
+        
+        // Обновляем запись в БД
+        await project.update({ estimate_file: fileName });
+        await project.reload();
+        
+        return project;
+    }
+
+    async deleteEstimateFile(id) {
+        const project = await ProjectMapping.findByPk(id);
+        if (!project) {
+            throw new Error('Проект не найден в БД');
+        }
+        
+        // Удаляем файл, если он существует
+        if (project.estimate_file) {
+            FileService.delete(project.estimate_file);
+            await project.update({ estimate_file: null });
+            await project.reload();
+        }
+        
+        return project;
     }
 
     async createLogisticProject(id, data) {
